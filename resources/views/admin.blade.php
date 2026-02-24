@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITES - Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ asset('style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body class="admin-dashboard-page">
+    <header class="admin-dashboard-header">
+        <div class="header-left">
+            <img src="{{ asset('IMG/ITESLOGO.svg') }}" alt="ITES" class="header-logo">
+        </div>
+        <div class="header-right">
+            <span class="admin-text">Admin</span>
+        </div>
+    </header>
+
+    <div class="admin-dashboard-container">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-sticky-wrapper">
+                <div class="admin-sidebar-top">
+                    <div class="admin-avatar-box">
+                        <img src="ICON/user-gear.svg" alt="Admin" class="admin-avatar-icon">
+                    </div>
+                </div>
+
+                <nav class="admin-nav">
+                    <button class="admin-nav-item active" data-tab="access">CODE D'ACCES</button>
+                    <div class="admin-nav-sep"></div>
+                    <button class="admin-nav-item" data-tab="groups">GROUPES</button>
+                    <div class="admin-nav-sep"></div>
+                    <button class="admin-nav-item" data-tab="visitors">VISITEURS</button>
+                    <div class="admin-nav-sep"></div>
+                    <button class="admin-nav-item" data-tab="events">EVENEMENTS</button>
+                </nav>
+
+                <button class="admin-logout-btn">
+                    <span>Déconnexion</span>
+                    <img src="ICON/logout_icon.svg" alt="Logout" class="logout-icon">
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="admin-content-area">
+
+            <!-- Pane 1: CODE D'ACCES -->
+            <section class="admin-pane active" id="access-pane">
+                <h1 class="pane-title">CODE D'ACCES (id)</h1>
+                <p class="pane-subtitle">Groupe sans code d'accès (nombre)</p>
+
+                <div class="code-creation-box">
+                    <input type="text" placeholder="CODE ID" class="code-id-input" id="code-input">
+                    <button class="btn-pill-wide" id="create-code-btn">
+                        Créer un code id
+                        <img src="ICON/key.svg" alt="Key" class="btn-icon-key">
+                    </button>
+                </div>
+
+                <div class="inactive-codes-section">
+                    <h3>Code id créer ( inactif )</h3>
+                    <div class="code-list-container" id="code-list">
+                        <div class="code-list-header">Code id</div>
+                        <div class="code-item-row">
+                            <span class="code-list-item">CODE ID SAISIR</span>
+                            <img src="ICON/trash-fill.svg" alt="delete" class="delete-code-icon">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pane 2: GROUPES -->
+            <section class="admin-pane" id="groups-pane">
+                <h1 class="pane-title">CODE D'ACCES</h1>
+                <p class="pane-subtitle">Groupe avec code d'accès (nombre)</p>
+
+                <div class="table-actions-bar">
+                    <div class="search-pill">
+                        <input type="text" placeholder="">
+                        <button class="btn-pill-small">Filtrer</button>
+                    </div>
+                    <button class="btn-pill-small">Rafraîchir</button>
+                </div>
+
+                <div class="admin-table-wrapper">
+                    <table class="admin-data-table groups-table">
+                        <thead>
+                            <tr class="main-headers">
+                                <th colspan="2">Groupe</th>
+                                <th colspan="3">Chef de groupe</th>
+                                <th>Compte</th>
+                                <th>Session</th>
+                            </tr>
+                            <tr class="sub-headers">
+                                <th>Nom</th>
+                                <th>Code id</th>
+                                <th>Nom et prénom</th>
+                                <th>Niveau</th>
+                                <th>Filière</th>
+                                <th>Date de création</th>
+                                <th>Connexion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>xxxxx</td>
+                                <td>XXX-XXX-XXX</td>
+                                <td>xxxxx</td>
+                                <td>xxxxx</td>
+                                <td>xxxxx</td>
+                                <td>xxxxx</td>
+                                <td>inactif depuis xxx sec</td>
+                                <td><img src="ICON/trash-fill.svg" alt="delete" class="action-icon"></td>
+                            </tr>
+                            <tr>
+                                <td>xxxxx</td>
+                                <td>XXX-XXX-XXX</td>
+                                <td>xxxxx</td>
+                                <td>xxxxx</td>
+                                <td>xxxxx</td>
+                                <td>xxxxx</td>
+                                <td>inactif depuis xxx sec</td>
+                                <td><img src="ICON/trash-fill.svg" alt="delete" class="action-icon"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Pane 3: VISITEURS -->
+            <section class="admin-pane" id="visitors-pane">
+                <h1 class="pane-title">VISITEURS</h1>
+                <p class="pane-subtitle">Visiteurs (nombre)</p>
+
+                <div class="admin-table-wrapper">
+                    <table class="admin-data-table visitors-table">
+                        <thead>
+                            <tr>
+                                <th>Nom et prénom</th>
+                                <th>Genre</th>
+                                <th>E-mail</th>
+                                <th>Date de création du compte</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>xxxxx</td>
+                                <td>xxxxx</td>
+                                <td>xxxxx</td>
+                                <td>xxxxx</td>
+                            </tr>
+                            <tr>
+                                <td>xxxxx</td>
+                                <td>xxxxx</td>
+                                <td>xxxxx</td>
+                                <td>xxxxx</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Pane 4: EVENEMENTS -->
+            <section class="admin-pane" id="events-pane">
+                <h1 class="pane-title">EVENEMENTS</h1>
+
+                <div class="add-event-box">
+                    <input type="text" placeholder="Nom de l'évènement et date" class="event-input"
+                        id="admin-event-input">
+                    <button class="btn-pill-small" id="add-event-btn">Ajouter</button>
+                </div>
+
+                <div class="events-list" id="admin-events-list">
+                    <!-- Open item -->
+                    <div class="event-accordion-item expanded">
+                        <div class="event-header">
+                            <input type="text" value="NOM DE L'EVENEMENT ET DATE" class="event-title-edit">
+                            <div class="header-buttons">
+                                <button class="btn-pill-small white-btn toggle-publish-btn">Valider</button>
+                                <img src="ICON/up-arrow_icon.svg" alt="collapse" class="expand-arrow">
+                                <img src="ICON/trash-fill.svg" alt="delete" class="action-icon">
+                            </div>
+                        </div>
+                        <div class="event-content">
+                            <div class="event-grid">
+                                <div class="media-upload-placeholder image-place">
+                                    <p>upload image</p>
+                                    <input type="file" accept="image/*" class="hidden-file-input image-input"
+                                        style="display: none;">
+                                </div>
+                                <div class="event-text-multimedia">
+                                    <div class="textarea-container">
+                                        <textarea placeholder="Description de l'évènement" maxlength="1000"></textarea>
+                                        <span class="char-count">0/1000</span>
+                                    </div>
+                                    <div class="media-upload-placeholder video-place">
+                                        <p>upload video</p>
+                                        <input type="file" accept="video/*" class="hidden-file-input video-input"
+                                            style="display: none;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="{{ asset('JS/admin.js') }}"></script>
+</body>
+
+</html>

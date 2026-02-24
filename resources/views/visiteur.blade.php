@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITES - Espace Visiteur</title>
+    <link rel="stylesheet" href="{{ asset('style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body class="visitor-page">
+    <header class="header visitor-header">
+        <div class="header-left">
+            <img src="{{ asset('IMG/ITESLOGO.svg') }}" alt="ITES" class="logo-img">
+        </div>
+
+        <nav class="visitor-nav">
+            <div class="nav-links">
+                <a href="#" class="visitor-nav-link active" data-tab="projects">projets</a>
+                <span class="nav-divider">|</span>
+                <a href="#" class="visitor-nav-link" data-tab="events">évènements</a>
+            </div>
+
+            <div class="user-profile">
+                <span class="user-name">Nom et prénom visiteur</span>
+                <div class="user-avatar">
+                    <img src="{{ asset('ICON/profile_user_avatar_person_icon_192481.svg') }}" alt="User">
+                </div>
+                <p>|</p>
+            </div>
+
+            <div class="bookmark-notifications">
+                <div class="bookmark-btn">
+                    <img src="{{ asset('ICON/bookmark-simple-fill.svg') }}" alt="Bookmark" class="bookmark-icon" title="Favoris">
+                </div>
+            </div>
+
+            <a href="{{ url('/') }}" class="logout-link">
+                <img src="{{ asset('ICON/logout_icon.svg') }}" alt="Logout" title="Déconnexion">
+            </a>
+        </nav>
+    </header>
+
+    <main class="visitor-main">
+        <!-- Section PROJETS -->
+        <section id="projects-section" class="tab-content active">
+            <div class="section-title-container">
+                <h1 class="section-title"># PROJETS</h1>
+            </div>
+
+            <div class="visitor-search-container">
+                <div class="search-bar">
+                    <input type="text" placeholder="Rechercher un projet..." id="projectSearch">
+                    <div class="search-icon">
+                        <img src="{{ asset('ICON/research_icon.svg') }}" alt="Search">
+                    </div>
+                </div>
+            </div>
+
+            <div class="empty-state">
+                <div class="empty-icon-container">
+                    <img src="{{ asset('IMG/mascotte ITES.png') }}" alt="No result" class="empty-icon">
+                </div>
+                <p class="empty-text">Aucun resultat.</p>
+            </div>
+        </section>
+
+        <!-- Section EVENEMENTS -->
+        <section id="events-section" class="tab-content">
+            <div class="section-title-container">
+                <h1 class="section-title"># EVENEMENTS</h1>
+            </div>
+
+            <div class="empty-state">
+                <div class="empty-icon-container">
+                    <img src="{{ asset('IMG/mascotte ITES.png') }}" alt="No events" class="empty-icon">
+                </div>
+                <p class="empty-text">Aucun évènement pour le moment.</p>
+            </div>
+        </section>
+
+        <!-- Section FAVORIS -->
+        <section id="favorites-section" class="tab-content">
+            <div class="section-title-container">
+                <h1 class="section-title"># FAVORIS</h1>
+            </div>
+
+            <div class="empty-state">
+                <div class="empty-icon-container">
+                    <img src="{{ asset('IMG/mascotte ITES.png') }}" alt="No favorites" class="empty-icon">
+                </div>
+                <p class="empty-text">Aucun favori pour le moment.</p>
+            </div>
+        </section>
+    </main>
+
+    <script src="{{ asset('JS/visiteur.js') }}"></script>
+</body>
+
+</html>
