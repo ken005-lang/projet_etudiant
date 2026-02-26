@@ -32,22 +32,37 @@
                     <button type="button" class="toggle-btn" id="btn-visiteur">VISITEUR</button>
                 </div>
 
-                <form class="login-form" id="loginForm">
+                <!-- Validation Errors -->
+                @if ($errors->any())
+                    <div style="background: rgba(255,255,255,0.1); color: #ffcccc; padding: 10px; margin-bottom: 20px; border-radius: 4px; text-align: left;">
+                        <ul style="margin: 0; padding-left: 20px; font-size: 0.9rem;">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <form method="POST" action="{{ route('auth.login.post') }}" class="login-form" id="loginForm">
+                    @csrf
+                    <!-- Common Hidden Fields for the actual submission -->
+                    <input type="hidden" id="loginUsername" name="login" value="">
+                    
                     <!-- Group Mode Inputs (Default) -->
                     <div class="input-group-reg group-mode active">
                         <label for="access-code">Code id</label>
                         <div class="input-wrapper">
-                            <input type="text" id="access-code" name="access-code" placeholder="">
+                            <input type="text" id="access-code" placeholder="">
                         </div>
                     </div>
 
                     <!-- Visitor Mode Inputs -->
                     <div class="input-group-reg visitor-mode" style="display: none;">
-                        <label for="visitor-name">Nom et prenom visiteur</label>
-                        <input type="text" id="visitor-name" name="visitor-name">
+                        <label for="visitor-name">Adresse e-mail (Visiteur)</label>
+                        <input type="email" id="visitor-name">
 
                         <label for="visitor-pass" style="margin-top: 1rem;">Mot de passe</label>
-                        <input type="password" id="visitor-pass" name="visitor-pass">
+                        <input type="password" id="visitor-pass" name="password">
                     </div>
 
                     <button type="submit" class="login-submit-btn" aria-label="Se connecter">

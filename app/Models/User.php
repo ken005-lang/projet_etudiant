@@ -18,8 +18,10 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'type_role',
         'name',
         'email',
+        'username',
         'password',
     ];
 
@@ -44,5 +46,15 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function groupProfile()
+    {
+        return $this->hasOne(GroupProfile::class);
+    }
+
+    public function visitorProfile()
+    {
+        return $this->hasOne(VisitorProfile::class);
     }
 }

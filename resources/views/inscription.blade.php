@@ -25,8 +25,20 @@
             <div class="login-card registration-card">
                 <h1 class="login-title">INSCRIPTION</h1>
 
-                <form class="registration-form" id="registrationForm">
+                <!-- Validation Errors -->
+                @if ($errors->any())
+                    <div style="background: rgba(255,255,255,0.1); color: #ffcccc; padding: 10px; margin-bottom: 20px; border-radius: 4px; text-align: left;">
+                        <ul style="margin: 0; padding-left: 20px; font-size: 0.9rem;">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
+                <form method="POST" class="registration-form" id="registrationForm" action="">
+                    @csrf
+                    
                     <!-- Toggle Groupe / Visiteur -->
                     <div class="toggle-container-inline">
                         <button type="button" class="toggle-btn active" id="reg-btn-groupe">GROUPE</button>
@@ -35,19 +47,28 @@
 
                     <!-- === GROUPE FIELDS === -->
                     <div id="group-fields" class="input-group-reg">
-                        <label for="project-name">Nom du projet</label>
-                        <input type="text" id="project-name" name="project-name" placeholder="Ex: Antigravity">
+                        <label for="projet_nom">Nom du projet</label>
+                        <input type="text" id="projet_nom" name="projet_nom" placeholder="Ex: Antigravity" value="{{ old('projet_nom') }}">
+
+                        <!-- Since we missed DOMAINE in HTML, adding it quickly below based on backend requirements -->
+                        <label for="domaine" style="margin-top: 1rem;">Domaine(s)</label>
+                        <input type="text" id="domaine" name="domaine" placeholder="Ex: IA, Web..." value="{{ old('domaine') }}">
+
                         <u>
-                            <h3>Information du Chef de Groupe</h3>
+                            <h3 style="margin-top: 1rem;">Information du Chef de Groupe</h3>
                         </u>
                         <div class="form-grid">
                             <div>
-                                <label for="leader-name">Nom et Prénom</label>
-                                <input type="text" id="leader-name" name="leader-name">
+                                <label for="chef_nom">Nom du Chef</label>
+                                <input type="text" id="chef_nom" name="chef_nom" value="{{ old('chef_nom') }}">
                             </div>
                             <div>
-                                <label for="leader-niveau">Niveau</label>
-                                <select id="leader-niveau" name="leader-niveau">
+                                <label for="chef_prenom">Prénom du Chef</label>
+                                <input type="text" id="chef_prenom" name="chef_prenom" value="{{ old('chef_prenom') }}">
+                            </div>
+                            <div>
+                                <label for="niveau">Niveau</label>
+                                <select id="niveau" name="niveau">
                                     <option value="" disabled selected>Choisir un niveau</option>
                                     <option value="l1">L 1</option>
                                     <option value="l2">L 2</option>
@@ -58,8 +79,8 @@
                                 </select>
                             </div>
                             <div>
-                                <label for="leader-filiere">Filière</label>
-                                <select id="leader-filiere" name="leader-filiere">
+                                <label for="filiere">Filière</label>
+                                <select id="filiere" name="filiere">
                                     <option value="" disabled selected>Choisir une filière</option>
                                     <option value="info">INFO</option>
                                     <option value="elt">ELT</option>
@@ -68,33 +89,50 @@
                             </div>
                         </div>
 
-
                         <div style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 1rem;">
                             <img src="{{ asset('ICON/info_icon.svg') }}" alt="Info" class="info-icon"
                                 title="Demander le code d'accès à l'admin du site">
-                            <label for="group-password">Code id</label>
-                            <input type="password" id="group-password" name="group-password">
+                            <label for="code_acces">Code d'accès (Sera votre identifiant)</label>
+                            <input type="password" id="code_acces" name="code_acces">
                         </div>
                     </div>
 
                     <!-- === VISITEUR FIELDS === -->
                     <div id="visitor-fields" class="input-group-reg" style="display:none;">
-                        <label for="visitor-fullname">Nom et Prénom</label>
-                        <input type="text" id="visitor-fullname" name="visitor-fullname"
-                            placeholder="Votre nom complet">
+                        <label for="nom">Nom</label>
+                        <input type="text" id="nom" name="nom" placeholder="Votre nom" value="{{ old('nom') }}">
+                        
+                        <label for="prenom" style="margin-top: 1rem;">Prénom</label>
+                        <input type="text" id="prenom" name="prenom" placeholder="Votre prénom" value="{{ old('prenom') }}">
 
-                        <label for="visitor-email">Email</label>
-                        <input type="email" id="visitor-email" name="visitor-email" placeholder="votre@email.com">
+                        <div style="margin-top: 1rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; color: white;">Genre</label>
+                            <div style="display: flex; gap: 1rem; align-items: center;">
+                                <label style="font-weight: normal; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; color: white;">
+                                    <input type="radio" name="genre" value="homme" {{ old('genre') == 'homme' ? 'checked' : '' }}> Homme
+                                </label>
+                                <label style="font-weight: normal; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; color: white;">
+                                    <input type="radio" name="genre" value="femme" {{ old('genre') == 'femme' ? 'checked' : '' }}> Femme
+                                </label>
+                            </div>
+                        </div>
+
+                        <label for="email" style="margin-top: 1rem;">Email</label>
+                        <input type="email" id="email" name="email" placeholder="votre@email.com" value="{{ old('email') }}">
 
                         <u>
-                            <h3>Accès &amp; Sécurité</h3>
+                            <h3 style="margin-top: 1rem;">Accès &amp; Sécurité</h3>
                         </u>
-                        <label for="visitor-password">Créer un mot de passe</label>
-                        <input type="password" id="visitor-password" name="visitor-password">
+                        <label for="password">Créer un mot de passe</label>
+                        <input type="password" id="password" name="password">
 
-                        <label for="visitor-password-confirm">Confirmer le mot de passe</label>
-                        <input type="password" id="visitor-password-confirm" name="visitor-password-confirm">
+                        <label for="password_confirmation" style="margin-top: 1rem;">Confirmer le mot de passe</label>
+                        <input type="password" id="password_confirmation" name="password_confirmation">
                     </div>
+
+                    <!-- Hidden field to control Action URL via JS -->
+                    <input type="hidden" id="actionUrlGroup" value="{{ route('auth.register.group') }}">
+                    <input type="hidden" id="actionUrlVisitor" value="{{ route('auth.register.visitor') }}">
 
                     <!-- Submit -->
                     <div class="nav-buttons">

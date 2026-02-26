@@ -23,20 +23,30 @@ document.addEventListener('DOMContentLoaded', function () {
     btnVisiteur.addEventListener('click', function () { setMode(false); });
 
 
-    // Form Submit
+    // Form Submit Routing
     if (form) {
         form.addEventListener('submit', function (e) {
-            e.preventDefault();
+
+            var actionUrlGroup = document.getElementById('actionUrlGroup').value;
+            var actionUrlVisitor = document.getElementById('actionUrlVisitor').value;
 
             if (isGroupMode) {
-                var projectName = document.getElementById('project-name').value;
-                if (!projectName) return alert("Veuillez entrer un nom de projet");
+                // Ensure required minimal fields are filled locally before server validation for better UX
+                var projectName = document.getElementById('projet_nom').value;
+                if (!projectName) {
+                    e.preventDefault();
+                    return alert("Veuillez entrer un nom de projet");
+                }
+                form.action = actionUrlGroup;
             } else {
-                var fullname = document.getElementById('visitor-fullname').value;
-                if (!fullname) return alert("Veuillez entrer votre nom");
+                var email = document.getElementById('email').value;
+                if (!email) {
+                    e.preventDefault();
+                    return alert("Veuillez entrer une adresse e-mail");
+                }
+                form.action = actionUrlVisitor;
             }
-
-            alert("Inscription envoyée avec succès !");
+            // Form continues to submit natively to the selected action
         });
     }
 

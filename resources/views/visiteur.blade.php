@@ -60,7 +60,12 @@
                 </div>
             </div>
 
-            <div class="empty-state">
+            <!-- Container for JS rendered projects -->
+            <div id="projects-list-container" class="projects-list-container">
+                <!-- Projects will be injected here -->
+            </div>
+
+            <div id="projects-empty-state" class="empty-state">
                 <div class="empty-icon-container">
                     <img src="{{ asset('IMG/mascotte ITES.png') }}" alt="No result" class="empty-icon">
                 </div>
@@ -74,7 +79,12 @@
                 <h1 class="section-title"># EVENEMENTS</h1>
             </div>
 
-            <div class="empty-state">
+            <!-- Container for JS rendered events -->
+            <div id="events-list-container" class="projects-list-container">
+                <!-- Events will be injected here -->
+            </div>
+
+            <div id="events-empty-state" class="empty-state">
                 <div class="empty-icon-container">
                     <img src="{{ asset('IMG/mascotte ITES.png') }}" alt="No events" class="empty-icon">
                 </div>
@@ -88,7 +98,12 @@
                 <h1 class="section-title"># FAVORIS</h1>
             </div>
 
-            <div class="empty-state">
+            <!-- Container for JS rendered favorites -->
+            <div id="favorites-list-container" class="projects-list-container">
+                <!-- Favorite projects will be injected here -->
+            </div>
+
+            <div id="favorites-empty-state" class="empty-state">
                 <div class="empty-icon-container">
                     <img src="{{ asset('IMG/mascotte ITES.png') }}" alt="No favorites" class="empty-icon">
                 </div>

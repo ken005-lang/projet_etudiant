@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>ITES - Admin Dashboard</title>
     <link rel="stylesheet" href="{{ asset('style.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -68,10 +69,12 @@
                     <h3>Code id créer ( inactif )</h3>
                     <div class="code-list-container" id="code-list">
                         <div class="code-list-header">Code id</div>
-                        <div class="code-item-row">
-                            <span class="code-list-item">CODE ID SAISIR</span>
+                        @foreach ($accessCodes as $code)
+                        <div class="code-item-row" data-id="{{ $code->id }}">
+                            <span class="code-list-item">{{ $code->code }}</span>
                             <img src="ICON/trash-fill.svg" alt="delete" class="delete-code-icon">
                         </div>
+                        @endforeach
                     </div>
                 </div>
             </section>
@@ -109,26 +112,22 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @forelse ($groupProfiles as $groupe)
                             <tr>
-                                <td>xxxxx</td>
-                                <td>XXX-XXX-XXX</td>
-                                <td>xxxxx</td>
-                                <td>xxxxx</td>
-                                <td>xxxxx</td>
-                                <td>xxxxx</td>
-                                <td>inactif depuis xxx sec</td>
-                                <td><img src="ICON/trash-fill.svg" alt="delete" class="action-icon"></td>
+                                <td>{{ $groupe->project_name }}</td>
+                                <td>{{ $groupe->accessCode ? $groupe->accessCode->code : 'N/A' }}</td>
+                                <td>{{ $groupe->leader_name }}</td>
+                                <td>{{ $groupe->leader_level }}</td>
+                                <td>{{ $groupe->leader_sector }}</td>
+                                <td>{{ $groupe->created_at->format('d/m/Y') }}</td>
+                                <td>Inactif</td>
+                                <td><img src="ICON/trash-fill.svg" alt="delete" class="action-icon" data-id="{{ $groupe->id }}"></td>
                             </tr>
+                            @empty
                             <tr>
-                                <td>xxxxx</td>
-                                <td>XXX-XXX-XXX</td>
-                                <td>xxxxx</td>
-                                <td>xxxxx</td>
-                                <td>xxxxx</td>
-                                <td>xxxxx</td>
-                                <td>inactif depuis xxx sec</td>
-                                <td><img src="ICON/trash-fill.svg" alt="delete" class="action-icon"></td>
+                                <td colspan="8" style="text-align: center;">Aucun groupe inscrit pour le moment.</td>
                             </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -215,7 +214,7 @@
         </main>
     </div>
 
-    <script src="{{ asset('JS/admin.js') }}"></script>
+    <script src="{{ asset('JS/admin.js') }}?v={{ time() }}"></script>
 </body>
 
 </html>

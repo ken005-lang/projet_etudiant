@@ -20,7 +20,7 @@
                 <div class="header-left">
                     <img src="{{ asset('IMG/ITESLOGO.svg') }}" alt="Group" class="header-logo">
                     <div class="group-info-display">
-                        <span id="groupNameValue" class="group-label">Nom de groupe</span>
+                        <span id="groupNameValue" class="group-label">{{ $group->project_name }}</span>
                         <input type="text" id="groupNameInput" style="display: none;" class="header-name-input">
                         <button id="groupNameToggleBtn" class="btn-pill-small small-header-btn">Modifier</button>
                         <!--<div class="group-icon-square">
@@ -52,7 +52,7 @@
                         </div>
 
                         <div class="info-row-pill">
-                            <label>PROJET DE NIVEAU : <span id="projectLevelValue">xxxxxx</span></label>
+                            <label>PROJET DE NIVEAU : <span id="projectLevelValue">{{ $group->leader_level }}</span></label>
                             <div class="pill-input-group">
                                 <input type="text" placeholder="" id="projectLevelInput">
                                 <button class="btn-pill-small" id="projectLevelToggleBtn">Modifier</button>
@@ -62,8 +62,11 @@
                         <div class="info-column-group">
                             <label>DOMAINES QUE COUVRE LE PROJET</label>
                             <ul class="domain-list" id="domainList">
-                                <li>-xxxxx <img src="{{ asset('ICON/x-circle-fill.svg') }}" class="remove-domain" alt="x"></li>
-                                <li>-xxxxx <img src="{{ asset('ICON/x-circle-fill.svg') }}" class="remove-domain" alt="x"></li>
+                                @if($group->project_domain)
+                                    @foreach(explode(',', $group->project_domain) as $domain)
+                                        <li>-{{ trim($domain) }} <img src="{{ asset('ICON/x-circle-fill.svg') }}" class="remove-domain" alt="x"></li>
+                                    @endforeach
+                                @endif
                             </ul>
                             <div class="pill-input-group">
                                 <input type="text" placeholder="" id="domainInput">
@@ -83,9 +86,9 @@
                                 </thead>
                                 <tbody id="membersBody">
                                     <tr>
-                                        <td><span class="badge-chef">CHEF</span> -xxxxx</td>
-                                        <td>-xxxxx</td>
-                                        <td>-xxxxx</td>
+                                        <td><span class="badge-chef">CHEF</span> {{ $group->leader_name }}</td>
+                                        <td>{{ $group->leader_sector }}</td>
+                                        <td>{{ $group->leader_level }}</td>
                                         <td></td>
                                     </tr>
                                 </tbody>

@@ -23,10 +23,11 @@
 
     <main class="admin-login-main">
         <div class="admin-login-card">
-            <form class="admin-login-form">
+            <form class="admin-login-form" method="POST" action="{{ route('admin.login.post') }}">
+                @csrf
                 <div class="admin-input-group">
                     <label for="username">Utilisateur</label>
-                    <input type="text" id="username" name="username">
+                    <input type="text" id="username" name="username" value="{{ old('username') }}">
                 </div>
                 <div class="admin-input-group">
                     <label for="password">Mot de passe</label>

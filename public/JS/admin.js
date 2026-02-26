@@ -29,13 +29,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Helper function to get CSRF token
+    function getCsrfToken() {
+        return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    }
+
     // === Access Code Logic ===
     const codeInput = document.getElementById('code-input');
     const createCodeBtn = document.getElementById('create-code-btn');
     const codeList = document.getElementById('code-list');
 
     if (createCodeBtn && codeInput && codeList) {
-        createCodeBtn.addEventListener('click', () => {
+        createCodeBtn.addEventListener('click', async () => {
             const codeValue = codeInput.value.trim();
 
             if (codeValue === "") {
@@ -52,27 +57,78 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Create new code row
-            const newRow = document.createElement('div');
-            newRow.className = 'code-item-row';
-            newRow.innerHTML = `
-                <span class="code-list-item">${codeValue}</span>
-                <img src="ICON/trash-fill.svg" alt="delete" class="delete-code-icon">
-            `;
+            try {
+                // Send to backend
+                const response = await fetch('/admin/codes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': getCsrfToken(),
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ code: codeValue })
+                });
 
-            // Append to list
-            codeList.appendChild(newRow);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    alert("Erreur lors de la création : " + (errorData.message || "Une erreur est survenue."));
+                    return;
+                }
 
-            // Clear input
-            codeInput.value = "";
+                const data = await response.json();
+
+                if (data.success) {
+                    // Create new code row
+                    const newRow = document.createElement('div');
+                    newRow.className = 'code-item-row';
+                    newRow.setAttribute('data-id', data.code.id);
+                    newRow.innerHTML = `
+                        <span class="code-list-item">${data.code.code}</span>
+                        <img src="ICON/trash-fill.svg" alt="delete" class="delete-code-icon">
+                    `;
+
+                    // Append to list
+                    codeList.appendChild(newRow);
+
+                    // Clear input
+                    codeInput.value = "";
+                }
+            } catch (error) {
+                console.error("Erreur serveur:", error);
+                alert("Erreur de connexion au serveur.");
+            }
         });
 
         // Event delegation for deleting codes
-        codeList.addEventListener('click', (e) => {
+        codeList.addEventListener('click', async (e) => {
             if (e.target.classList.contains('delete-code-icon')) {
                 const row = e.target.closest('.code-item-row');
                 if (row && confirm('Voulez-vous supprimer ce code id ?')) {
-                    row.remove();
+                    const codeId = row.getAttribute('data-id');
+
+                    if (codeId) {
+                        try {
+                            const response = await fetch(`/admin/codes/${codeId}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'X-CSRF-TOKEN': getCsrfToken(),
+                                    'Accept': 'application/json'
+                                }
+                            });
+
+                            if (!response.ok) {
+                                alert("Erreur lors de la suppression.");
+                                return;
+                            }
+
+                            row.remove();
+                        } catch (error) {
+                            console.error("Erreur de suppression:", error);
+                            alert("Erreur réseau lors de la suppression.");
+                        }
+                    } else {
+                        row.remove();
+                    }
                 }
             }
         });
