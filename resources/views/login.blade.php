@@ -32,6 +32,8 @@
                     <button type="button" class="toggle-btn" id="btn-visiteur">VISITEUR</button>
                 </div>
 
+                <input type="hidden" name="login_mode" id="formMode" value="{{ old('login_mode', 'groupe') }}">
+
                 <!-- Validation Errors -->
                 @if ($errors->any())
                     <div style="background: rgba(255,255,255,0.1); color: #ffcccc; padding: 10px; margin-bottom: 20px; border-radius: 4px; text-align: left;">

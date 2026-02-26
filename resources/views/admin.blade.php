@@ -55,7 +55,7 @@
             <!-- Pane 1: CODE D'ACCES -->
             <section class="admin-pane active" id="access-pane">
                 <h1 class="pane-title">CODE D'ACCES (id)</h1>
-                <p class="pane-subtitle">Groupe sans code d'accès (nombre)</p>
+                <p class="pane-subtitle">Groupe sans code d'accès ({{ $accessCodes->count() }})</p>
 
                 <div class="code-creation-box">
                     <input type="text" placeholder="CODE ID" class="code-id-input" id="code-input">
@@ -82,7 +82,7 @@
             <!-- Pane 2: GROUPES -->
             <section class="admin-pane" id="groups-pane">
                 <h1 class="pane-title">CODE D'ACCES</h1>
-                <p class="pane-subtitle">Groupe avec code d'accès (nombre)</p>
+                <p class="pane-subtitle">Groupe avec code d'accès ({{ $groupProfiles->count() }})</p>
 
                 <div class="table-actions-bar">
                     <div class="search-pill">
@@ -136,7 +136,7 @@
             <!-- Pane 3: VISITEURS -->
             <section class="admin-pane" id="visitors-pane">
                 <h1 class="pane-title">VISITEURS</h1>
-                <p class="pane-subtitle">Visiteurs (nombre)</p>
+                <p class="pane-subtitle">Visiteurs ({{ $visitorProfiles->count() }})</p>
 
                 <div class="admin-table-wrapper">
                     <table class="admin-data-table visitors-table">
@@ -149,18 +149,18 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @forelse ($visitorProfiles as $visitor)
                             <tr>
-                                <td>xxxxx</td>
-                                <td>xxxxx</td>
-                                <td>xxxxx</td>
-                                <td>xxxxx</td>
+                                <td>{{ $visitor->first_name }} {{ $visitor->last_name }}</td>
+                                <td style="text-transform: capitalize;">{{ $visitor->gender }}</td>
+                                <td>{{ $visitor->email }}</td>
+                                <td>{{ $visitor->created_at->format('d/m/Y') }}</td>
                             </tr>
+                            @empty
                             <tr>
-                                <td>xxxxx</td>
-                                <td>xxxxx</td>
-                                <td>xxxxx</td>
-                                <td>xxxxx</td>
+                                <td colspan="4" style="text-align: center;">Aucun visiteur inscrit pour le moment.</td>
                             </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>

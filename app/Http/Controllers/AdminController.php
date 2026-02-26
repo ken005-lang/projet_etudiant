@@ -11,7 +11,9 @@ class AdminController extends Controller
     {
         $accessCodes = AccessCode::where('is_used', false)->orderBy('created_at', 'desc')->get();
         $groupProfiles = \App\Models\GroupProfile::with(['user', 'accessCode'])->get();
-        return view('admin', compact('accessCodes', 'groupProfiles'));
+        $visitorProfiles = \App\Models\VisitorProfile::orderBy('created_at', 'desc')->get();
+        
+        return view('admin', compact('accessCodes', 'groupProfiles', 'visitorProfiles'));
     }
 
     public function storeCode(Request $request)

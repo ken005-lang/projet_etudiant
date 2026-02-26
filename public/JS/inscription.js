@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var btnVisiteur = document.getElementById('reg-btn-visiteur');
     var groupFields = document.getElementById('group-fields');
     var visitorFields = document.getElementById('visitor-fields');
+    var formModeInput = document.getElementById('formMode');
     var isGroupMode = true;
 
     // Toggle Mode: Groupe / Visiteur
@@ -17,6 +18,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
         groupFields.style.display = group ? 'flex' : 'none';
         visitorFields.style.display = group ? 'none' : 'flex';
+
+        if (formModeInput) {
+            formModeInput.value = group ? 'groupe' : 'visiteur';
+        }
     }
 
     btnGroupe.addEventListener('click', function () { setMode(true); });
@@ -50,6 +55,19 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Reload page when returning via browser back button (bfcache) to refresh CSRF token
+    window.addEventListener('pageshow', function (event) {
+        if (event.persisted) {
+            window.location.reload();
+        } else {
+            if (form) form.reset();
+        }
+    });
+
     // Init
-    setMode(true);
+    var defaultMode = true;
+    if (formModeInput && formModeInput.value === 'visiteur') {
+        defaultMode = false;
+    }
+    setMode(defaultMode);
 });

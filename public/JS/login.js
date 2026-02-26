@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnVisiteur = document.getElementById('btn-visiteur');
     const groupInputs = document.querySelector('.group-mode');
     const visitorInputs = document.querySelector('.visitor-mode');
+    const formModeInput = document.getElementById('formMode');
     // const loginCard = document.querySelector('.login-card'); // Not strictly needed for logic unless resizing explicitly
 
     // Initial state
@@ -29,6 +30,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             visitorInputs.style.display = 'flex';
             groupInputs.style.display = 'none';
+        }
+
+        if (formModeInput) {
+            formModeInput.value = group ? 'groupe' : 'visiteur';
         }
     }
 
@@ -65,5 +70,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    setMode(true);
+    // Reload page when returning via browser back button (bfcache) to refresh CSRF token
+    window.addEventListener('pageshow', function (event) {
+        if (event.persisted) {
+            window.location.reload();
+        } else {
+            if (accessCodeInput) accessCodeInput.value = '';
+            if (visitorEmailInput) visitorEmailInput.value = '';
+            if (visitorPassInput) visitorPassInput.value = '';
+            if (loginForm) loginForm.reset();
+        }
+    });
+
+    let defaultMode = true;
+    if (formModeInput && formModeInput.value === 'visiteur') {
+        defaultMode = false;
+    }
+    setMode(defaultMode);
 });

@@ -74,8 +74,24 @@ class AuthController extends Controller
             'nom' => 'required|string|max:255',
             'prenom' => 'required|string|max:255',
             'genre' => 'required|string|in:homme,femme',
-            'email' => 'required|string|email|max:255|unique:users,username', // username stores the email for visitors
-            'password' => 'required|string|min:8|confirmed',
+            'email' => 'required|string|email:rfc,dns|max:255|unique:users,username', // username stores the email for visitors
+            'password' => [
+                'required',
+                'string',
+                'min:6',             // must be at least 6 characters in length
+                'regex:/[a-z]/',      // must contain at least one lowercase letter
+                'regex:/[A-Z]/',      // must contain at least one uppercase letter
+                'regex:/[0-9]/',      // must contain at least one digit
+            ],
+        ], [
+            'password.required' => 'Le mot de passe est obligatoire.',
+            'password.min' => 'Le mot de passe doit faire au moins 6 caractères.',
+            'password.regex' => 'Le mot de passe ne respecte pas les critères de sécurité (minuscule, majuscule, chiffre).',
+            'email.unique' => 'Cette adresse e-mail est déjà utilisée.',
+            'email.email' => 'Veuillez saisir une adresse e-mail valide (ex: nom@domaine.com).',
+            'nom.required' => 'Votre nom est obligatoire.',
+            'prenom.required' => 'Votre prénom est obligatoire.',
+            'genre.required' => 'Veuillez sélectionner votre genre.'
         ]);
 
         $user = User::create([
@@ -113,6 +129,15 @@ class AuthController extends Controller
             'filiere' => 'required|string|max:255',
             'niveau' => 'required|string|max:50',
             'code_acces' => 'required|string|exists:access_codes,code', // Code must exist in access_codes table
+        ], [
+            'projet_nom.required' => 'Le nom du projet est obligatoire.',
+            'domaine.required' => 'Le domaine de votre projet est obligatoire.',
+            'chef_nom.required' => 'Le nom du chef de groupe est obligatoire.',
+            'chef_prenom.required' => 'Le prénom du chef de groupe est obligatoire.',
+            'filiere.required' => 'La filière est obligatoire.',
+            'niveau.required' => 'Le niveau est obligatoire.',
+            'code_acces.required' => 'Le code d\'accès est obligatoire.',
+            'code_acces.exists' => 'Ce code d\'accès n\'existe pas.'
         ]);
 
         // Check if the code is already used (it should disappear from available codes theoretically, but we check if a user already claimed it)

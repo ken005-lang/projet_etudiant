@@ -16,7 +16,7 @@
         <a href="{{ url('/') }}" class="logo-block">
             <img src="{{ asset('IMG/ITESLOGO.svg') }}" alt="ITES" class="logo-img">
         </a>
-        <a href="{{ url('/login') }}" class="top-nav-link">Retour à la connexion</a>
+        <a href="{{ url('/login') }}" class="top-nav-link">connexion</a>
     </header>
 
     <main class="login-main">
@@ -45,47 +45,68 @@
                         <button type="button" class="toggle-btn" id="reg-btn-visiteur">VISITEUR</button>
                     </div>
 
+                    <!-- Hidden field to remember the active tab after validation failure -->
+                    <input type="hidden" name="registration_mode" id="formMode" value="{{ old('registration_mode', 'groupe') }}">
+
                     <!-- === GROUPE FIELDS === -->
                     <div id="group-fields" class="input-group-reg">
                         <label for="projet_nom">Nom du projet</label>
-                        <input type="text" id="projet_nom" name="projet_nom" placeholder="Ex: Antigravity" value="{{ old('projet_nom') }}">
+                        <input type="text" id="projet_nom" name="projet_nom" placeholder="Ex: Antigravity" value="{{ old('projet_nom') }}" class="@error('projet_nom') error-highlight @enderror" style="@error('projet_nom') border: 1px solid #ffcccc; @enderror">
+                        @error('projet_nom')
+                            <div class="validation-error-message" style="color: #ffcccc; font-size: 0.85rem; margin-top: 0.25rem;">{{ $message }}</div>
+                        @enderror
 
                         <!-- Since we missed DOMAINE in HTML, adding it quickly below based on backend requirements -->
                         <label for="domaine" style="margin-top: 1rem;">Domaine(s)</label>
-                        <input type="text" id="domaine" name="domaine" placeholder="Ex: IA, Web..." value="{{ old('domaine') }}">
+                        <input type="text" id="domaine" name="domaine" placeholder="Ex: IA, Web..." value="{{ old('domaine') }}" class="@error('domaine') error-highlight @enderror" style="@error('domaine') border: 1px solid #ffcccc; @enderror">
+                        @error('domaine')
+                            <div class="validation-error-message" style="color: #ffcccc; font-size: 0.85rem; margin-top: 0.25rem;">{{ $message }}</div>
+                        @enderror
 
-                        <u>
+                        <u style="color: white;">
                             <h3 style="margin-top: 1rem;">Information du Chef de Groupe</h3>
                         </u>
                         <div class="form-grid">
                             <div>
                                 <label for="chef_nom">Nom du Chef</label>
-                                <input type="text" id="chef_nom" name="chef_nom" value="{{ old('chef_nom') }}">
+                                <input type="text" id="chef_nom" placeholder="Ex: Diallo" name="chef_nom" value="{{ old('chef_nom') }}" class="@error('chef_nom') error-highlight @enderror" style="@error('chef_nom') border: 1px solid #ffcccc; @enderror; width: 100%;">
+                                @error('chef_nom')
+                                    <div class="validation-error-message" style="color: #ffcccc; font-size: 0.85rem; margin-top: 0.25rem;">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div>
                                 <label for="chef_prenom">Prénom du Chef</label>
-                                <input type="text" id="chef_prenom" name="chef_prenom" value="{{ old('chef_prenom') }}">
+                                <input type="text" id="chef_prenom" placeholder="Ex: Tierno" name="chef_prenom" value="{{ old('chef_prenom') }}" class="@error('chef_prenom') error-highlight @enderror" style="@error('chef_prenom') border: 1px solid #ffcccc; @enderror; width: 100%;">
+                                @error('chef_prenom')
+                                    <div class="validation-error-message" style="color: #ffcccc; font-size: 0.85rem; margin-top: 0.25rem;">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div>
                                 <label for="niveau">Niveau</label>
-                                <select id="niveau" name="niveau">
-                                    <option value="" disabled selected>Choisir un niveau</option>
-                                    <option value="l1">L 1</option>
-                                    <option value="l2">L 2</option>
-                                    <option value="l3">L 3</option>
-                                    <option value="m1">M 1</option>
-                                    <option value="m2">M 2</option>
-                                    <option value="m3">M 3</option>
+                                <select id="niveau" name="niveau" class="@error('niveau') error-highlight @enderror" style="@error('niveau') border: 1px solid #ffcccc; @enderror; width: 100%;">
+                                    <option value="" disabled {{ old('niveau') ? '' : 'selected' }}>Choisir un niveau</option>
+                                    <option value="l1" {{ old('niveau') == 'l1' ? 'selected' : '' }}>L 1</option>
+                                    <option value="l2" {{ old('niveau') == 'l2' ? 'selected' : '' }}>L 2</option>
+                                    <option value="l3" {{ old('niveau') == 'l3' ? 'selected' : '' }}>L 3</option>
+                                    <option value="m1" {{ old('niveau') == 'm1' ? 'selected' : '' }}>M 1</option>
+                                    <option value="m2" {{ old('niveau') == 'm2' ? 'selected' : '' }}>M 2</option>
+                                    <option value="m3" {{ old('niveau') == 'm3' ? 'selected' : '' }}>M 3</option>
                                 </select>
+                                @error('niveau')
+                                    <div class="validation-error-message" style="color: #ffcccc; font-size: 0.85rem; margin-top: 0.25rem;">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div>
                                 <label for="filiere">Filière</label>
-                                <select id="filiere" name="filiere">
-                                    <option value="" disabled selected>Choisir une filière</option>
-                                    <option value="info">INFO</option>
-                                    <option value="elt">ELT</option>
-                                    <option value="meca">MECA</option>
+                                <select id="filiere" name="filiere" class="@error('filiere') error-highlight @enderror" style="@error('filiere') border: 1px solid #ffcccc; @enderror; width: 100%;">
+                                    <option value="" disabled {{ old('filiere') ? '' : 'selected' }}>Choisir une filière</option>
+                                    <option value="info" {{ old('filiere') == 'info' ? 'selected' : '' }}>INFO</option>
+                                    <option value="elt" {{ old('filiere') == 'elt' ? 'selected' : '' }}>ELT</option>
+                                    <option value="meca" {{ old('filiere') == 'meca' ? 'selected' : '' }}>MECA</option>
                                 </select>
+                                @error('filiere')
+                                    <div class="validation-error-message" style="color: #ffcccc; font-size: 0.85rem; margin-top: 0.25rem;">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 
@@ -93,17 +114,26 @@
                             <img src="{{ asset('ICON/info_icon.svg') }}" alt="Info" class="info-icon"
                                 title="Demander le code d'accès à l'admin du site">
                             <label for="code_acces">Code d'accès (Sera votre identifiant)</label>
-                            <input type="password" id="code_acces" name="code_acces">
+                            <input type="password" id="code_acces" name="code_acces" class="@error('code_acces') error-highlight @enderror" style="@error('code_acces') border: 1px solid #ffcccc; @enderror">
+                            @error('code_acces')
+                                <div class="validation-error-message" style="color: #ffcccc; font-size: 0.85rem; margin-top: 0.25rem;">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
 
                     <!-- === VISITEUR FIELDS === -->
                     <div id="visitor-fields" class="input-group-reg" style="display:none;">
                         <label for="nom">Nom</label>
-                        <input type="text" id="nom" name="nom" placeholder="Votre nom" value="{{ old('nom') }}">
-                        
+                        <input type="text" id="nom" name="nom" placeholder="Votre nom" value="{{ old('nom') }}" class="@error('nom') error-highlight @enderror" style="@error('nom') border: 1px solid #ffcccc; @enderror">
+                        @error('nom')
+                            <div class="validation-error-message" style="color: #ffcccc; font-size: 0.85rem; margin-top: 0.25rem;">{{ $message }}</div>
+                        @enderror
+
                         <label for="prenom" style="margin-top: 1rem;">Prénom</label>
-                        <input type="text" id="prenom" name="prenom" placeholder="Votre prénom" value="{{ old('prenom') }}">
+                        <input type="text" id="prenom" name="prenom" placeholder="Votre prénom" value="{{ old('prenom') }}" class="@error('prenom') error-highlight @enderror" style="@error('prenom') border: 1px solid #ffcccc; @enderror">
+                        @error('prenom')
+                            <div class="validation-error-message" style="color: #ffcccc; font-size: 0.85rem; margin-top: 0.25rem;">{{ $message }}</div>
+                        @enderror
 
                         <div style="margin-top: 1rem;">
                             <label style="display: block; margin-bottom: 0.5rem; color: white;">Genre</label>
@@ -115,19 +145,37 @@
                                     <input type="radio" name="genre" value="femme" {{ old('genre') == 'femme' ? 'checked' : '' }}> Femme
                                 </label>
                             </div>
+                            @error('genre')
+                                <div class="validation-error-message" style="color: #ffcccc; font-size: 0.85rem; margin-top: 0.25rem;">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <label for="email" style="margin-top: 1rem;">Email</label>
-                        <input type="email" id="email" name="email" placeholder="votre@email.com" value="{{ old('email') }}">
+                        <input type="email" id="email" name="email" placeholder="votre@email.com" value="{{ old('email') }}" class="@error('email') error-highlight @enderror" style="@error('email') border: 1px solid #ffcccc; @enderror">
+                        @error('email')
+                            <div class="validation-error-message" style="color: #ffcccc; font-size: 0.85rem; margin-top: 0.25rem;">{{ $message }}</div>
+                        @enderror
 
-                        <u>
+                        <u style="color: white;">
                             <h3 style="margin-top: 1rem;">Accès &amp; Sécurité</h3>
                         </u>
                         <label for="password">Créer un mot de passe</label>
-                        <input type="password" id="password" name="password">
+                        <input type="password" id="password" name="password" class="@error('password') error-highlight @enderror" style="@error('password') border: 1px solid #ffcccc; @enderror">
+                        
+                        <!-- Dynamic Password Policy Checklist -->
+                        <div id="password-policy" style="margin-top: 0.5rem; color: white; transition: color 0.3s; font-size: 0.85rem;">
+                            <p style="margin-bottom: 0.2rem; font-weight: 600;">Le mot de passe doit contenir :</p>
+                            <ul style="list-style-type: none; padding-left: 0; margin-top: 0;">
+                                <li id="req-length" class="policy-req">Au moins 6 caractères</li>
+                                <li id="req-lower" class="policy-req">Une lettre minuscule</li>
+                                <li id="req-upper" class="policy-req">Une lettre majuscule</li>
+                                <li id="req-number" class="policy-req">Un chiffre</li>
+                            </ul>
+                        </div>
 
-                        <label for="password_confirmation" style="margin-top: 1rem;">Confirmer le mot de passe</label>
-                        <input type="password" id="password_confirmation" name="password_confirmation">
+                        @error('password')
+                            <div class="validation-error-message" style="color: #ffcccc; font-size: 0.85rem; margin-top: 0.25rem;">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <!-- Hidden field to control Action URL via JS -->
@@ -151,6 +199,99 @@
     </main>
 
     <script src="{{ asset('JS/inscription.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-scrolling directly to the error message or field
+            @if ($errors->any())
+                // Target the specific inline error message if it exists
+                let errorTarget = document.querySelector('.validation-error-message');
+                
+                // If no specific inline error, fallback to the first field with an error class or the form itself
+                if (!errorTarget) {
+                    errorTarget = document.querySelector('.error-highlight') || document.getElementById('registrationForm');
+                }
+
+                if (errorTarget) {
+                    setTimeout(() => {
+                        // Scroll slightly above the element so it's not glued to the top edge
+                        const y = errorTarget.getBoundingClientRect().top + window.scrollY - 150;
+                        window.scrollTo({ top: y, behavior: 'smooth' });
+                        
+                        // Highlight effect to draw attention
+                        if(errorTarget.classList.contains('validation-error-message')) {
+                            // Flash the error message twice
+                            let opacity = 1;
+                            let count = 0;
+                            const interval = setInterval(() => {
+                                opacity = opacity === 1 ? 0.4 : 1;
+                                errorTarget.style.opacity = opacity;
+                                count++;
+                                if(count >= 4) {
+                                    clearInterval(interval);
+                                    errorTarget.style.opacity = 1;
+                                }
+                            }, 200);
+                        }
+                    }, 100);
+                }
+            @endif
+
+            // Dynamic Password Policy Validation
+            const passwordInput = document.getElementById('password');
+            const reqLength = document.getElementById('req-length');
+            const reqLower = document.getElementById('req-lower');
+            const reqUpper = document.getElementById('req-upper');
+            const reqNumber = document.getElementById('req-number');
+            const policyItems = document.querySelectorAll('.policy-req');
+
+            if (passwordInput) {
+                // When user clicks/focuses on the password field, unfulfilled conditions turn red
+                passwordInput.addEventListener('focus', function() {
+                    validatePasswordState(true);
+                });
+
+                // Validate in real-time as they type
+                passwordInput.addEventListener('input', function() {
+                    validatePasswordState(true);
+                });
+
+                // (Optional) Revert completely empty field to white when losing focus to prevent aggressive red
+                passwordInput.addEventListener('blur', function() {
+                    if (passwordInput.value.length === 0) {
+                        policyItems.forEach(item => {
+                            item.style.color = 'white';
+                        });
+                    }
+                });
+
+                function validatePasswordState(isFocusedOrTyping) {
+                    const val = passwordInput.value;
+
+                    // Length >= 6
+                    updateRequirement(reqLength, val.length >= 6, isFocusedOrTyping);
+                    
+                    // Lowercase
+                    updateRequirement(reqLower, /[a-z]/.test(val), isFocusedOrTyping);
+                    
+                    // Uppercase
+                    updateRequirement(reqUpper, /[A-Z]/.test(val), isFocusedOrTyping);
+                    
+                    // Number
+                    updateRequirement(reqNumber, /[0-9]/.test(val), isFocusedOrTyping);
+                }
+
+                function updateRequirement(element, isValid, isFocusedOrTyping) {
+                    if (isValid) {
+                        element.style.color = '#4ade80'; // Green success
+                    } else if (isFocusedOrTyping) {
+                        element.style.color = '#8b0000'; // Dark red for better contrast
+                    } else {
+                        element.style.color = 'white'; // Default
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 
 </html>
