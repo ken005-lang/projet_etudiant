@@ -151,9 +151,9 @@
                         <tbody>
                             @forelse ($visitorProfiles as $visitor)
                             <tr>
-                                <td>{{ $visitor->first_name }} {{ $visitor->last_name }}</td>
+                                <td>{{ $visitor->user->name ?? 'Utilisateur inconnu' }}</td>
                                 <td style="text-transform: capitalize;">{{ $visitor->gender }}</td>
-                                <td>{{ $visitor->email }}</td>
+                                <td>{{ $visitor->user->username ?? 'N/A' }}</td>
                                 <td>{{ $visitor->created_at->format('d/m/Y') }}</td>
                             </tr>
                             @empty

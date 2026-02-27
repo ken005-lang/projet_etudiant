@@ -62,7 +62,7 @@ class AuthController extends Controller
 
         return back()->withErrors([
             'login' => 'Les informations d\'identification fournies ne correspondent pas à nos enregistrements.',
-        ])->onlyInput('login');
+        ])->withInput($request->except('password'));
     }
 
     /**
@@ -94,25 +94,25 @@ class AuthController extends Controller
             'genre.required' => 'Veuillez sélectionner votre genre.'
         ]);
 
-        $user = User::create([
-            'name' => $validated['prenom'] . ' ' . $validated['nom'],
-            'username' => $validated['email'], // We use email as the unique login username for visitors
-            'password' => Hash::make($validated['password']),
-            'type_role' => 'visiteur',
-        ]);
+        return \Illuminate\Support\Facades\DB::transaction(function () use ($validated, $request) {
+            $user = User::create([
+                'name' => $validated['prenom'] . ' ' . $validated['nom'],
+                'username' => $validated['email'], // We use email as the unique login username for visitors
+                'password' => Hash::make($validated['password']),
+                'type_role' => 'visiteur',
+            ]);
 
-        VisitorProfile::create([
-            'user_id' => $user->id,
-            'first_name' => $validated['prenom'],
-            'last_name' => $validated['nom'],
-            'gender' => $validated['genre'],
-            'email' => $validated['email'],
-        ]);
+            // Note: first_name, last_name, and email are saved in the User model via `name` and `username`.
+            VisitorProfile::create([
+                'user_id' => $user->id,
+                'gender' => $validated['genre'],
+            ]);
 
-        Auth::login($user);
-        $request->session()->regenerate();
+            Auth::login($user);
+            $request->session()->regenerate();
 
-        return redirect()->route('visiteur.dashboard');
+            return redirect()->route('visiteur.dashboard');
+        });
     }
 
     /**

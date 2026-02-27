@@ -32,39 +32,43 @@
                     <button type="button" class="toggle-btn" id="btn-visiteur">VISITEUR</button>
                 </div>
 
-                <input type="hidden" name="login_mode" id="formMode" value="{{ old('login_mode', 'groupe') }}">
-
-                <!-- Validation Errors -->
-                @if ($errors->any())
-                    <div style="background: rgba(255,255,255,0.1); color: #ffcccc; padding: 10px; margin-bottom: 20px; border-radius: 4px; text-align: left;">
-                        <ul style="margin: 0; padding-left: 20px; font-size: 0.9rem;">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
+                <!-- Validation Errors (Global list removed for cleaner UI, inline errors below are used instead) -->
 
                 <form method="POST" action="{{ route('auth.login.post') }}" class="login-form" id="loginForm">
                     @csrf
+                    <!-- Hidden field to track active tab (must be inside form to submit) -->
+                    <input type="hidden" name="login_mode" id="formMode" value="{{ old('login_mode', 'groupe') }}">
+                    
                     <!-- Common Hidden Fields for the actual submission -->
-                    <input type="hidden" id="loginUsername" name="login" value="">
+                    <input type="hidden" id="loginUsername" name="login" value="{{ old('login') }}">
                     
                     <!-- Group Mode Inputs (Default) -->
                     <div class="input-group-reg group-mode active">
                         <label for="access-code">Code id</label>
                         <div class="input-wrapper">
-                            <input type="text" id="access-code" placeholder="">
+                            <input type="text" id="access-code" value="{{ old('login_mode') === 'groupe' || !old('login_mode') ? old('login') : '' }}" class="@if((old('login_mode') === 'groupe' || !old('login_mode')) && $errors->has('login')) error-highlight @endif" style="@if((old('login_mode') === 'groupe' || !old('login_mode')) && $errors->has('login')) border: 1px solid #ffcccc; @endif">
                         </div>
+                        @if((old('login_mode') === 'groupe' || !old('login_mode')) && $errors->has('login'))
+                            <div class="validation-error-message" style="color: #ffcccc; font-size: 0.85rem; margin-top: 0.25rem;">{{ $errors->first('login') }}</div>
+                        @endif
                     </div>
 
                     <!-- Visitor Mode Inputs -->
                     <div class="input-group-reg visitor-mode" style="display: none;">
                         <label for="visitor-name">Adresse e-mail (Visiteur)</label>
-                        <input type="email" id="visitor-name">
+                        <input type="email" id="visitor-name" name="visitor_email" value="{{ old('login_mode') === 'visiteur' ? old('login') : '' }}" class="@if(old('login_mode') === 'visiteur' && $errors->has('login') && $errors->first('login') !== 'Les informations d\'identification fournies ne correspondent pas à nos enregistrements.') error-highlight @endif" style="@if(old('login_mode') === 'visiteur' && $errors->has('login') && $errors->first('login') !== 'Les informations d\'identification fournies ne correspondent pas à nos enregistrements.') border: 1px solid #ffcccc; @endif">
+                        @if(old('login_mode') === 'visiteur' && $errors->has('login') && $errors->first('login') !== 'Les informations d\'identification fournies ne correspondent pas à nos enregistrements.')
+                            <div class="validation-error-message" style="color: #ffcccc; font-size: 0.85rem; margin-top: 0.25rem;">{{ $errors->first('login') }}</div>
+                        @endif
 
                         <label for="visitor-pass" style="margin-top: 1rem;">Mot de passe</label>
-                        <input type="password" id="visitor-pass" name="password">
+                        <input type="password" id="visitor-pass" name="password" class="@if(old('login_mode') === 'visiteur' && ($errors->has('password') || $errors->has('login'))) error-highlight @endif" style="@if(old('login_mode') === 'visiteur' && ($errors->has('password') || $errors->has('login'))) border: 1px solid #ffcccc; @endif">
+                        @if(old('login_mode') === 'visiteur' && $errors->has('password'))
+                            <div class="validation-error-message" style="color: #ffcccc; font-size: 0.85rem; margin-top: 0.25rem;">{{ $errors->first('password') }}</div>
+                        @elseif(old('login_mode') === 'visiteur' && $errors->has('login') && $errors->first('login') === 'Les informations d\'identification fournies ne correspondent pas à nos enregistrements.')
+                            <!-- Global auth mismatch error (displayed under password for visitors as requested) -->
+                            <div class="validation-error-message" style="color: #ffcccc; font-size: 0.85rem; margin-top: 0.25rem;">{{ $errors->first('login') }}</div>
+                        @endif
                     </div>
 
                     <button type="submit" class="login-submit-btn" aria-label="Se connecter">

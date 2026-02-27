@@ -46,6 +46,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/', [AdminController::class, 'index'])->name('dashboard');
     Route::post('/codes', [AdminController::class, 'storeCode'])->name('codes.store');
     Route::delete('/codes/{id}', [AdminController::class, 'destroyCode'])->name('codes.destroy');
+    Route::delete('/groups/{id}', [AdminController::class, 'destroyGroup'])->name('groups.destroy');
 });
 
 // --- VISITOR ROUTES ---

@@ -137,13 +137,36 @@ document.addEventListener('DOMContentLoaded', () => {
     // === Groups Table Logic ===
     const groupsTableBody = document.querySelector('.groups-table tbody');
     if (groupsTableBody) {
-        groupsTableBody.addEventListener('click', (e) => {
+        groupsTableBody.addEventListener('click', async (e) => {
             if (e.target.classList.contains('action-icon')) {
                 const row = e.target.closest('tr');
                 if (!row) return;
 
-                if (confirm('Voulez-vous supprimer ces informations ?')) {
-                    row.remove();
+                const groupId = e.target.getAttribute('data-id');
+
+                if (confirm("Voulez-vous vraiment supprimer ce groupe et libérer son code d'accès ?")) {
+                    try {
+                        const response = await fetch(`/admin/groups/${groupId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': getCsrfToken(),
+                                'Accept': 'application/json'
+                            }
+                        });
+
+                        if (!response.ok) {
+                            alert("Erreur lors de la suppression du groupe.");
+                            return;
+                        }
+
+                        // Remove row visually
+                        row.remove();
+                        // Optional: Reload page to refresh counts and access code list
+                        window.location.reload();
+                    } catch (error) {
+                        console.error("Erreur de suppression:", error);
+                        alert("Erreur réseau lors de la suppression.");
+                    }
                 }
             }
         });
