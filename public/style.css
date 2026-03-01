@@ -1716,6 +1716,18 @@ main {
   padding: 0.1rem 0.4rem;
   border-radius: 4px;
   margin-right: 0.5rem;
+  display: inline-block;
+  min-width: 40px;
+  text-align: center;
+}
+
+.badge-spacer {
+  display: inline-block;
+  min-width: 40px;
+  margin-right: 0.5rem;
+  padding: 0.1rem 0.4rem;
+  font-size: 0.65rem;
+  visibility: hidden;
 }
 
 .delete-member {

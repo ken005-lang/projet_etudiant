@@ -59,6 +59,8 @@ class GroupController extends Controller
             'project_intro' => 'nullable|string|max:1000',
             'leader_level' => 'nullable|string|max:50',
             'project_domain' => 'nullable|string',
+            'contact_whatsapp' => 'nullable|string|max:20',
+            'contact_email' => 'nullable|email|max:255',
         ]);
 
         $group->update($validated);

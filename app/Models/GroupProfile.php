@@ -17,6 +17,8 @@ class GroupProfile extends Model
         'leader_level',
         'leader_sector',
         'project_video',
+        'contact_whatsapp',
+        'contact_email',
     ];
 
     public function user()

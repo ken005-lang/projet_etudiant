@@ -42,12 +42,11 @@
                 <section id="introduction-pane" class="tab-pane active">
                     <div class="pane-column">
                         <div class="intro-input-card">
-                            <div id="introTextDisplay" class="text-display">
-                            </div>
+                            <div id="introTextDisplay" class="text-display" style="display: flex; align-items: flex-start; justify-content: center; min-height: 150px; text-align: center; width: 100%; flex: 1; padding-top: 1rem;">{{ $group->project_intro ?? '_ _ _ _' }}</div>
                             <textarea id="introTextArea" style="display: none;" maxlength="1000"
                                 placeholder="Saisissez votre introduction..."></textarea>
                             <div class="intro-footer">
-                                <span class="word-limit">0/1000</span>
+                                <span class="word-limit">{{ $group->project_intro ? mb_strlen($group->project_intro) : 0 }}/1000</span>
                                 <button class="btn-pill-action" id="introToggleBtn">Modifier</button>
                             </div>
                         </div>
@@ -92,6 +91,14 @@
                                         <td>{{ $group->leader_level }}</td>
                                         <td></td>
                                     </tr>
+                                    @foreach($group->members as $member)
+                                    <tr data-id="{{ $member->id }}">
+                                        <td><span class="badge-spacer"></span>{{ $member->name }}</td>
+                                        <td>{{ $member->sector }}</td>
+                                        <td>{{ $member->level }}</td>
+                                        <td><img src="{{ asset('ICON/trash-fill.svg') }}" class="delete-member" alt="delete"></td>
+                                    </tr>
+                                    @endforeach
                                 </tbody>
                             </table>
                             <div class="members-management-footer">
@@ -138,11 +145,11 @@
                     <div class="contact-form-dashboard">
                         <div class="contact-group">
                             <label>Contact whatsapp</label>
-                            <input type="text" class="contact-input-pill">
+                            <input type="text" id="contactWhatsapp" class="contact-input-pill" value="{{ $group->contact_whatsapp }}">
                         </div>
                         <div class="contact-group">
                             <label>E-MAIL</label>
-                            <input type="email" placeholder="xxx@gmail.com" class="contact-input-pill">
+                            <input type="email" id="contactEmail" placeholder="xxx@gmail.com" class="contact-input-pill" value="{{ $group->contact_email }}">
                         </div>
                         <div class="contact-actions">
                             <button class="btn-pill-main" id="submitContact">Valider</button>

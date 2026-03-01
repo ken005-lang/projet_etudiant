@@ -1,4 +1,28 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+    // Helper for profile updates
+    async function updateProfile(data) {
+        try {
+            const response = await fetch('/groupe/update-profile', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+            if (!result.success) {
+                alert('Erreur lors de la sauvegarde : ' + result.message);
+            }
+            return result;
+        } catch (error) {
+            console.error('Update error:', error);
+            alert('Erreur réseau lors de la sauvegarde.');
+        }
+    }
+
     // === Tab Switching Logic ===
     const tabs = document.querySelectorAll('.nav-tab');
     const panes = document.querySelectorAll('.tab-pane');
@@ -6,11 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
     tabs.forEach(tab => {
         tab.addEventListener('click', () => {
             const target = tab.getAttribute('data-tab');
-
-            // Toggle active classes
             tabs.forEach(t => t.classList.remove('active'));
             panes.forEach(p => p.classList.remove('active'));
-
             tab.classList.add('active');
             document.getElementById(`${target}-pane`).classList.add('active');
         });
@@ -22,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const groupNameToggleBtn = document.getElementById('groupNameToggleBtn');
 
     if (groupNameToggleBtn && groupNameValue && groupNameInput) {
-        groupNameToggleBtn.addEventListener('click', () => {
+        groupNameToggleBtn.addEventListener('click', async () => {
             if (groupNameToggleBtn.textContent === 'Modifier') {
                 groupNameInput.value = groupNameValue.textContent;
                 groupNameValue.style.display = 'none';
@@ -30,10 +51,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 groupNameInput.focus();
                 groupNameToggleBtn.textContent = 'Appliquer';
             } else {
-                groupNameValue.textContent = groupNameInput.value.trim() || 'Nom de groupe';
-                groupNameValue.style.display = 'block';
-                groupNameInput.style.display = 'none';
-                groupNameToggleBtn.textContent = 'Modifier';
+                const newName = groupNameInput.value.trim();
+                if (newName) {
+                    const res = await updateProfile({ project_name: newName });
+                    if (res && res.success) {
+                        groupNameValue.textContent = newName;
+                        groupNameValue.style.display = 'block';
+                        groupNameInput.style.display = 'none';
+                        groupNameToggleBtn.textContent = 'Modifier';
+                    }
+                }
             }
         });
     }
@@ -46,26 +73,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const wordLimitSpan = document.querySelector('.word-limit');
 
     if (introToggleBtn && introTextArea && introTextDisplay) {
-        introToggleBtn.addEventListener('click', () => {
+        introToggleBtn.addEventListener('click', async () => {
             const currentText = introTextDisplay.innerText.trim();
             if (introToggleBtn.textContent === 'Modifier') {
-                // Switch to edit mode
                 introTextDisplay.style.display = 'none';
                 introTextArea.style.display = 'block';
-                // If it's the placeholder, clear it for editing
                 introTextArea.value = (currentText === '_ _ _ _') ? '' : currentText;
                 introTextArea.focus();
                 introToggleBtn.textContent = 'Appliquer';
             } else {
-                // Save and switch back
-                const newText = introTextArea.value; // Keep spaces
-                introTextDisplay.innerText = newText.trim() === '' ? '_ _ _ _' : newText;
-                introTextDisplay.style.display = 'block';
-                introTextArea.style.display = 'none';
-                introToggleBtn.textContent = 'Modifier';
-
-                // Update counter one last time
-                wordLimitSpan.textContent = `${newText.length}/1000`;
+                const newText = introTextArea.value;
+                const res = await updateProfile({ project_intro: newText });
+                if (res && res.success) {
+                    introTextDisplay.innerText = newText.trim() === '' ? '_ _ _ _' : newText;
+                    introTextDisplay.style.display = 'block';
+                    introTextArea.style.display = 'none';
+                    introToggleBtn.textContent = 'Modifier';
+                    wordLimitSpan.textContent = `${newText.length}/1000`;
+                }
             }
         });
 
@@ -73,12 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const charCount = introTextArea.value.length;
             wordLimitSpan.textContent = `${charCount}/1000`;
             wordLimitSpan.style.color = charCount > 1000 ? 'red' : '';
-
-            // Limit to 1000 if needed (optional but good for UX)
-            if (charCount > 1000) {
-                // You could truncate here if you want to be strict
-                // introTextArea.value = introTextArea.value.substring(0, 1000);
-            }
         });
     }
 
@@ -88,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const projectLevelToggleBtn = document.getElementById('projectLevelToggleBtn');
 
     if (projectLevelToggleBtn) {
-        projectLevelToggleBtn.addEventListener('click', () => {
+        projectLevelToggleBtn.addEventListener('click', async () => {
             const group = projectLevelToggleBtn.closest('.pill-input-group');
             if (projectLevelToggleBtn.textContent === 'Modifier') {
                 projectLevelInput.value = projectLevelValue.textContent === 'xxxxxx' ? '' : projectLevelValue.textContent;
@@ -96,9 +115,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 projectLevelInput.focus();
                 projectLevelToggleBtn.textContent = 'Appliquer';
             } else {
-                projectLevelValue.textContent = projectLevelInput.value.trim() || 'xxxxxx';
-                group.classList.remove('editing');
-                projectLevelToggleBtn.textContent = 'Modifier';
+                const newLevel = projectLevelInput.value.trim();
+                if (newLevel) {
+                    const res = await updateProfile({ leader_level: newLevel });
+                    if (res && res.success) {
+                        projectLevelValue.textContent = newLevel;
+                        group.classList.remove('editing');
+                        projectLevelToggleBtn.textContent = 'Modifier';
+                    }
+                }
             }
         });
     }
@@ -108,25 +133,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const addDomainBtn = document.getElementById('addDomainBtn');
     const domainList = document.getElementById('domainList');
 
-    const addDomain = () => {
+    const getDomainsString = () => {
+        return Array.from(domainList.querySelectorAll('li'))
+            .map(li => li.textContent.replace('-', '').replace('x', '').trim())
+            .join(', ');
+    };
+
+    const addDomain = async () => {
         const value = domainInput.value.trim();
         if (value) {
             const li = document.createElement('li');
             li.innerHTML = `-${value} <img src="ICON/x-circle-fill.svg" class="remove-domain" alt="x">`;
             domainList.appendChild(li);
-            domainInput.value = '';
 
-            // Add remove listener to new element
-            li.querySelector('.remove-domain').addEventListener('click', () => {
+            const res = await updateProfile({ project_domain: getDomainsString() });
+            if (res && res.success) {
+                domainInput.value = '';
+                li.querySelector('.remove-domain').addEventListener('click', async () => {
+                    li.remove();
+                    await updateProfile({ project_domain: getDomainsString() });
+                });
+            } else {
                 li.remove();
-            });
+            }
         }
     };
 
     if (addDomainBtn && domainInput && domainList) {
         addDomainBtn.addEventListener('click', addDomain);
-
-        // Add support for Enter key
         domainInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
@@ -135,10 +169,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Existing domain remove listeners
     document.querySelectorAll('.remove-domain').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.target.parentElement.remove();
+        btn.addEventListener('click', async (e) => {
+            const li = e.target.parentElement;
+            li.remove();
+            await updateProfile({ project_domain: getDomainsString() });
         });
     });
 
@@ -166,49 +201,93 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (addMemberBtn) {
-        addMemberBtn.addEventListener('click', () => {
+        addMemberBtn.addEventListener('click', async () => {
             const name = memberName.value.trim();
-            const field = memberField.value.trim();
+            const sector = memberField.value.trim();
             const level = memberLevel.value.trim();
 
-            if (name && field && level) {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>-${name}</td>
-                    <td>-${field}</td>
-                    <td>-${level}</td>
-                    <td><img src="ICON/trash-fill.svg" class="delete-member" alt="delete"></td>
-                `;
-                membersBody.appendChild(tr);
+            if (name && sector && level) {
+                try {
+                    const response = await fetch('/groupe/members', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken
+                        },
+                        body: JSON.stringify({ name, sector, level })
+                    });
+                    const result = await response.json();
 
-                // Clear and hide
-                memberName.value = '';
-                memberField.value = '';
-                memberLevel.value = '';
-                addMemberForm.style.display = 'none';
-                showAddMemberBtn.textContent = 'Ajouter un membre';
-                showAddMemberBtn.classList.remove('active');
+                    if (result.success) {
+                        const tr = document.createElement('tr');
+                        tr.setAttribute('data-id', result.member.id);
+                        tr.innerHTML = `
+                            <td><span class="badge-spacer"></span>${name}</td>
+                            <td>${sector}</td>
+                            <td>${level}</td>
+                            <td><img src="/ICON/trash-fill.svg" class="delete-member" alt="delete"></td>
+                        `;
+                        membersBody.appendChild(tr);
 
-                // Add delete listener
-                tr.querySelector('.delete-member').addEventListener('click', () => {
-                    tr.remove();
-                });
+                        memberName.value = '';
+                        memberField.value = '';
+                        memberLevel.value = '';
+                        addMemberForm.style.display = 'none';
+                        showAddMemberBtn.textContent = 'Ajouter un membre';
+                        showAddMemberBtn.classList.remove('active');
+
+                        tr.querySelector('.delete-member').addEventListener('click', () => deleteMember(tr, result.member.id));
+                    }
+                } catch (error) {
+                    console.error('Member Add error:', error);
+                    alert('Erreur lors de l\'ajout du membre.');
+                }
             } else {
                 alert('Veuillez remplir tous les champs du membre.');
             }
         });
     }
 
-    // Existing member delete listeners
+    async function deleteMember(row, id) {
+        if (!confirm('Voulez-vous vraiment supprimer ce membre ?')) return;
+        try {
+            const response = await fetch(`/groupe/members/${id}`, {
+                method: 'DELETE',
+                headers: { 'X-CSRF-TOKEN': csrfToken }
+            });
+            const result = await response.json();
+            if (result.success) {
+                row.remove();
+            }
+        } catch (error) {
+            console.error('Member Delete error:', error);
+        }
+    }
+
     document.querySelectorAll('.delete-member').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            // Check if it's the chef - user might want to keep the chef or allow deletion
             const row = e.target.closest('tr');
-            if (row) row.remove();
+            const id = row.getAttribute('data-id');
+            if (id) deleteMember(row, id);
         });
     });
 
     // === Contact Tab Logic ===
+    const submitContact = document.getElementById('submitContact');
+    const contactWhatsapp = document.getElementById('contactWhatsapp');
+    const contactEmail = document.getElementById('contactEmail');
+
+    if (submitContact) {
+        submitContact.addEventListener('click', async () => {
+            const res = await updateProfile({
+                contact_whatsapp: contactWhatsapp.value.trim(),
+                contact_email: contactEmail.value.trim()
+            });
+            if (res && res.success) {
+                alert('Informations de contact mises à jour !');
+            }
+        });
+    }
     // === Delete Group Logic ===
     const showDeleteGroupBtn = document.getElementById('showDeleteGroupBtn');
     const deleteConfirmationForm = document.getElementById('deleteConfirmationForm');
