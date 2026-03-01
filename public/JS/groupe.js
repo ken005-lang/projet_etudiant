@@ -391,6 +391,97 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // === Video Upload Logic ===
+    const triggerVideoUploadBtn = document.getElementById('triggerVideoUploadBtn');
+    const replaceVideoBtn = document.getElementById('replaceVideoBtn');
+    const videoInput = document.getElementById('videoInput');
+    const videoUploadProgressContainer = document.getElementById('videoUploadProgressContainer');
+    const videoUploadProgressBar = document.getElementById('videoUploadProgressBar');
+    const videoUploadPercent = document.getElementById('videoUploadPercent');
+    const videoEmptyState = document.getElementById('videoEmptyState');
+    const videoContainer = document.getElementById('videoContainer');
+    const projectVideoPlayer = document.getElementById('projectVideoPlayer');
+
+    if (videoInput) {
+        const triggerUpload = () => videoInput.click();
+        if (triggerVideoUploadBtn) triggerVideoUploadBtn.addEventListener('click', triggerUpload);
+        if (replaceVideoBtn) replaceVideoBtn.addEventListener('click', triggerUpload);
+
+        videoInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Maximum client-side validation (500MB)
+            if (file.size > 512 * 1024 * 1024) {
+                alert('La vidéo est trop volumineuse. La taille maximale est de 500 Mo.');
+                videoInput.value = '';
+                return;
+            }
+
+            // Show progress bar, hide buttons
+            videoEmptyState.style.display = 'none';
+            videoContainer.style.display = 'none';
+            videoUploadProgressContainer.style.display = 'block';
+            videoUploadProgressBar.style.width = '0%';
+            videoUploadPercent.textContent = '0%';
+
+            const formData = new FormData();
+            formData.append('video_file', file);
+            formData.append('_token', csrfToken);
+
+            // Use XMLHttpRequest for progress tracking
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/groupe/upload-video', true);
+
+            xhr.upload.onprogress = (event) => {
+                if (event.lengthComputable) {
+                    const percentComplete = Math.round((event.loaded / event.total) * 100);
+                    videoUploadProgressBar.style.width = percentComplete + '%';
+                    videoUploadPercent.textContent = percentComplete + '%';
+                }
+            };
+
+            xhr.onload = () => {
+                videoUploadProgressContainer.style.display = 'none';
+
+                if (xhr.status === 200) {
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.success) {
+                            projectVideoPlayer.src = response.video_url;
+                            videoContainer.style.display = 'flex';
+                            alert('Vidéo téléversée avec succès !');
+                        } else {
+                            throw new Error(response.error || 'Erreur inconnue');
+                        }
+                    } catch (e) {
+                        videoEmptyState.style.display = 'flex';
+                        alert('Erreur: ' + e.message);
+                    }
+                } else {
+                    let errorMessage = 'Erreur lors de l\'envoi (' + xhr.status + ')';
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.message) errorMessage = response.message;
+                        if (response.error) errorMessage = response.error;
+                    } catch (e) { }
+                    videoEmptyState.style.display = 'flex';
+                    alert(errorMessage);
+                }
+                videoInput.value = ''; // Reset
+            };
+
+            xhr.onerror = () => {
+                videoUploadProgressContainer.style.display = 'none';
+                videoEmptyState.style.display = 'flex';
+                alert('Erreur réseau lors de l\'envoi de la vidéo.');
+                videoInput.value = ''; // Reset
+            };
+
+            xhr.send(formData);
+        });
+    }
+
     // === Reports Management Logic ===
     const reportInput = document.getElementById('reportInput');
     const publishBtnEmpty = document.querySelector('.publish-btn-empty');

@@ -135,9 +135,23 @@
 
                 <!-- Section EN SAVOIR PLUS -->
                 <section id="multimedia-pane" class="tab-pane">
-                    <div class="empty-state-container">
-                        <button class="btn-pill-main">Ajouter une vidéo</button>
+                    <div class="empty-state-container" id="videoEmptyState" style="{{ $group->project_video ? 'display: none;' : '' }}">
+                        <button class="btn-pill-main" id="triggerVideoUploadBtn">Ajouter une vidéo</button>
                     </div>
+
+                    <div class="video-container" id="videoContainer" style="display: flex; flex-direction: column; align-items: center; {{ $group->project_video ? '' : 'display: none;' }}">
+                        <video id="projectVideoPlayer" src="{{ $group->project_video ? asset($group->project_video) : '' }}" controls style="width: 100%; max-width: 800px; border-radius: 10px; max-height: 400px; background: #000;"></video>
+                        <button class="btn-pill-main" id="replaceVideoBtn" style="margin-top: 1rem;">Remplacer la vidéo</button>
+                    </div>
+
+                    <div id="videoUploadProgressContainer" style="display: none; width: 100%; max-width: 400px; margin: 1rem auto; text-align: center;">
+                        <p style="margin-bottom: 0.5rem; color: var(--white); font-weight: 600;">Téléversement en cours... <span id="videoUploadPercent">0%</span></p>
+                        <div style="width: 100%; background-color: #eee; border-radius: 10px; height: 10px; overflow: hidden;">
+                            <div id="videoUploadProgressBar" style="width: 0%; height: 100%; background-color: var(--black); transition: width 0.2s;"></div>
+                        </div>
+                    </div>
+
+                    <input type="file" id="videoInput" accept="video/*" style="display: none;">
                 </section>
 
                 <!-- Section CONTACT -->
@@ -145,7 +159,7 @@
                     <div class="contact-form-dashboard">
                         <div class="contact-group">
                             <label>Contact whatsapp</label>
-                            <input type="text" id="contactWhatsapp" class="contact-input-pill" value="{{ $group->contact_whatsapp }}">
+                            <input type="tel" id="contactWhatsapp" class="contact-input-pill" value="{{ $group->contact_whatsapp }}" placeholder="+225 00 00 00 00 00">
                         </div>
                         <div class="contact-group">
                             <label>E-MAIL</label>

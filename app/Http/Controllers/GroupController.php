@@ -15,7 +15,7 @@ class GroupController extends Controller
     public function uploadVideo(Request $request)
     {
         $request->validate([
-            'video_file' => 'required|mimes:mp4,mov,ogg,qt,webm|max:204800', // 200MB max
+            'video_file' => 'required|mimes:mp4,mov,ogg,qt,webm|max:512000', // 500MB max
         ]);
 
         $group = \Illuminate\Support\Facades\Auth::user()->groupProfile;
