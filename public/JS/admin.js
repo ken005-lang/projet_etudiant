@@ -439,7 +439,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (response.success) {
                                 if (isImage) {
                                     placeholder.style.backgroundImage = `url('${response.url}')`;
-                                    placeholder.style.backgroundSize = 'cover';
+                                    placeholder.style.backgroundSize = 'contain';
+                                    placeholder.style.backgroundRepeat = 'no-repeat';
                                     placeholder.style.backgroundPosition = 'center';
                                     placeholder.style.border = '2px solid #fff';
                                     if (pTag) pTag.remove(); // Hide text when image is shown

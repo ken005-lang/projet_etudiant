@@ -3262,8 +3262,8 @@ main {
 
 /* Gray Image Placeholder */
 .event-image-placeholder {
-  background-color: #d1d1d1;
-  /* Gray color */
+  background-color: transparent;
+  /* Gray color removed */
   width: 100%;
   aspect-ratio: 3/4;
   display: flex;
@@ -3280,7 +3280,7 @@ main {
 .event-image-placeholder .actual-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .event-content-right {
@@ -3319,4 +3319,73 @@ main {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* Custom Video Wrapper & Overlay */
+.custom-video-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  background-color: #000;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.custom-video-wrapper video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  z-index: 10;
+}
+
+.video-overlay:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.icon-container {
+  width: 60px;
+  height: 60px;
+  background-color: var(--orange);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 15px rgba(225, 96, 20, 0.4);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.video-overlay:hover .icon-container {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(225, 96, 20, 0.6);
+}
+
+.video-play-icon {
+  width: 30px;
+  height: 30px;
+  filter: invert(1);
+}
+
+.video-label {
+  color: white;
+  font-weight: 600;
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }

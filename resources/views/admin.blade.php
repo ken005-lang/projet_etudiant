@@ -189,7 +189,7 @@
                         </div>
                         <div class="event-content">
                             <div class="event-grid">
-                                <div class="media-upload-placeholder image-place" style="{{ $event->image_path ? 'background-image: url(\''.asset($event->image_path).'\') !important; background-size: cover; background-position: center; border: 2px solid #fff; background-color: transparent;' : '' }}">
+                                <div class="media-upload-placeholder image-place" style="{{ $event->image_path ? 'background-image: url(\''.asset($event->image_path).'\') !important; background-size: contain; background-repeat: no-repeat; background-position: center; border: 2px solid #fff; background-color: transparent;' : '' }}">
                                     @if(!$event->image_path)
                                         <p>upload image</p>
                                     @endif
