@@ -452,6 +452,21 @@ document.addEventListener('DOMContentLoaded', () => {
                                         pTag.style.borderRadius = '10px';
                                         pTag.style.fontWeight = 'bold';
                                     }
+
+                                    // Update or create the target div for the video name
+                                    let nameDiv = placeholder.parentElement.querySelector('.video-name-display');
+                                    if (!nameDiv) {
+                                        nameDiv = document.createElement('div');
+                                        nameDiv.className = 'video-name-display';
+                                        nameDiv.style.color = 'rgba(255,255,255,0.7)';
+                                        nameDiv.style.fontSize = '0.8rem';
+                                        nameDiv.style.marginTop = '8px';
+                                        nameDiv.style.textAlign = 'center';
+                                        nameDiv.style.wordBreak = 'break-all';
+                                        // Insert it right after the placeholder
+                                        placeholder.insertAdjacentElement('afterend', nameDiv);
+                                    }
+                                    nameDiv.textContent = 'Nom : ' + file.name;
                                 }
                             } else {
                                 alert('Erreur: ' + response.message);

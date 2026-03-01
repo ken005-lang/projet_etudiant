@@ -189,7 +189,7 @@
                         </div>
                         <div class="event-content">
                             <div class="event-grid">
-                                <div class="media-upload-placeholder image-place" style="{{ $event->image_path ? 'background-image: url('.asset($event->image_path).'); background-size: cover; background-position: center; border: 2px solid #fff;' : '' }}">
+                                <div class="media-upload-placeholder image-place" style="{{ $event->image_path ? 'background-image: url(\''.asset($event->image_path).'\') !important; background-size: cover; background-position: center; border: 2px solid #fff; background-color: transparent;' : '' }}">
                                     @if(!$event->image_path)
                                         <p>upload image</p>
                                     @endif
@@ -200,17 +200,24 @@
                                         <textarea class="event-desc-edit" placeholder="Description de l'évènement" maxlength="1000">{{ $event->description }}</textarea>
                                         <span class="char-count">{{ mb_strlen($event->description ?? '') }}/1000</span>
                                     </div>
-                                    <div class="media-upload-placeholder video-place">
+                                    <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                                        <div class="media-upload-placeholder video-place">
+                                            @if($event->video_path)
+                                                <p style="color: #000; font-weight: bold; background: #fff; padding: 2px 10px; border-radius: 10px;">Vidéo sauvegardée</p>
+                                            @else
+                                                <p>upload video</p>
+                                            @endif
+                                            <input type="file" accept="video/*" class="hidden-file-input video-input" style="display: none;">
+                                        </div>
                                         @if($event->video_path)
-                                            <p style="color: #000; font-weight: bold; background: #fff; padding: 2px 10px; border-radius: 10px;">Vidéo sauvegardée</p>
-                                        @else
-                                            <p>upload video</p>
+                                            <div class="video-name-display" style="color: rgba(255,255,255,0.7); font-size: 0.8rem; margin-top: 8px; text-align: center; word-break: break-all;">
+                                                Nom : {{ basename($event->video_path) }}
+                                            </div>
                                         @endif
-                                        <input type="file" accept="video/*" class="hidden-file-input video-input" style="display: none;">
-                                    </div>
-                                    <div class="event-media-progress" style="display: none; width: 100%; text-align: center; margin-top: 5px;">
-                                        <div style="width: 100%; background-color: #eee; border-radius: 5px; height: 5px; overflow: hidden;">
-                                            <div class="event-media-bar" style="width: 0%; height: 100%; background-color: var(--black); transition: width 0.2s;"></div>
+                                        <div class="event-media-progress" style="display: none; width: 100%; text-align: center; margin-top: 5px;">
+                                            <div style="width: 100%; background-color: #eee; border-radius: 5px; height: 5px; overflow: hidden;">
+                                                <div class="event-media-bar" style="width: 0%; height: 100%; background-color: var(--black); transition: width 0.2s;"></div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
