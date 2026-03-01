@@ -249,30 +249,66 @@ document.addEventListener('DOMContentLoaded', () => {
     const sidebarImageInput = document.getElementById('sidebarImageInput');
     const sidebarImg = document.getElementById('sidebarImg');
 
-    if (triggerUploadBtn && sidebarImageInput && sidebarImg) {
+    if (triggerUploadBtn && sidebarImageInput) {
         triggerUploadBtn.addEventListener('click', () => {
             sidebarImageInput.click();
         });
 
         sidebarImageInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
-            if (file) {
-                if (!file.type.startsWith('image/')) {
-                    alert('Veuillez sélectionner une image.');
-                    return;
-                }
+            if (!file) return;
 
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    sidebarImg.src = event.target.result;
-                    sidebarImg.style.width = '100%';
-                    sidebarImg.style.height = '100%';
-                    sidebarImg.style.objectFit = 'cover';
-                    sidebarImg.style.opacity = '1';
-                    sidebarImg.style.borderRadius = '8px';
-                };
-                reader.readAsDataURL(file);
+            if (!file.type.startsWith('image/')) {
+                alert('Veuillez sélectionner une image.');
+                return;
             }
+
+            // Aperçu instantané
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const updateImg = (img) => {
+                    img.src = event.target.result;
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.objectFit = 'cover';
+                    img.style.opacity = '1';
+                    img.style.borderRadius = '20px';
+                    if (img.id === 'sidebarAvatarImg') {
+                        img.style.filter = 'none'; // Retirer l'invert de l'icône par défaut
+                    }
+                };
+
+                if (sidebarImg) updateImg(sidebarImg);
+                const sidebarAvatarImg = document.getElementById('sidebarAvatarImg');
+                if (sidebarAvatarImg) updateImg(sidebarAvatarImg);
+            };
+            reader.readAsDataURL(file);
+
+            // Envoi au serveur pour persistance
+            const formData = new FormData();
+            formData.append('image', file);
+            formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+
+            fetch('/groupe/upload-image', {
+                method: 'POST',
+                body: formData,
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remplacer l'aperçu par l'URL serveur (plus stable)
+                        if (sidebarImg) sidebarImg.src = data.image_url;
+                        const sidebarAvatarImg = document.getElementById('sidebarAvatarImg');
+                        if (sidebarAvatarImg) sidebarAvatarImg.src = data.image_url;
+                    } else {
+                        console.error('Erreur upload image :', data.error);
+                        alert('Erreur lors de la sauvegarde de l\'image : ' + (data.error || 'Erreur inconnue'));
+                    }
+                })
+                .catch(err => {
+                    console.error('Erreur réseau :', err);
+                    alert('Erreur réseau lors de l\'envoi de l\'image.');
+                });
         });
     }
 

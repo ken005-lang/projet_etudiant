@@ -46,7 +46,7 @@
                     <div class="input-group-reg group-mode active">
                         <label for="access-code">Code id</label>
                         <div class="input-wrapper">
-                            <input type="text" id="access-code" value="{{ old('login_mode') === 'groupe' || !old('login_mode') ? old('login') : '' }}" class="@if((old('login_mode') === 'groupe' || !old('login_mode')) && $errors->has('login')) error-highlight @endif" style="@if((old('login_mode') === 'groupe' || !old('login_mode')) && $errors->has('login')) border: 1px solid #ffcccc; @endif">
+                            <input type="password" id="access-code" value="{{ old('login_mode') === 'groupe' || !old('login_mode') ? old('login') : '' }}" class="@if((old('login_mode') === 'groupe' || !old('login_mode')) && $errors->has('login')) error-highlight @endif" style="@if((old('login_mode') === 'groupe' || !old('login_mode')) && $errors->has('login')) border: 1px solid #ffcccc; @endif">
                         </div>
                         @if((old('login_mode') === 'groupe' || !old('login_mode')) && $errors->has('login'))
                             <div class="validation-error-message" style="color: #ffcccc; font-size: 0.85rem; margin-top: 0.25rem;">{{ $errors->first('login') }}</div>

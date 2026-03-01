@@ -112,6 +112,11 @@
         </section>
     </main>
 
+    <script>
+        // Inject database data into global window object for JS consumption
+        window.serverGroupsData = @json($groupsData ?? []);
+        window.serverEventsData = @json($eventsData ?? []);
+    </script>
     <script src="{{ asset('JS/visiteur.js') }}"></script>
 </body>
 

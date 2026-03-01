@@ -15,6 +15,16 @@ Route::get('/', function () {
     return view('index');
 });
 
+// Temporary debug route - remove after diagnosis
+Route::get('/php-debug', function () {
+    return response()->json([
+        'php_ini_file' => php_ini_loaded_file(),
+        'upload_max_filesize' => ini_get('upload_max_filesize'),
+        'post_max_size' => ini_get('post_max_size'),
+        'max_execution_time' => ini_get('max_execution_time'),
+    ]);
+});
+
 // Authentication Views
 Route::get('/login', function () {
     return view('login');
@@ -57,4 +67,11 @@ Route::middleware(['auth', 'visiteur'])->prefix('visiteur')->name('visiteur.')->
 // --- GROUP ROUTES ---
 Route::middleware(['auth', 'groupe'])->prefix('groupe')->name('groupe.')->group(function () {
     Route::get('/', [GroupController::class, 'index'])->name('dashboard');
+    Route::post('/upload-video', [GroupController::class, 'uploadVideo'])->name('upload.video');
+    
+    // Auto-save API routes
+    Route::post('/update-profile', [GroupController::class, 'updateProfile'])->name('updateProfile');
+    Route::post('/members', [GroupController::class, 'addMember'])->name('addMember');
+    Route::delete('/members/{id}', [GroupController::class, 'removeMember'])->name('removeMember');
+    Route::post('/upload-image', [GroupController::class, 'uploadImage'])->name('uploadImage');
 });

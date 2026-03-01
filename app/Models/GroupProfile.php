@@ -11,9 +11,12 @@ class GroupProfile extends Model
         'access_code_id',
         'project_name',
         'project_domain',
+        'project_intro',
+        'project_image',
         'leader_name',
         'leader_level',
         'leader_sector',
+        'project_video',
     ];
 
     public function user()
@@ -24,5 +27,10 @@ class GroupProfile extends Model
     public function accessCode()
     {
         return $this->belongsTo(AccessCode::class);
+    }
+
+    public function members()
+    {
+        return $this->hasMany(GroupMember::class);
     }
 }

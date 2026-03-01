@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>ITES - Espace Groupe</title>
     <link rel="stylesheet" href="{{ asset('style.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -171,16 +172,13 @@
         <aside class="dashboard-sidebar">
             <div class="sidebar-top">
                 <div class="profile-avatar-circle">
-                    <img src="{{ asset('ICON/group.svg') }}" alt="User">
+                    <img src="{{ $group->project_image ? asset($group->project_image) : asset('ICON/group.svg') }}" alt="User" id="sidebarAvatarImg" style="{{ $group->project_image ? 'width:100%;height:100%;object-fit:cover;filter:none;border-radius:20px;' : 'border-radius:20px;' }}">
+                </div>
+                <div class="side-icon-box small" id="triggerUploadBtn" style="margin-top: 1rem;">
+                    <img src="{{ asset('ICON/camera-rotate-fill.svg') }}" alt="Camera">
                 </div>
             </div>
             <div class="sidebar-icons">
-                <div class="side-icon-box" id="sidebarImageDisplay">
-                    <img src="{{ asset('IMG/mascotte_ites.png') }}" alt="Image" id="sidebarImg">
-                </div>
-                <div class="side-icon-box small" id="triggerUploadBtn">
-                    <img src="{{ asset('ICON/camera-rotate-fill.svg') }}" alt="Camera">
-                </div>
                 <input type="file" id="sidebarImageInput" accept="image/*" style="display: none;">
             </div>
         </aside>

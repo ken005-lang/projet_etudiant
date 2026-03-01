@@ -1,55 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // ---- MOCK DATA (Simulant les groupes inscrits en base) ----
-    // `last_modified` permet de trier (le plus récent en haut)
-    const groupsData = [
-        {
-            id: 1,
-            name: "Antigravity",
-            last_modified: "2026-02-25T10:00:00Z",
-            image: "IMG/ITESLOGO.svg",
-            leader: "Lenovo User",
-            niveau: "L3",
-            filiere: "INFO",
-            domains: ["Intelligence Artificielle", "Développement Web"],
-            members: [
-                { name: "John Doe", filiere: "INFO", niveau: "L3" },
-                { name: "Jane Doe", filiere: "INFO", niveau: "L3" }
-            ],
-            video: null, // Test "section vide"
-            whatsapp: "0102030405",
-            email: "antigravity@gmail.com"
-        },
-        {
-            id: 2,
-            name: "Eco Tech",
-            last_modified: "2026-02-24T15:30:00Z",
-            image: "IMG/PROJET_ETUDIANT.png",
-            leader: "Alice",
-            niveau: "M1",
-            filiere: "ELT",
-            domains: [], // Test "section vide"
-            members: [], // Test "section vide"
-            video: "VIDEO/sample.mp4",
-            whatsapp: null,
-            email: null // Test "section vide" in contact
-        },
-        {
-            id: 3,
-            name: "Meca Force",
-            last_modified: "2026-02-26T08:15:00Z",
-            image: "IMG/mascotte ITES.png",
-            leader: "Bob",
-            niveau: "L2",
-            filiere: "MECA",
-            domains: ["Robotique"],
-            members: [
-                { name: "Chris", filiere: "MECA", niveau: "L2" }
-            ],
-            video: "VIDEO/sample.mp4",
-            whatsapp: "0908070605",
-            email: null // Contact has at least 1, so not totally empty
-        }
-    ];
+    // ---- DATA IMPORT (Dynamic from Backend) ----
+    const groupsData = window.serverGroupsData || [];
 
     // ---- STATE MANAGEMENT ----
     let favorites = JSON.parse(localStorage.getItem('ites_favorites')) || [];
@@ -312,23 +263,8 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // ---- EVENTS LOGIC ----
-    const eventsData = [
-        {
-            id: 1,
-            title: "NOM DE L'EVENEMENT ET DATE",
-            description: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-            image: null, // Should show gray placeholder
-            video: null  // Should show black placeholder
-        },
-        {
-            id: 2,
-            title: "COMPETITION ROBOTIQUE 2026",
-            description: "Rejoignez-nous pour la grande finale de la compétition de robotique inter-universitaire de l'ITES. Présentation des projets, démonstrations en direct et remise des prix.",
-            image: "IMG/PROJET_ETUDIANT.png",
-            video: null
-        }
-    ];
+    // ---- EVENTS LOGIC (Dynamic from Backend) ----
+    const eventsData = window.serverEventsData || [];
 
     const eventsContainer = document.getElementById('events-list-container');
     const eventsEmptyState = document.getElementById('events-empty-state');
