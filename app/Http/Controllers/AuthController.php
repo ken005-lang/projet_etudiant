@@ -96,7 +96,7 @@ class AuthController extends Controller
 
         return \Illuminate\Support\Facades\DB::transaction(function () use ($validated, $request) {
             $user = User::create([
-                'name' => $validated['prenom'] . ' ' . $validated['nom'],
+                'name' => $validated['nom'] . ' ' . $validated['prenom'],
                 'username' => $validated['email'], // We use email as the unique login username for visitors
                 'password' => Hash::make($validated['password']),
                 'type_role' => 'visiteur',
@@ -164,7 +164,7 @@ class AuthController extends Controller
                 'access_code_id' => $codeRecord->id,
                 'project_name' => $validated['projet_nom'],
                 'project_domain' => $validated['domaine'],
-                'leader_name' => $validated['chef_prenom'] . ' ' . $validated['chef_nom'],
+                'leader_name' => $validated['chef_nom'] . ' ' . $validated['chef_prenom'],
                 'leader_sector' => $validated['filiere'],
                 'leader_level' => $validated['niveau'],
             ]);

@@ -1311,8 +1311,10 @@ main {
 
 .visitor-search-container {
   width: 100%;
-  max-width: 600px;
-  margin: 2rem 0 4rem;
+  max-width: 1000px;
+  margin: 2rem 0;
+  padding: 0 2rem;
+  /* Aligné avec projects-list-container */
 }
 
 .search-bar {
@@ -2876,18 +2878,20 @@ main {
 .projects-list-container {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
   padding: 0 2rem;
-  max-width: 1200px;
-  margin: 2rem auto;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto 2rem;
 }
 
 .project-band {
   width: 100%;
   margin-bottom: 0.5rem;
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
 .project-band-header {
@@ -2924,17 +2928,19 @@ main {
   width: 20px;
   height: 20px;
   cursor: pointer;
-  filter: invert(1);
-  transition: filter 0.2s;
+  /* Orange par défaut pour être visible sur le noir */
+  filter: invert(41%) sepia(87%) saturate(2250%) hue-rotate(359deg) brightness(96%) contrast(105%);
+  opacity: 0.7;
+  transition: all 0.2s;
+}
+
+.band-bookmark-icon:hover {
+  opacity: 1;
 }
 
 .band-bookmark-icon.active {
-  filter: none;
-  /* We can color it using brightness/sepia to get orange, or just swap standard SVG fill.
-       Since we loaded it as an IMG, a CSS filter for orange or a separate SVG might be needed.
-       For now, we'll assume JS swaps the icon src to an orange one or we use a filter.
-       Let's use filter to make it orange: */
-  filter: invert(41%) sepia(87%) saturate(2250%) hue-rotate(359deg) brightness(96%) contrast(105%);
+  opacity: 1;
+  filter: invert(41%) sepia(45%) saturate(7483%) hue-rotate(359deg) brightness(96%) contrast(118%);
 }
 
 .project-band-content {
@@ -3004,7 +3010,7 @@ main {
 .project-tab-btn {
   background: transparent;
   border: none;
-  color: rgba(0, 0, 0, 0.8);
+  color: rgba(255, 255, 255, 0.7);
   font-weight: 700;
   font-size: 0.9rem;
   text-transform: uppercase;
@@ -3015,7 +3021,7 @@ main {
 }
 
 .project-tab-btn.active {
-  color: #000;
+  color: var(--white);
 }
 
 .project-tab-btn.active::after {
@@ -3025,13 +3031,13 @@ main {
   left: 0;
   width: 100%;
   height: 2px;
-  background-color: #000;
+  background-color: var(--white);
 }
 
 /* Tab Panels */
 .project-tab-panel {
   display: none;
-  color: #000;
+  color: var(--white);
   font-weight: 500;
 }
 
@@ -3051,6 +3057,15 @@ main {
 }
 
 /* Specific tab styles */
+.intro-description {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--white);
+  margin-bottom: 1.5rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .intro-text-block {
   margin-bottom: 1.5rem;
 }
@@ -3060,13 +3075,13 @@ main {
 }
 
 .dotted-line {
-  border-top: 2px dotted #000;
+  border-top: 2px dotted rgba(255, 255, 255, 0.6);
   margin: 1rem 0;
   opacity: 0.7;
 }
 
 .solid-line {
-  border-top: 1px solid rgba(0, 0, 0, 0.4);
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
   margin: 1.5rem 0;
 }
 
@@ -3078,23 +3093,53 @@ main {
   margin-left: 1rem;
 }
 
-.members-grid {
-  display: grid;
-  grid-template-columns: auto 1fr 1fr 1fr;
-  gap: 1.5rem;
-  align-items: start;
+/* Visitor Members Table */
+.visitor-members-table {
+  width: 100%;
+  border-collapse: collapse;
   margin-top: 2rem;
+  color: var(--white);
 }
 
-.members-grid-column {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.members-grid-column strong {
-  margin-bottom: 0.5rem;
+.visitor-members-table th {
+  text-align: left;
+  font-size: 0.9rem;
   font-weight: 800;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+}
+
+.visitor-members-table td {
+  padding: 1.2rem 0;
+  font-size: 1rem;
+  font-weight: 700;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.visitor-members-table tr:last-child td {
+  border-bottom: none;
+}
+
+.badge-chef {
+  font-size: 0.7rem;
+  background: transparent;
+  border: 1px solid var(--white);
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  margin-right: 1rem;
+  display: inline-block;
+  min-width: 50px;
+  text-align: center;
+  font-weight: 800;
+}
+
+.badge-spacer {
+  display: inline-block;
+  min-width: 50px;
+  margin-right: 1rem;
+  padding: 0.2rem 0.6rem;
+  visibility: hidden;
 }
 
 /* Video Tab */
@@ -3143,7 +3188,7 @@ main {
 
 .section-vide {
   font-style: italic;
-  color: rgba(0, 0, 0, 0.5);
+  color: rgba(255, 255, 255, 0.6);
   font-weight: 600;
   margin: 1rem 0;
 }
@@ -3158,16 +3203,16 @@ main {
 .event-band {
   width: 100%;
   margin-bottom: 0.5rem;
-  border-radius: 0;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
 .event-band-header {
-  background-color: #F36200;
-  /* Orange background */
+  background-color: #000;
+  /* Identique au projet */
   color: #fff;
-  /* White text */
   padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
@@ -3180,10 +3225,8 @@ main {
 }
 
 .event-band.expanded .event-band-header {
-  background-color: #fff;
-  /* White background */
-  color: #000;
-  /* Black text */
+  background-color: #000;
+  color: #fff;
 }
 
 .event-band-header .chevron-icon {
@@ -3195,8 +3238,7 @@ main {
 }
 
 .event-band.expanded .event-band-header .chevron-icon {
-  filter: invert(0);
-  /* Black chevron on white */
+  filter: invert(1);
   transform: rotate(180deg);
 }
 
@@ -3204,7 +3246,7 @@ main {
   display: none;
   background-color: #F36200;
   /* Orange content area */
-  color: #000;
+  color: #fff;
   padding: 2rem;
 }
 

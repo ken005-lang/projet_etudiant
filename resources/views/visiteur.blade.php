@@ -25,7 +25,7 @@
             </div>
 
             <div class="user-profile">
-                <span class="user-name">Nom et prénom visiteur</span>
+                <span class="user-name">{{ Auth::user()->name }}</span>
                 <div class="user-avatar">
                     <img src="{{ asset('ICON/profile_user_avatar_person_icon_192481.svg') }}" alt="User">
                 </div>

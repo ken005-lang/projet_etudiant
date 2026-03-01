@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // ---- RENDERING LOGIC ----
     function createBandHTML(group) {
         const isFav = favorites.includes(group.id);
-        const heartImg = isFav ? "ICON/bookmark-simple-fill.svg" : "ICON/bookmark-simple.svg";
+        const heartImg = "/ICON/bookmark-simple-fill.svg";
         const heartClass = isFav ? "band-bookmark-icon active" : "band-bookmark-icon";
 
         // Logic "Section Vide" for Intro
@@ -46,31 +46,39 @@ document.addEventListener('DOMContentLoaded', function () {
                 ? group.domains.map(d => `<div>-${d}</div>`).join('')
                 : `<div class="section-vide">Aucun domaine</div>`;
 
-            let membersHtml = '';
-            if (group.members.length > 0) {
-                const membersRows = group.members.map(m => `
-                    <div>-${m.name}</div>
-                    <div>-${m.filiere}</div>
-                    <div>-${m.niveau}</div>
-                `).join('');
-                membersHtml = `
-                    <div class="members-grid">
-                        <div class="members-grid-column"><strong>CHEF</strong><div>-${group.leader}</div></div>
-                        <div class="members-grid-column"><strong>MEMBRES DU GROUPE</strong>${group.members.map(m => `<div>-${m.name}</div>`).join('')}</div>
-                        <div class="members-grid-column"><strong>FILIERES</strong>${group.members.map(m => `<div>-${m.filiere}</div>`).join('')}</div>
-                        <div class="members-grid-column"><strong>NIVEAUX</strong>${group.members.map(m => `<div>-${m.niveau}</div>`).join('')}</div>
-                    </div>
-                `;
-            } else {
-                membersHtml = `
-                    <div class="members-grid">
-                        <div class="members-grid-column"><strong>CHEF</strong><div>-${group.leader}</div></div>
-                        <div class="members-grid-column"><strong>MEMBRES DU GROUPE</strong><div class="section-vide">Aucun membre</div></div>
-                    </div>
-                `;
+            let membersHtml = `
+                <table class="visitor-members-table">
+                    <thead>
+                        <tr>
+                            <th>MEMBRES DU GROUPE</th>
+                            <th>FILIERES</th>
+                            <th>NIVEAUX</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="badge-chef">CHEF</span> ${group.leader}</td>
+                            <td>${group.filiere || '-'}</td>
+                            <td>${group.niveau || '-'}</td>
+                        </tr>
+                        ${group.members.map(m => `
+                        <tr>
+                            <td><span class="badge-spacer"></span>${m.name}</td>
+                            <td>${m.sector || m.filiere || '-'}</td>
+                            <td>${m.level || m.niveau || '-'}</td>
+                        </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            let introTextHtml = '';
+            if (group.intro && group.intro.trim() !== '' && group.intro.trim() !== '_ _ _ _') {
+                introTextHtml = `<div class="intro-description"><p>${group.intro}</p></div><div class="solid-line"></div>`;
             }
 
             introHtml = `
+                ${introTextHtml}
                 <div class="intro-text-block">
                     <p>PROJET DE NIVEAU : ${group.niveau}</p>
                 </div>
@@ -113,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return `
             <div class="project-band" data-id="${group.id}">
                 <div class="project-band-header">
-                    <span>${group.name.toUpperCase()}...</span>
+                    <span>${group.name.toUpperCase()}</span>
                     <div class="header-right-actions">
                         <img src="${heartImg}" alt="Fav" class="${heartClass}" onclick="event.stopPropagation(); toggleFavorite(${group.id});">
                         <img src="ICON/up-arrow_icon.svg" alt="Expand" class="chevron-icon">
