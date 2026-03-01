@@ -177,37 +177,49 @@
                 </div>
 
                 <div class="events-list" id="admin-events-list">
-                    <!-- Open item -->
-                    <div class="event-accordion-item expanded">
+                    @forelse ($events as $event)
+                    <div class="event-accordion-item" data-id="{{ $event->id }}">
                         <div class="event-header">
-                            <input type="text" value="NOM DE L'EVENEMENT ET DATE" class="event-title-edit">
+                            <input type="text" value="{{ $event->title }}" class="event-title-edit">
                             <div class="header-buttons">
                                 <button class="btn-pill-small white-btn toggle-publish-btn">Valider</button>
-                                <img src="ICON/up-arrow_icon.svg" alt="collapse" class="expand-arrow">
+                                <img src="ICON/arrow-down_icon.svg" alt="expand" class="expand-arrow">
                                 <img src="ICON/trash-fill.svg" alt="delete" class="action-icon">
                             </div>
                         </div>
                         <div class="event-content">
                             <div class="event-grid">
-                                <div class="media-upload-placeholder image-place">
-                                    <p>upload image</p>
-                                    <input type="file" accept="image/*" class="hidden-file-input image-input"
-                                        style="display: none;">
+                                <div class="media-upload-placeholder image-place" style="{{ $event->image_path ? 'background-image: url('.asset($event->image_path).'); background-size: cover; background-position: center; border: 2px solid #fff;' : '' }}">
+                                    @if(!$event->image_path)
+                                        <p>upload image</p>
+                                    @endif
+                                    <input type="file" accept="image/*" class="hidden-file-input image-input" style="display: none;">
                                 </div>
                                 <div class="event-text-multimedia">
                                     <div class="textarea-container">
-                                        <textarea placeholder="Description de l'évènement" maxlength="1000"></textarea>
-                                        <span class="char-count">0/1000</span>
+                                        <textarea class="event-desc-edit" placeholder="Description de l'évènement" maxlength="1000">{{ $event->description }}</textarea>
+                                        <span class="char-count">{{ mb_strlen($event->description ?? '') }}/1000</span>
                                     </div>
                                     <div class="media-upload-placeholder video-place">
-                                        <p>upload video</p>
-                                        <input type="file" accept="video/*" class="hidden-file-input video-input"
-                                            style="display: none;">
+                                        @if($event->video_path)
+                                            <p style="color: #000; font-weight: bold; background: #fff; padding: 2px 10px; border-radius: 10px;">Vidéo sauvegardée</p>
+                                        @else
+                                            <p>upload video</p>
+                                        @endif
+                                        <input type="file" accept="video/*" class="hidden-file-input video-input" style="display: none;">
+                                    </div>
+                                    <div class="event-media-progress" style="display: none; width: 100%; text-align: center; margin-top: 5px;">
+                                        <div style="width: 100%; background-color: #eee; border-radius: 5px; height: 5px; overflow: hidden;">
+                                            <div class="event-media-bar" style="width: 0%; height: 100%; background-color: var(--black); transition: width 0.2s;"></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    @empty
+                    <div style="text-align: center; color: var(--black); padding: 2rem;">Aucun évènement pour le moment.</div>
+                    @endforelse
                 </div>
             </section>
 

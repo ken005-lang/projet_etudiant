@@ -57,6 +57,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/codes', [AdminController::class, 'storeCode'])->name('codes.store');
     Route::delete('/codes/{id}', [AdminController::class, 'destroyCode'])->name('codes.destroy');
     Route::delete('/groups/{id}', [AdminController::class, 'destroyGroup'])->name('groups.destroy');
+    
+    // Admin Events Routes
+    Route::post('/events', [AdminController::class, 'storeEvent'])->name('events.store');
+    Route::post('/events/{id}', [AdminController::class, 'updateEvent'])->name('events.update');
+    Route::post('/events/{id}/media', [AdminController::class, 'uploadEventMedia'])->name('events.updateMedia');
+    Route::delete('/events/{id}', [AdminController::class, 'destroyEvent'])->name('events.destroy');
 });
 
 // --- VISITOR ROUTES ---
