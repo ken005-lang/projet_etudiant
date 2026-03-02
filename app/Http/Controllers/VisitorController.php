@@ -55,9 +55,9 @@ class VisitorController extends Controller
             return [
                 'id' => $event->id,
                 'title' => $event->title,
-                'description' => $event->description,
-                'image' => $event->image_path,
-                'video' => $event->video_path,
+                'description' => $event->description ?? '',
+                'image' => $event->image_path ? asset($event->image_path) : null,
+                'video' => $event->video_path ? asset($event->video_path) : null,
             ];
         });
 

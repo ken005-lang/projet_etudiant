@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ITES - Espace Visiteur</title>
-    <link rel="stylesheet" href="{{ asset('style.css') }}">
+    <link rel="stylesheet" href="{{ asset('style.css') }}?v={{ time() }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -21,7 +21,7 @@
             <div class="nav-links">
                 <a href="#" class="visitor-nav-link active" data-tab="projects">projets</a>
                 <span class="nav-divider">|</span>
-                <a href="#" class="visitor-nav-link" data-tab="events">évènements</a>
+                <a href="#" class="visitor-nav-link" data-tab="events">évènements<span class="notif-dot" id="events-notif-dot"></span></a>
             </div>
 
             <div class="user-profile">
@@ -117,7 +117,7 @@
         window.serverGroupsData = @json($groupsData ?? []);
         window.serverEventsData = @json($eventsData ?? []);
     </script>
-    <script src="{{ asset('JS/visiteur.js') }}"></script>
+    <script src="{{ asset('JS/visiteur.js') }}?v={{ time() }}"></script>
 </body>
 
 </html>

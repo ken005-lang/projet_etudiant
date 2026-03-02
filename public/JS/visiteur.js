@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
         // Fallback images path correction assuming base URL
-        const imgSrc = group.image.startsWith('HTTP') ? group.image : '/' + group.image;
+        const imgSrc = group.image.match(/^https?:\/\//i) ? group.image : '/' + group.image;
 
         return `
             <div class="project-band" data-id="${group.id}">
@@ -279,11 +279,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function createEventBandHTML(event) {
         let inlineImageSvg = `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" class="placeholder-icon" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`;
-        let imageHtml = event.image ? `<img src="${event.image.startsWith('HTTP') ? event.image : '/' + event.image}" alt="Event Image" class="actual-image">` : inlineImageSvg;
+        let inlineVideoSvg = `<svg width="50" height="50" viewBox="0 0 24 24" fill="none" class="placeholder-icon" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>`;
+        let imageHtml = event.image ? `<img src="${event.image.match(/^https?:\/\//i) ? event.image : '/' + event.image}" alt="Event Image" class="actual-image">` : inlineImageSvg;
 
         let videoHtml = event.video ? `
             <div class="custom-video-wrapper">
-                <video id="video-event-${event.id}" src="${event.video.startsWith('HTTP') ? event.video : '/' + event.video}" preload="metadata" controls></video>
+                <video id="video-event-${event.id}" src="${event.video.match(/^https?:\/\//i) ? event.video : '/' + event.video}" preload="metadata" controls></video>
                 <div class="video-overlay" onclick="document.getElementById('video-event-${event.id}').play(); document.getElementById('video-event-${event.id}').setAttribute('controls', 'controls'); this.style.display='none';">
                     <div class="icon-container">
                         <img src="/ICON/film-strip.svg" alt="Play Video" class="video-play-icon">
@@ -347,8 +348,36 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // ---- NOTIFICATION LOGIC ----
+    const eventsNotifDot = document.getElementById('events-notif-dot');
+
+    function checkNewEvents() {
+        if (!eventsNotifDot || eventsData.length === 0) return;
+
+        const lastSeenId = parseInt(localStorage.getItem('ites_last_seen_event_id') || '0');
+        const maxEventId = Math.max(...eventsData.map(e => e.id));
+
+        if (maxEventId > lastSeenId) {
+            eventsNotifDot.style.display = 'block';
+        } else {
+            eventsNotifDot.style.display = 'none';
+        }
+    }
+
+    // Reset notification when clicking on events tab
+    navLinks.forEach(link => {
+        link.addEventListener('click', function () {
+            if (this.getAttribute('data-tab') === 'events' && eventsData.length > 0) {
+                const maxEventId = Math.max(...eventsData.map(e => e.id));
+                localStorage.setItem('ites_last_seen_event_id', maxEventId.toString());
+                if (eventsNotifDot) eventsNotifDot.style.display = 'none';
+            }
+        });
+    });
+
     // ---- INITIAL RENDER ----
     renderProjectsList();
     renderFavoritesList();
     renderEventsList();
+    checkNewEvents();
 });
