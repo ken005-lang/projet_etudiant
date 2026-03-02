@@ -11,8 +11,8 @@ class VisitorController extends Controller
 {
     public function index()
     {
-        // Fetch all group profiles with their members
-        $groups = GroupProfile::with('members')->get();
+        // Fetch all group profiles with their members and reports
+        $groups = GroupProfile::with(['members', 'reports'])->get();
 
         // Map groups to the format expected by JS
         $groupsData = $groups->map(function ($group) {
@@ -39,6 +39,13 @@ class VisitorController extends Controller
                         'name' => $member->name,
                         'sector' => $member->sector,
                         'level' => $member->level,
+                    ];
+                })->toArray(),
+                'reports' => $group->reports->map(function ($report) {
+                    return [
+                        'id' => $report->id,
+                        'file_name' => $report->file_name,
+                        'file_url' => asset($report->file_path),
                     ];
                 })->toArray(),
                 'video' => $group->project_video ? asset($group->project_video) : null,

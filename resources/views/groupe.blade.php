@@ -130,7 +130,7 @@
                         <!-- Reports will be added here dynamically -->
                     </div>
 
-                    <input type="file" id="reportInput" multiple style="display: none;">
+                    <input type="file" id="reportInput" multiple accept=".pdf,image/*,video/*" style="display: none;">
                 </section>
 
                 <!-- Section EN SAVOIR PLUS -->
@@ -205,7 +205,10 @@
         </aside>
     </div>
 
-    <script src="{{ asset('JS/groupe.js') }}"></script>
+    <script>
+        window.serverGroupData = @json($serverGroupData);
+    </script>
+    <script src="{{ asset('JS/groupe.js') }}?v={{ time() }}"></script>
 </body>
 
 </html>

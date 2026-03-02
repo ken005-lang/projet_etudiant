@@ -95,23 +95,67 @@ document.addEventListener('DOMContentLoaded', function () {
         // Logic "Section Vide" for Video
         let videoHtml = group.video
             ? `
-               <div style="display:flex; justify-content:center; align-items:center; width:100%;">
-                 <div class="video-tab-content" style="display:flex; gap: 2rem; align-items:center;">
-                   <h2 style="color:white; font-size:1.5rem; max-width:200px;">POUR EN SAVOIR PLUS REGARDER CETTE VIDEO.</h2>
-                   <div class="video-player-placeholder">
-                     <img src="ICON/video-camera.svg" alt="Play">
+               <div style="display:flex; flex-direction:column; align-items:flex-start; width:100%; gap: 1.5rem;">
+                   <h2 style="color:white; font-size:1.5rem; font-weight:700; max-width: 100%; line-height: 1.2;">POUR EN SAVOIR PLUS REGARDER CETTE VIDEO.</h2>
+                   <div class="custom-video-wrapper" style="width: 100%; max-width: 600px; aspect-ratio: 16/9; min-height: 200px;">
+                       <video id="video-project-${group.id}" src="${group.video.match(/^https?:\/\//i) ? group.video : '/' + group.video}" preload="metadata" controls></video>
+                       <div class="video-overlay" onclick="document.getElementById('video-project-${group.id}').play(); document.getElementById('video-project-${group.id}').setAttribute('controls', 'controls'); this.style.display='none';">
+                           <div class="icon-container">
+                               <img src="/ICON/film-strip.svg" alt="Play Video" class="video-play-icon">
+                           </div>
+                           <span class="video-label">Voir la vidéo</span>
+                       </div>
                    </div>
-                 </div>
                </div>`
             : `<div class="section-vide" style="color:white;">Section vide</div>`;
 
         // Logic "Section Vide" for Contact
         let contactHtml = '';
         if (!group.whatsapp && !group.email) {
-            contactHtml = `<div class="section-vide">Section vide</div>`;
+            contactHtml = `<div class="section-vide" style="color:white;">Section vide</div>`;
         } else {
             if (group.whatsapp) contactHtml += `<div class="contact-item"><img src="ICON/whatsapp-icon.svg" alt="WA"> ${group.whatsapp}</div>`;
             if (group.email) contactHtml += `<div class="contact-item"><img src="ICON/email-icon.svg" alt="Email"> ${group.email}</div>`;
+        }
+
+        // Logic for Reports
+        let reportsHtml = '';
+        if (group.reports && group.reports.length > 0) {
+            const reportsList = group.reports.map(report => {
+                const ext = report.file_name.split('.').pop().toLowerCase();
+                const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+                const videoExts = ['mp4', 'mov', 'webm', 'avi', 'mkv', 'ogg'];
+
+                let iconHtml;
+                if (imageExts.includes(ext)) {
+                    iconHtml = `<div class="report-icon-box" style="overflow:hidden; border-radius:8px; pointer-events:none;">
+                        <img src="${report.file_url}" alt="Image" style="width:100%; height:100%; object-fit:cover;">
+                    </div>`;
+                } else if (videoExts.includes(ext)) {
+                    iconHtml = `<div class="report-icon-box" style="background:#111; border-radius:8px; display:flex; align-items:center; justify-content:center; pointer-events:none;">
+                        <img src="/ICON/film-strip.svg" alt="Vidéo" style="width:50%; filter:invert(1);">
+                    </div>`;
+                } else {
+                    iconHtml = `<div class="report-icon-box" style="pointer-events:none;">
+                        <img src="/ICON/file-pdf.svg" alt="PDF">
+                    </div>`;
+                }
+
+                return `
+                    <div class="report-card" style="cursor: pointer;" onclick="window.open('${report.file_url}', '_blank')">
+                        ${iconHtml}
+                        <span class="report-filename" title="${report.file_name}" style="pointer-events: none;">${report.file_name}</span>
+                    </div>
+                `;
+            }).join('');
+
+            reportsHtml = `
+                <div class="reports-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 1rem;">
+                    ${reportsList}
+                </div>
+            `;
+        } else {
+            reportsHtml = `<div class="section-vide" style="color:white;">Aucun rapport publié.</div>`;
         }
 
 
@@ -148,7 +192,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             ${introHtml}
                         </div>
                         <div class="project-tab-panel" id="rapports-${group.id}">
-                            <div class="section-vide">Section vide</div>
+                            ${reportsHtml}
                         </div>
                         <div class="project-tab-panel" id="ensavoir-${group.id}">
                             ${videoHtml}

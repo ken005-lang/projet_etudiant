@@ -35,4 +35,9 @@ class GroupProfile extends Model
     {
         return $this->hasMany(GroupMember::class);
     }
+
+    public function reports()
+    {
+        return $this->hasMany(Report::class);
+    }
 }

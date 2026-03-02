@@ -19,6 +19,7 @@ Route::get('/', function () {
 Route::get('/php-debug', function () {
     return response()->json([
         'php_ini_file' => php_ini_loaded_file(),
+        'scanned_files' => php_ini_scanned_files(),
         'upload_max_filesize' => ini_get('upload_max_filesize'),
         'post_max_size' => ini_get('post_max_size'),
         'max_execution_time' => ini_get('max_execution_time'),
@@ -74,6 +75,8 @@ Route::middleware(['auth', 'visiteur'])->prefix('visiteur')->name('visiteur.')->
 Route::middleware(['auth', 'groupe'])->prefix('groupe')->name('groupe.')->group(function () {
     Route::get('/', [GroupController::class, 'index'])->name('dashboard');
     Route::post('/upload-video', [GroupController::class, 'uploadVideo'])->name('upload.video');
+    Route::post('/upload-reports', [GroupController::class, 'uploadReports'])->name('upload.reports');
+    Route::delete('/reports/{id}', [GroupController::class, 'deleteReport'])->name('delete.report');
     
     // Auto-save API routes
     Route::post('/update-profile', [GroupController::class, 'updateProfile'])->name('updateProfile');

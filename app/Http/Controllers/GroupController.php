@@ -9,7 +9,94 @@ class GroupController extends Controller
     public function index()
     {
         $group = \Illuminate\Support\Facades\Auth::user()->groupProfile;
-        return view('groupe', compact('group'));
+        
+        // Load reports for the view if group exists
+        // Load reports for the view if group exists
+        $serverGroupData = [];
+        if ($group) {
+            $group->load('reports');
+            
+            $serverGroupData = [
+                'id' => $group->id,
+                'reports' => $group->reports->map(function ($report) {
+                    return [
+                        'id' => $report->id,
+                        'file_name' => $report->file_name,
+                        'file_url' => asset($report->file_path),
+                    ];
+                })->toArray()
+            ];
+        }
+        
+        return view('groupe', compact('group', 'serverGroupData'));
+    }
+
+    public function uploadReports(Request $request)
+    {
+        $group = \Illuminate\Support\Facades\Auth::user()->groupProfile;
+
+        if (!$group) {
+            return response()->json(['error' => 'Group profile not found.'], 404);
+        }
+
+        $request->validate([
+            'reports' => 'required|array',
+            'reports.*' => 'required|mimes:pdf,jpeg,jpg,png,gif,webp,mp4,mov,webm,avi,mkv,ogg|max:1048576', // 1GB max
+        ]);
+
+        $uploadedReports = [];
+
+        if ($request->hasFile('reports')) {
+            foreach ($request->file('reports') as $file) {
+                $fileName = time() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('REPORTS'), $fileName);
+                $filePath = 'REPORTS/' . $fileName;
+
+                $report = $group->reports()->create([
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_path' => $filePath,
+                ]);
+
+                $uploadedReports[] = [
+                    'id' => $report->id,
+                    'file_name' => $report->file_name,
+                    'file_url' => asset($report->file_path),
+                ];
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Reports uploaded successfully',
+                'reports' => $uploadedReports
+            ]);
+        }
+
+        return response()->json(['error' => 'No files provided.'], 400);
+    }
+
+    public function deleteReport($id)
+    {
+        $group = \Illuminate\Support\Facades\Auth::user()->groupProfile;
+
+        if (!$group) {
+            return response()->json(['error' => 'Group profile not found.'], 404);
+        }
+
+        $report = $group->reports()->find($id);
+
+        if (!$report) {
+            return response()->json(['error' => 'Report not found or not owned by you.'], 404);
+        }
+
+        // Deleting file physically
+        $fullPath = public_path($report->file_path);
+        if (\Illuminate\Support\Facades\File::exists($fullPath)) {
+            \Illuminate\Support\Facades\File::delete($fullPath);
+        }
+
+        $report->delete();
+
+        return response()->json(['success' => true, 'message' => 'Report deleted successfully']);
     }
 
     public function uploadVideo(Request $request)

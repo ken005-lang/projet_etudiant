@@ -497,50 +497,106 @@ document.addEventListener('DOMContentLoaded', () => {
         if (publishBtnEmpty) publishBtnEmpty.addEventListener('click', triggerUpload);
         if (publishBtnHeader) publishBtnHeader.addEventListener('click', triggerUpload);
 
-        reportInput.addEventListener('change', (e) => {
+        reportInput.addEventListener('change', async (e) => {
             const files = Array.from(e.target.files);
             if (files.length > 0) {
+                // Prepare FormData for the actual API upload
+                const formData = new FormData();
                 files.forEach(file => {
-                    addReportToGrid(file);
+                    formData.append('reports[]', file);
                 });
-                updateReportsVisibility();
+                formData.append('_token', csrfToken);
+
+                try {
+                    const response = await fetch('/groupe/upload-reports', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const result = await response.json();
+
+                    if (result.success && result.reports) {
+                        result.reports.forEach(report => {
+                            addReportToGrid(report);
+                        });
+                        updateReportsVisibility();
+                        alert('Rapports publiés avec succès !');
+                    } else {
+                        alert('Erreur: ' + (result.error || 'Impossible d\'envoyer le(s) fichier(s)'));
+                    }
+                } catch (err) {
+                    console.error('Erreur API Upload Report:', err);
+                    alert('Erreur réseau lors de la publication des rapports.');
+                }
                 reportInput.value = ''; // Reset for same file selection
             }
         });
     }
 
-    function addReportToGrid(file) {
+    function addReportToGrid(reportObj) {
         if (!reportsGrid) return;
 
         const reportCard = document.createElement('div');
         reportCard.className = 'report-card';
 
-        // Determine icon based on file type (using available icons in ICON/)
-        let iconSrc = 'ICON/research_icon.svg'; // Default icon
-        const fileExtension = file.name.split('.').pop().toLowerCase();
+        // Déterminer l'icône selon l'extension du fichier
+        const ext = reportObj.file_name.split('.').pop().toLowerCase();
+        const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        const videoExts = ['mp4', 'mov', 'webm', 'avi', 'mkv', 'ogg'];
 
-        if (fileExtension === 'pdf') {
-            iconSrc = 'ICON/file-pdf.svg';
-        } else if (['jpg', 'jpeg', 'png', 'svg'].includes(fileExtension)) {
-            iconSrc = 'ICON/image.svg';
+        let iconHtml;
+        if (imageExts.includes(ext)) {
+            // Pour les images, afficher directement la miniature
+            iconHtml = `<div class="report-icon-box" style="overflow:hidden; border-radius:8px;">
+                <img src="${reportObj.file_url}" alt="Image" style="width:100%; height:100%; object-fit:cover;">
+            </div>`;
+        } else if (videoExts.includes(ext)) {
+            // Pour les vidéos, icône film-strip
+            iconHtml = `<div class="report-icon-box" style="background:#111; border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                <img src="/ICON/film-strip.svg" alt="Video" style="width:50%; filter:invert(1);">
+            </div>`;
         } else {
-            iconSrc = 'ICON/research_icon.svg';
+            // PDF par défaut
+            iconHtml = `<div class="report-icon-box">
+                <img src="/ICON/file-pdf.svg" alt="PDF">
+            </div>`;
         }
 
         reportCard.innerHTML = `
-            <div class="report-icon-box">
-                <img src="${iconSrc}" alt="File">
-            </div>
-            <span class="report-filename" title="${file.name}">${file.name}</span>
-            <button class="report-delete-btn">
-                <img src="ICON/x-circle-fill.svg" alt="Delete">
+            <a href="${reportObj.file_url}" target="_blank" style="text-decoration:none; color:inherit; display:flex; flex-direction:column; align-items:center; width:100%;">
+                ${iconHtml}
+                <span class="report-filename" title="${reportObj.file_name}">${reportObj.file_name}</span>
+            </a>
+            <button class="report-delete-btn" style="position: absolute; top: -5px; right: -5px; background: white; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); padding: 2px;">
+                <img src="/ICON/x-circle-fill.svg" alt="Delete" style="display:block;">
             </button>
         `;
 
+        // Ajout d'une propriété relative au parent pour que le bouton absolu se place bien
+        reportCard.style.position = 'relative';
+
         // Add delete listener
-        reportCard.querySelector('.report-delete-btn').addEventListener('click', () => {
-            reportCard.remove();
-            updateReportsVisibility();
+        const deleteBtn = reportCard.querySelector('.report-delete-btn');
+        deleteBtn.addEventListener('click', async (e) => {
+            e.stopPropagation(); // Évite le déclenchement éventuel d'autres clics
+            if (!confirm('Voulez-vous vraiment supprimer ce rapport ? Cela libèrera également la mémoire.')) return;
+
+            try {
+                const response = await fetch(`/groupe/reports/${reportObj.id}`, {
+                    method: 'DELETE',
+                    headers: { 'X-CSRF-TOKEN': csrfToken }
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    reportCard.remove();
+                    updateReportsVisibility();
+                } else {
+                    alert('Erreur: ' + (result.error || 'Impossible de supprimer ce rapport'));
+                }
+            } catch (err) {
+                console.error('Erreur API Delete Report:', err);
+                alert('Erreur réseau lors de la suppression du rapport.');
+            }
         });
 
         reportsGrid.appendChild(reportCard);
@@ -558,6 +614,17 @@ document.addEventListener('DOMContentLoaded', () => {
             rapportsHeader.style.display = 'none';
             reportsGrid.style.display = 'none';
         }
+    }
+
+    // Initialize initial reports on load
+    if (window.serverGroupData && window.serverGroupData.reports && Array.isArray(window.serverGroupData.reports)) {
+        window.serverGroupData.reports.forEach(report => {
+            addReportToGrid({
+                id: report.id,
+                file_name: report.file_name,
+                file_url: report.file_url
+            });
+        });
     }
 
     // Initialize visibility
