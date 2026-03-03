@@ -2037,12 +2037,13 @@ main {
 }
 
 .admin-login-main {
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-top: 0;
   padding-top: 60px;
-  /* Offset for header */
+  /* Offset for header height to center visually */
 }
 
 .admin-login-card {
@@ -3491,6 +3492,7 @@ main {
   font-size: 1rem;
   resize: none;
   outline: none;
+  overflow: hidden;
   transition: all 0.3s ease;
 }
 
@@ -3679,3 +3681,304 @@ main {
   text-align: center;
   padding: 3rem 1rem;
 }
+/* =============================================
+   MESSAGERIE (VISITEUR & GROUPE)
+   ============================================= */
+
+.messages-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: flex-end;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.messages-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.messages-panel {
+  width: 450px;
+  max-width: 100%;
+  height: 100vh;
+  background-color: var(--white);
+  box-shadow: -5px 0 20px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.messages-overlay.open .messages-panel {
+  transform: translateX(0);
+}
+
+/* Thèmes de Messagerie */
+.messages-panel.visitor-theme {
+  background-color: var(--white);
+}
+
+.messages-panel.group-theme {
+  background-color: var(--orange);
+}
+
+.messages-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 2rem;
+  border-bottom: 2px solid rgba(0,0,0,0.05);
+}
+
+.visitor-theme .messages-header {
+  border-bottom: 2px solid rgba(0,0,0,0.05);
+}
+
+.group-theme .messages-header {
+  border-bottom: 2px solid rgba(255,255,255,0.1);
+}
+
+.messages-header h2 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 800;
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.visitor-theme .messages-header h2 {
+  color: var(--black);
+}
+
+.group-theme .messages-header h2 {
+  color: var(--white);
+}
+
+.messages-clear-btn {
+  background-color: var(--orange);
+  color: var(--white);
+  border: none;
+  border-radius: 5px;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s;
+}
+
+.visitor-theme .messages-clear-btn {
+  background-color: var(--orange);
+  color: var(--white);
+}
+
+.group-theme .messages-clear-btn {
+  background-color: var(--white);
+  color: var(--orange);
+}
+
+.messages-clear-btn:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+
+.messages-close-btn {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 10px;
+  transition: transform 0.2s;
+}
+
+.visitor-theme .messages-close-btn { color: var(--black); }
+.group-theme .messages-close-btn { color: var(--white); }
+
+.messages-close-btn:hover {
+  transform: scale(1.2);
+}
+
+.messages-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Base Message Block */
+.message-block {
+  width: 100%;
+  border-radius: 8px;
+  padding: 1.2rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+/* Visitor Theme Blocks */
+.visitor-theme .message-block.visitor-msg {
+  background-color: #d9d9d9;
+  color: var(--black);
+}
+
+.visitor-theme .message-block.group-msg {
+  background-color: #262626;
+  color: var(--white);
+}
+
+/* Group Theme Blocks */
+.group-theme .message-block.visitor-msg {
+  background-color: #8c3b06; /* Dark brown orange */
+  color: var(--white);
+}
+
+.group-theme .message-block.group-msg {
+  background-color: #f1f1f1;
+  color: var(--black);
+}
+
+.msg-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.msg-user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.msg-user-icon {
+  width: 20px;
+  height: 20px;
+  opacity: 0.8;
+}
+
+/* Reply Buttons inside blocks */
+.msg-reply-btn {
+  border: none;
+  border-radius: 20px;
+  padding: 0.3rem 1rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: opacity 0.2s;
+}
+
+.visitor-theme .msg-reply-btn {
+  background-color: var(--white);
+  color: var(--orange);
+}
+
+.group-theme .msg-reply-btn {
+  background-color: var(--white);
+  color: var(--orange);
+}
+
+.msg-reply-btn:hover {
+  opacity: 0.9;
+}
+
+.msg-reply-btn img {
+  height: 12px;
+}
+
+.msg-content {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+  word-wrap: break-word;
+}
+
+.msg-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 5px;
+}
+
+.msg-status-dot {
+  width: 12px;
+  height: 12px;
+  background-color: #00ff00; /* Green unread dot */
+  border-radius: 50%;
+  box-shadow: 0 0 5px rgba(0,255,0,0.5);
+}
+
+/* Editor for replying */
+.reply-editor-container {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reply-textarea {
+  width: 100%;
+  min-height: 80px;
+  border-radius: 8px;
+  padding: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  resize: none;
+  outline: none;
+}
+
+.visitor-theme .reply-textarea {
+  background: white;
+  border: 1px solid #ccc;
+  color: var(--black);
+}
+
+.group-theme .reply-textarea {
+  background: rgba(255,255,255,0.9);
+  border: 1px solid rgba(0,0,0,0.1);
+  color: var(--black);
+}
+
+.send-reply-btn {
+  align-self: flex-end;
+  padding: 0.5rem 1.5rem;
+  border-radius: 20px;
+  font-weight: 800;
+  font-size: 0.8rem;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.2s;
+}
+
+.visitor-theme .send-reply-btn {
+  background-color: var(--orange);
+  color: var(--white);
+}
+
+.group-theme .send-reply-btn {
+  background-color: var(--orange);
+  color: var(--white);
+}
+
+.send-reply-btn:hover {
+  transform: scale(1.05);
+}
+

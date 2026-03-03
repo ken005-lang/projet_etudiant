@@ -34,8 +34,9 @@
             <div class="header-divider">|</div>
 
             <div class="header-actions">
-                <div class="header-action-btn">
-                    <img src="{{ asset('ICON/bell-simple-fill.svg') }}" alt="Notifications" class="header-icon" title="Notifications">
+                <div class="header-action-btn" id="header-bell-btn">
+                    <img src="{{ asset('ICON/chats-fill.svg') }}" alt="Notifications" class="header-icon" title="Messages">
+                    <span class="notif-dot" id="messages-notif-dot" style="display: none;"></span>
                 </div>
                 <div class="header-action-btn bookmark-btn">
                     <img src="{{ asset('ICON/bookmark-simple-fill.svg') }}" alt="Bookmark" class="header-icon" title="Favoris">
@@ -117,6 +118,21 @@
             </div>
         </section>
     </main>
+
+    <!-- Modale Messagerie Visiteur -->
+    <div id="messages-overlay" class="messages-overlay">
+        <div class="messages-panel visitor-theme">
+            <div class="messages-header">
+                <h2># MESSAGERIE</h2>
+                <button class="messages-clear-btn" id="visitor-clear-messages">TOUT SUPPRIMER <span><img src="{{ asset('ICON/poubelle.svg') }}" alt="del" style="height:14px;"></span></button>
+                <button class="messages-close-btn" id="close-messages-btn">&times;</button>
+            </div>
+            <div class="messages-body" id="messages-list-container">
+                <!-- Les messages seront injectés ici par JS -->
+                <div class="section-vide">Chargement des messages...</div>
+            </div>
+        </div>
+    </div>
 
     <script>
         // Inject database data into global window object for JS consumption

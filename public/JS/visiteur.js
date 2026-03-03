@@ -111,8 +111,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Logic for Contact Section
         let contactItems = '';
-        if (group.whatsapp) contactItems += `<div class="contact-item"><img src="ICON/whatsapp-icon.svg" alt="WA"> <span>${group.whatsapp}</span></div>`;
-        if (group.email) contactItems += `<div class="contact-item"><img src="ICON/email-icon.svg" alt="Email"> <span>${group.email}</span></div>`;
+        if (group.whatsapp) contactItems += `<div class="contact-item"><img src="/ICON/whatsapp-logo-fill.svg" alt="WA"> <span>${group.whatsapp}</span></div>`;
+        if (group.email) contactItems += `<div class="contact-item"><img src="/ICON/paperclip-fill.svg" alt="Email"> <span>${group.email}</span></div>`;
 
         let contactHtml = `
             <div class="contact-tab-container">
@@ -176,7 +176,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <span>${group.name.toUpperCase()}</span>
                     <div class="header-right-actions">
                         <img src="${heartImg}" alt="Fav" class="${heartClass}" onclick="event.stopPropagation(); toggleFavorite(${group.id});">
-                        <img src="ICON/up-arrow_icon.svg" alt="Expand" class="chevron-icon">
+                        <img src="/ICON/up-arrow_icon.svg" alt="Expand" class="chevron-icon">
                     </div>
                 </div>
                 
@@ -432,4 +432,215 @@ document.addEventListener('DOMContentLoaded', function () {
     renderFavoritesList();
     renderEventsList();
     checkNewEvents();
+
+    // =============================================
+    // MESSAGERIE VISITEUR
+    // =============================================
+    const bellBtn = document.getElementById('header-bell-btn');
+    const msgsOverlay = document.getElementById('messages-overlay');
+    const closeMsgsBtn = document.getElementById('close-messages-btn');
+    const msgList = document.getElementById('messages-list-container');
+    const notifDot = document.getElementById('messages-notif-dot');
+    const clearBtn = document.getElementById('visitor-clear-messages');
+
+    // Check for unread messages
+    async function checkUnread() {
+        try {
+            const res = await fetch('/visiteur/messages/unread');
+            const data = await res.json();
+            if (data.success && data.unread_count > 0) {
+                notifDot.style.display = 'block';
+            } else {
+                notifDot.style.display = 'none';
+            }
+        } catch (e) { console.error('Error checking unread', e); }
+    }
+
+    // Load messages
+    async function loadMessages() {
+        msgList.innerHTML = '<div class="section-vide">Chargement...</div>';
+        try {
+            const res = await fetch('/visiteur/messages');
+            const data = await res.json();
+            if (data.success) {
+                renderMessages(data.messages);
+                // Mark as read after loading
+                await fetch('/visiteur/messages/read', {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '', 'Accept': 'application/json' }
+                });
+                notifDot.style.display = 'none';
+            }
+        } catch (e) {
+            msgList.innerHTML = '<div class="section-vide">Erreur de chargement.</div>';
+        }
+    }
+
+    function renderMessages(msgs) {
+        if (!msgs || msgs.length === 0) {
+            msgList.innerHTML = '<div class="section-vide" style="color:black;">Aucun message.</div>';
+            return;
+        }
+
+        const fragment = document.createDocumentFragment();
+        msgs.forEach(msg => {
+            const block = document.createElement('div');
+            block.className = 'message-block visitor-msg';
+
+            const hasReply = msg.group_reply ? true : false;
+
+            // Visitor original message
+            let html = `
+                <div class="msg-header">
+                    <div class="msg-user-info">
+                        <img src="/ICON/profile_user_avatar_person_icon_192481.svg" class="msg-user-icon" alt="user">
+                        <span>Moi (Visiteur)</span>
+                    </div>
+                    ${!msg.is_read_by_group ? '<div class="msg-status-dot" style="background-color: var(--orange); box-shadow: none;" title="Non lu par le groupe"></div>' : ''}
+                </div>
+                <p class="msg-content">${msg.visitor_message}</p>
+            `;
+
+            // If group replied, append the black block
+            if (hasReply) {
+                html += `
+                <div class="message-block group-msg" style="margin-top: 10px;">
+                    <div class="msg-header">
+                        <div class="msg-user-info">
+                            <img src="/ICON/group-icon.svg" onerror="this.src='/ICON/profile_user_avatar_person_icon_192481.svg'" class="msg-user-icon" alt="group">
+                            <span>${msg.group.name_groupe}</span>
+                        </div>
+                        <button class="msg-reply-btn" data-group-id="${msg.group.id}"><img src="/ICON/reply-icon.svg" onerror="this.style.display='none'"> RÉPONDRE</button>
+                    </div>
+                    <p class="msg-content">${msg.group_reply}</p>
+                    <div class="msg-footer">
+                        ${!msg.is_read_by_visitor ? '<div class="msg-status-dot" title="Nouveau message"></div>' : ''}
+                    </div>
+                </div>
+                `;
+            }
+
+            block.innerHTML = html;
+            fragment.appendChild(block);
+        });
+
+        msgList.innerHTML = '';
+        msgList.appendChild(fragment);
+    }
+
+    // Open Modale
+    if (bellBtn) {
+        bellBtn.addEventListener('click', () => {
+            msgsOverlay.classList.add('open');
+            loadMessages();
+        });
+    }
+
+    // Close Modale
+    if (closeMsgsBtn) {
+        closeMsgsBtn.addEventListener('click', () => {
+            msgsOverlay.classList.remove('open');
+            checkUnread(); // recalculate indicator on close
+        });
+    }
+
+    // Clear messages
+    if (clearBtn) {
+        clearBtn.addEventListener('click', async () => {
+            if (confirm('Supprimer tous vos messages de la messagerie ?')) {
+                try {
+                    const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
+                    await fetch('/visiteur/messages/clear', { method: 'DELETE', headers: { 'X-CSRF-TOKEN': csrf } });
+                    loadMessages();
+                } catch (e) { console.error('Clear error', e); }
+            }
+        });
+    }
+
+    // Delegated reply button click
+    msgList.addEventListener('click', (e) => {
+        const replyBtn = e.target.closest('.msg-reply-btn');
+        if (replyBtn) {
+            const groupId = replyBtn.dataset.groupId;
+            const parentBlock = replyBtn.closest('.group-msg');
+
+            // Remove existing editors
+            document.querySelectorAll('.reply-editor-container').forEach(el => el.remove());
+
+            const editor = document.createElement('div');
+            editor.className = 'reply-editor-container';
+            editor.innerHTML = `
+                <textarea class="reply-textarea" placeholder="Écrire une nouvelle réponse..."></textarea>
+                <button class="send-reply-btn" data-group-id="${groupId}">Envoyer</button>
+            `;
+            parentBlock.appendChild(editor);
+            setTimeout(() => editor.querySelector('textarea').focus(), 50);
+        }
+
+        const sendBtn = e.target.closest('.send-reply-btn');
+        if (sendBtn) {
+            const groupId = sendBtn.dataset.groupId;
+            const text = sendBtn.previousElementSibling.value.trim();
+            if (text) {
+                sendNewMessage(groupId, text, sendBtn.closest('.reply-editor-container'));
+            }
+        }
+    });
+
+    async function sendNewMessage(groupId, text, editorRef) {
+        if (editorRef) editorRef.innerHTML = 'Envoi...';
+        try {
+            const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
+            const res = await fetch('/visiteur/messages/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrf
+                },
+                body: JSON.stringify({ group_id: groupId, message: text })
+            });
+            const data = await res.json();
+            if (data.success) {
+                loadMessages(); // reload to show the new message at top
+            } else {
+                alert("Erreur d'envoi");
+                if (editorRef) editorRef.remove();
+            }
+        } catch (e) {
+            console.error(e);
+            if (editorRef) editorRef.remove();
+        }
+    }
+
+    // Attach rapid contact form event handler via delegation since bands are dynamic
+    document.body.addEventListener('click', (e) => {
+        if (e.target.classList.contains('contact-quick-valider')) {
+            const btn = e.target;
+            const textarea = btn.previousElementSibling;
+            const text = textarea.value.trim();
+            // Find the group name from the project card
+            const projectCard = btn.closest('.single-project-card');
+            if (!projectCard) return;
+
+            const groupName = projectCard.querySelector('.project-name').textContent;
+            const groupInfo = window.serverGroupsData.find(g => g.name_groupe === groupName);
+
+            if (groupInfo && text) {
+                btn.textContent = '...';
+                sendNewMessage(groupInfo.id, text, null).then(() => {
+                    textarea.value = '';
+                    btn.textContent = 'Valider';
+                    alert('Message envoyé avec succès. Le groupe a été notifié ! Vous pouvez suivre sa réponse via la cloche.');
+                    checkUnread(); // Just in case
+                });
+            } else if (!text) {
+                alert('Veuillez écrire un message.');
+            }
+        }
+    });
+
+    // Init notifications checker
+    checkUnread();
+    setInterval(checkUnread, 15000); // Check every 15s
 });

@@ -6,6 +6,7 @@ use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\VisitorController;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\MessageController;
 
 // ---------------------------------------------------------
 // PUBLIC ROUTES
@@ -69,6 +70,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 // --- VISITOR ROUTES ---
 Route::middleware(['auth', 'visiteur'])->prefix('visiteur')->name('visiteur.')->group(function () {
     Route::get('/', [VisitorController::class, 'index'])->name('dashboard');
+    
+    // Visitor Messaging
+    Route::post('/messages/send', [MessageController::class, 'sendMessage'])->name('messages.send');
+    Route::get('/messages', [MessageController::class, 'getVisitorMessages'])->name('messages.get');
+    Route::post('/messages/read', [MessageController::class, 'markAsRead'])->name('messages.read');
+    Route::get('/messages/unread', [MessageController::class, 'unreadCount'])->name('messages.unreadCount');
+    Route::delete('/messages/clear', [MessageController::class, 'clearMessages'])->name('messages.clear');
 });
 
 // --- GROUP ROUTES ---
@@ -83,4 +91,11 @@ Route::middleware(['auth', 'groupe'])->prefix('groupe')->name('groupe.')->group(
     Route::post('/members', [GroupController::class, 'addMember'])->name('addMember');
     Route::delete('/members/{id}', [GroupController::class, 'removeMember'])->name('removeMember');
     Route::post('/upload-image', [GroupController::class, 'uploadImage'])->name('uploadImage');
+    
+    // Group Messaging
+    Route::post('/messages/{id}/reply', [MessageController::class, 'replyMessage'])->name('messages.reply');
+    Route::get('/messages', [MessageController::class, 'getGroupMessages'])->name('messages.get');
+    Route::post('/messages/read', [MessageController::class, 'markAsRead'])->name('messages.read');
+    Route::get('/messages/unread', [MessageController::class, 'unreadCount'])->name('messages.unreadCount');
+    Route::delete('/messages/clear', [MessageController::class, 'clearMessages'])->name('messages.clear');
 });

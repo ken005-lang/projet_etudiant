@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     newRow.setAttribute('data-id', data.code.id);
                     newRow.innerHTML = `
                         <span class="code-list-item">${data.code.code}</span>
-                        <img src="ICON/trash-fill.svg" alt="delete" class="delete-code-icon">
+                        <img src="/ICON/trash-fill.svg" alt="delete" class="delete-code-icon">
                     `;
 
                     // Append to list

@@ -28,7 +28,7 @@
             <div class="sidebar-sticky-wrapper">
                 <div class="admin-sidebar-top">
                     <div class="admin-avatar-box">
-                        <img src="ICON/user-gear.svg" alt="Admin" class="admin-avatar-icon">
+                        <img src="{{ asset('ICON/user-gear.svg') }}" alt="Admin" class="admin-avatar-icon">
                     </div>
                 </div>
 
@@ -44,7 +44,7 @@
 
                 <button class="admin-logout-btn">
                     <span>Déconnexion</span>
-                    <img src="ICON/logout_icon.svg" alt="Logout" class="logout-icon">
+                    <img src="{{ asset('ICON/logout_icon.svg') }}" alt="Logout" class="logout-icon">
                 </button>
             </div>
         </aside>
@@ -61,7 +61,7 @@
                     <input type="text" placeholder="CODE ID" class="code-id-input" id="code-input">
                     <button class="btn-pill-wide" id="create-code-btn">
                         Créer un code id
-                        <img src="ICON/key.svg" alt="Key" class="btn-icon-key">
+                        <img src="{{ asset('ICON/key.svg') }}" alt="Key" class="btn-icon-key">
                     </button>
                 </div>
 
@@ -72,7 +72,7 @@
                         @foreach ($accessCodes as $code)
                         <div class="code-item-row" data-id="{{ $code->id }}">
                             <span class="code-list-item">{{ $code->code }}</span>
-                            <img src="ICON/trash-fill.svg" alt="delete" class="delete-code-icon">
+                            <img src="{{ asset('ICON/trash-fill.svg') }}" alt="delete" class="delete-code-icon">
                         </div>
                         @endforeach
                     </div>
@@ -121,7 +121,7 @@
                                 <td>{{ $groupe->leader_sector }}</td>
                                 <td>{{ $groupe->created_at->format('d/m/Y') }}</td>
                                 <td>Inactif</td>
-                                <td><img src="ICON/trash-fill.svg" alt="delete" class="action-icon" data-id="{{ $groupe->id }}"></td>
+                                <td><img src="{{ asset('ICON/trash-fill.svg') }}" alt="delete" class="action-icon" data-id="{{ $groupe->id }}"></td>
                             </tr>
                             @empty
                             <tr>
@@ -183,8 +183,8 @@
                             <input type="text" value="{{ $event->title }}" class="event-title-edit">
                             <div class="header-buttons">
                                 <button class="btn-pill-small white-btn toggle-publish-btn">Valider</button>
-                                <img src="ICON/arrow-down_icon.svg" alt="expand" class="expand-arrow">
-                                <img src="ICON/trash-fill.svg" alt="delete" class="action-icon">
+                                <img src="{{ asset('ICON/arrow-down_icon.svg') }}" alt="expand" class="expand-arrow">
+                                <img src="{{ asset('ICON/trash-fill.svg') }}" alt="delete" class="action-icon">
                             </div>
                         </div>
                         <div class="event-content">

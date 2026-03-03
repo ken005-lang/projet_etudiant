@@ -32,8 +32,8 @@
                         <span class="notif-dot group-events-notif" id="group-events-notif-dot"></span>
                     </button>
                     <button class="group-header-btn" id="groupBellBtn" title="Notifications">
-                        <img src="{{ asset('ICON/bell-simple-fill.svg') }}" alt="Bell" class="group-bell-icon">
-                        <span class="notif-dot group-bell-notif" id="group-bell-notif-dot"></span>
+                        <img src="{{ asset('ICON/chats-fill.svg') }}" alt="Bell" class="group-bell-icon">
+                        <span class="notif-dot group-bell-notif" id="group-messages-notif-dot" style="display: none;"></span>
                     </button>
                 </div>
             </header>
@@ -51,6 +51,20 @@
                             <img src="{{ asset('IMG/mascotte ITES.png') }}" alt="Aucun évènement" class="empty-icon">
                         </div>
                         <p class="empty-text">Aucun évènement pour le moment.</p>
+                    </div>
+                </div>
+            </div>
+
+            {{-- MESSAGERIE PANEL (overlay) --}}
+            <div id="messages-overlay" class="messages-overlay">
+                <div class="messages-panel group-theme">
+                    <div class="messages-header">
+                        <h2># MESSAGERIE</h2>
+                        <button class="messages-clear-btn" id="group-clear-messages">TOUT SUPPRIMER <span><img src="{{ asset('ICON/poubelle.svg') }}" alt="del" style="height:14px;"></span></button>
+                        <button class="messages-close-btn" id="close-messages-btn">&times;</button>
+                    </div>
+                    <div class="messages-body" id="messages-list-container">
+                        <div class="section-vide" style="color:white;">Chargement des messages...</div>
                     </div>
                 </div>
             </div>
