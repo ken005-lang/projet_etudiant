@@ -3410,3 +3410,270 @@ main {
   border-radius: 50%;
   display: none;
 }
+
+/* Visitor Header - Enhanced Actions */
+.header-divider {
+  color: rgba(0, 0, 0, 0.1);
+  margin: 0 0.5rem;
+  font-size: 1.2rem;
+  font-weight: 300;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.header-action-btn {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.header-action-btn:hover {
+  transform: scale(1.1);
+}
+
+.header-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.header-logout-icon {
+  width: 24px;
+  height: 24px;
+  opacity: 0.8;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.header-logout-icon:hover {
+  opacity: 1;
+  transform: translateX(2px);
+}
+
+/* Visitor Contact Tab - Quick Form */
+.contact-tab-container {
+  display: flex;
+  gap: 2.5rem;
+  align-items: flex-start;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.contact-info-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.contact-form-column {
+  flex: 1.5;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.contact-quick-textarea {
+  width: 100%;
+  min-height: 100px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  border-radius: 15px;
+  padding: 1.2rem;
+  color: white;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  resize: none;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.contact-quick-textarea::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.contact-quick-textarea:focus {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+}
+
+.contact-quick-valider {
+  align-self: flex-end;
+  background-color: var(--white);
+  color: var(--orange);
+  border: none;
+  border-radius: 30px;
+  padding: 0.8rem 3rem;
+  font-weight: 800;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.contact-quick-valider:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  background-color: #f8f8f8;
+}
+
+.contact-quick-valider:active {
+  transform: translateY(-1px);
+}
+
+.contact-item span {
+  font-size: 1.1rem;
+  letter-spacing: 0.3px;
+}
+
+/* =============================================
+   GROUPE - Header Actions (évènements + icône cloche)
+   ============================================= */
+.group-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.group-header-btn {
+  position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 20px;
+  transition: background 0.2s;
+}
+
+.group-header-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.group-events-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--black);
+  font-family: 'Inter', sans-serif;
+}
+
+.group-bell-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.group-events-notif,
+.group-bell-notif {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 9px;
+  height: 9px;
+  background: var(--orange);
+  border-radius: 50%;
+  display: none;
+  pointer-events: none;
+}
+
+/* =============================================
+   GROUPE - Panneau Évènements (overlay modal)
+   ============================================= */
+.group-events-panel {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 9999;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 5rem;
+  backdrop-filter: blur(3px);
+  animation: fadeInOverlay 0.2s ease;
+}
+
+@keyframes fadeInOverlay {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.group-events-panel-inner {
+  background: var(--white);
+  border-radius: 20px;
+  width: 90%;
+  max-width: 900px;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 2rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUpPanel 0.25s ease;
+}
+
+@keyframes slideUpPanel {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.group-events-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.group-events-panel-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--black);
+  font-family: 'Inter', sans-serif;
+}
+
+.group-events-panel-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 2rem;
+  line-height: 1;
+  color: #999;
+  transition: color 0.2s, transform 0.2s;
+  padding: 0.2rem 0.5rem;
+}
+
+.group-events-panel-close:hover {
+  color: #333;
+  transform: scale(1.2);
+}
+
+/* Ensure event bands inside group panel are styled properly */
+.group-events-panel-inner .projects-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.group-events-panel-inner .empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+}

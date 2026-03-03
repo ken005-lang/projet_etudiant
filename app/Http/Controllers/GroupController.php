@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Event;
 
 class GroupController extends Controller
 {
@@ -27,8 +28,19 @@ class GroupController extends Controller
                 })->toArray()
             ];
         }
+
+        // Fetch all events for the group's event panel
+        $events = Event::orderBy('created_at', 'desc')->get()->map(function ($event) {
+            return [
+                'id' => $event->id,
+                'title' => $event->title,
+                'description' => $event->description ?? '',
+                'image' => $event->image_path ? asset($event->image_path) : null,
+                'video' => $event->video_path ? asset($event->video_path) : null,
+            ];
+        })->toArray();
         
-        return view('groupe', compact('group', 'serverGroupData'));
+        return view('groupe', compact('group', 'serverGroupData', 'events'));
     }
 
     public function uploadReports(Request $request)

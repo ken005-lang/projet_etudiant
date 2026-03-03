@@ -24,11 +24,36 @@
                         <span id="groupNameValue" class="group-label">{{ $group->project_name }}</span>
                         <input type="text" id="groupNameInput" style="display: none;" class="header-name-input">
                         <button id="groupNameToggleBtn" class="btn-pill-small small-header-btn">Modifier</button>
-                        <!--<div class="group-icon-square">
-                        </div>-->
                     </div>
                 </div>
+                <div class="group-header-actions">
+                    <button class="group-header-btn" id="groupEventsBtn">
+                        <span class="group-events-label">évènements</span>
+                        <span class="notif-dot group-events-notif" id="group-events-notif-dot"></span>
+                    </button>
+                    <button class="group-header-btn" id="groupBellBtn" title="Notifications">
+                        <img src="{{ asset('ICON/bell-simple-fill.svg') }}" alt="Bell" class="group-bell-icon">
+                        <span class="notif-dot group-bell-notif" id="group-bell-notif-dot"></span>
+                    </button>
+                </div>
             </header>
+
+            {{-- EVENTS PANEL (overlay) --}}
+            <div id="groupEventsPanel" class="group-events-panel" style="display:none;">
+                <div class="group-events-panel-inner">
+                    <div class="group-events-panel-header">
+                        <h2 class="group-events-panel-title"># EVENEMENTS</h2>
+                        <button class="group-events-panel-close" id="closeEventsPanel">&times;</button>
+                    </div>
+                    <div id="group-events-list-container" class="projects-list-container"></div>
+                    <div id="group-events-empty-state" class="empty-state" style="display:none;">
+                        <div class="empty-icon-container">
+                            <img src="{{ asset('IMG/mascotte ITES.png') }}" alt="Aucun évènement" class="empty-icon">
+                        </div>
+                        <p class="empty-text">Aucun évènement pour le moment.</p>
+                    </div>
+                </div>
+            </div>
 
             <nav class="dashboard-tabs">
                 <button class="nav-tab active" data-tab="introduction">INTRODUCTION</button>
@@ -207,6 +232,7 @@
 
     <script>
         window.serverGroupData = @json($serverGroupData);
+        window.serverEventsData = @json($events);
     </script>
     <script src="{{ asset('JS/groupe.js') }}?v={{ time() }}"></script>
 </body>

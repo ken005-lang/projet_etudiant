@@ -629,4 +629,119 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize visibility
     if (reportsGrid) updateReportsVisibility();
+
+    // =============================================
+    // === MODULE EVENEMENTS (identique visiteur) ===
+    // =============================================
+    const eventsData = window.serverEventsData || [];
+    const eventsPanel = document.getElementById('groupEventsPanel');
+    const eventsListContainer = document.getElementById('group-events-list-container');
+    const eventsEmptyState = document.getElementById('group-events-empty-state');
+    const eventsBtn = document.getElementById('groupEventsBtn');
+    const bellBtn = document.getElementById('groupBellBtn');
+    const closePanelBtn = document.getElementById('closeEventsPanel');
+    const eventsNotifDot = document.getElementById('group-events-notif-dot');
+    const bellNotifDot = document.getElementById('group-bell-notif-dot');
+
+    // Build event band HTML (same logic as visiteur.js)
+    function createGroupEventBandHTML(event) {
+        const inlineImageSvg = `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" class="placeholder-icon" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`;
+        const inlineVideoSvg = `<svg width="50" height="50" viewBox="0 0 24 24" fill="none" class="placeholder-icon" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>`;
+
+        const imageHtml = event.image
+            ? `<img src="${event.image}" alt="Event Image" class="actual-image">`
+            : inlineImageSvg;
+
+        const videoHtml = event.video
+            ? `<div class="custom-video-wrapper">
+                <video id="video-gevent-${event.id}" src="${event.video}" preload="metadata" controls></video>
+                <div class="video-overlay" onclick="document.getElementById('video-gevent-${event.id}').play(); document.getElementById('video-gevent-${event.id}').setAttribute('controls','controls'); this.style.display='none';">
+                    <div class="icon-container"><img src="/ICON/film-strip.svg" alt="Play" class="video-play-icon"></div>
+                    <span class="video-label">Voir la vidéo</span>
+                </div>
+              </div>`
+            : inlineVideoSvg;
+
+        return `
+            <div class="event-band" data-id="${event.id}">
+                <div class="event-band-header">
+                    <span>${event.title}</span>
+                    <img src="ICON/up-arrow_icon.svg" alt="Expand" class="chevron-icon">
+                </div>
+                <div class="event-band-content">
+                    <div class="event-content-left">
+                        <div class="event-image-placeholder">${imageHtml}</div>
+                    </div>
+                    <div class="event-content-right">
+                        <div class="event-description">${event.description.replace(/\n/g, '<br>')}</div>
+                        <div class="event-video-placeholder">${videoHtml}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderGroupEventsList() {
+        if (!eventsListContainer || !eventsEmptyState) return;
+        eventsListContainer.innerHTML = '';
+        if (eventsData.length === 0) {
+            eventsEmptyState.style.display = 'block';
+            eventsListContainer.style.display = 'none';
+        } else {
+            eventsEmptyState.style.display = 'none';
+            eventsListContainer.style.display = 'flex';
+            eventsData.forEach(event => {
+                eventsListContainer.innerHTML += createGroupEventBandHTML(event);
+            });
+            // Accordion toggle for event bands
+            eventsListContainer.querySelectorAll('.event-band-header').forEach(header => {
+                header.addEventListener('click', function () {
+                    this.closest('.event-band').classList.toggle('expanded');
+                });
+            });
+        }
+    }
+
+    // Notification dot logic (same as visitor)
+    function checkGroupNewEvents() {
+        if (eventsData.length === 0) return;
+        const lastSeenId = parseInt(localStorage.getItem('ites_last_seen_event_id') || '0');
+        const maxEventId = Math.max(...eventsData.map(e => e.id));
+        const hasNew = maxEventId > lastSeenId;
+        if (eventsNotifDot) eventsNotifDot.style.display = hasNew ? 'block' : 'none';
+        if (bellNotifDot) bellNotifDot.style.display = hasNew ? 'block' : 'none';
+    }
+
+    function markEventsAsSeen() {
+        if (eventsData.length === 0) return;
+        const maxEventId = Math.max(...eventsData.map(e => e.id));
+        localStorage.setItem('ites_last_seen_event_id', maxEventId.toString());
+        if (eventsNotifDot) eventsNotifDot.style.display = 'none';
+        if (bellNotifDot) bellNotifDot.style.display = 'none';
+    }
+
+    function openEventsPanel() {
+        if (!eventsPanel) return;
+        eventsPanel.style.display = 'flex';
+        renderGroupEventsList();
+        markEventsAsSeen();
+    }
+
+    function closeEventsPanel() {
+        if (eventsPanel) eventsPanel.style.display = 'none';
+    }
+
+    if (eventsBtn) eventsBtn.addEventListener('click', openEventsPanel);
+    if (bellBtn) bellBtn.addEventListener('click', openEventsPanel);
+    if (closePanelBtn) closePanelBtn.addEventListener('click', closeEventsPanel);
+
+    // Close panel clicking outside
+    if (eventsPanel) {
+        eventsPanel.addEventListener('click', function (e) {
+            if (e.target === this) closeEventsPanel();
+        });
+    }
+
+    // Initial notification check
+    checkGroupNewEvents();
 });

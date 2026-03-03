@@ -29,17 +29,23 @@
                 <div class="user-avatar">
                     <img src="{{ asset('ICON/profile_user_avatar_person_icon_192481.svg') }}" alt="User">
                 </div>
-                <p>|</p>
             </div>
 
-            <div class="bookmark-notifications">
-                <div class="bookmark-btn">
-                    <img src="{{ asset('ICON/bookmark-simple-fill.svg') }}" alt="Bookmark" class="bookmark-icon" title="Favoris">
+            <div class="header-divider">|</div>
+
+            <div class="header-actions">
+                <div class="header-action-btn">
+                    <img src="{{ asset('ICON/bell-simple-fill.svg') }}" alt="Notifications" class="header-icon" title="Notifications">
+                </div>
+                <div class="header-action-btn bookmark-btn">
+                    <img src="{{ asset('ICON/bookmark-simple-fill.svg') }}" alt="Bookmark" class="header-icon" title="Favoris">
                 </div>
             </div>
 
+            <div class="header-divider">|</div>
+
             <a href="{{ url('/') }}" class="logout-link">
-                <img src="{{ asset('ICON/logout_icon.svg') }}" alt="Logout" title="Déconnexion">
+                <img src="{{ asset('ICON/logout_icon.svg') }}" alt="Logout" title="Déconnexion" class="header-logout-icon">
             </a>
         </nav>
     </header>

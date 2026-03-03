@@ -109,14 +109,22 @@ document.addEventListener('DOMContentLoaded', function () {
                </div>`
             : `<div class="section-vide" style="color:white;">Section vide</div>`;
 
-        // Logic "Section Vide" for Contact
-        let contactHtml = '';
-        if (!group.whatsapp && !group.email) {
-            contactHtml = `<div class="section-vide" style="color:white;">Section vide</div>`;
-        } else {
-            if (group.whatsapp) contactHtml += `<div class="contact-item"><img src="ICON/whatsapp-icon.svg" alt="WA"> ${group.whatsapp}</div>`;
-            if (group.email) contactHtml += `<div class="contact-item"><img src="ICON/email-icon.svg" alt="Email"> ${group.email}</div>`;
-        }
+        // Logic for Contact Section
+        let contactItems = '';
+        if (group.whatsapp) contactItems += `<div class="contact-item"><img src="ICON/whatsapp-icon.svg" alt="WA"> <span>${group.whatsapp}</span></div>`;
+        if (group.email) contactItems += `<div class="contact-item"><img src="ICON/email-icon.svg" alt="Email"> <span>${group.email}</span></div>`;
+
+        let contactHtml = `
+            <div class="contact-tab-container">
+                <div class="contact-info-column">
+                    ${contactItems || '<div class="section-vide" style="color:white; margin:0;">Aucune coordonnée directe.</div>'}
+                </div>
+                <div class="contact-form-column">
+                    <textarea class="contact-quick-textarea" placeholder="Envoyer un commentaire ou un message..."></textarea>
+                    <button class="contact-quick-valider">Valider</button>
+                </div>
+            </div>
+        `;
 
         // Logic for Reports
         let reportsHtml = '';
