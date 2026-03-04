@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Message;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use App\Events\MessageToGroupEvent;
+use App\Events\MessageToVisitorEvent;
 
 class MessageController extends Controller
 {
@@ -34,6 +36,9 @@ class MessageController extends Controller
             'is_read_by_visitor' => true, // Le visiteur l'a écrit, il n'a pas besoin de notification pour ça
         ]);
 
+        // Diffuser l'événement en temps réel
+        broadcast(new MessageToGroupEvent($message));
+
         return response()->json(['success' => true, 'message' => $message]);
     }
 
@@ -59,6 +64,9 @@ class MessageController extends Controller
             'is_read_by_visitor' => false, // Notification pour le visiteur
             'is_read_by_group' => true, // Le groupe vient d'écrire
         ]);
+        
+        // Diffuser l'événement en temps réel
+        broadcast(new MessageToVisitorEvent($message));
 
         return response()->json(['success' => true, 'message' => $message]);
     }

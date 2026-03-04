@@ -16,6 +16,9 @@ class EnsureIsGroup
     public function handle(Request $request, Closure $next): Response
     {
         if (!auth()->check() || auth()->user()->type_role !== 'groupe') {
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'Non autorisé ou session expirée. Veuillez vous reconnecter.'], 401);
+            }
             return redirect('/login')->withErrors(['login' => 'Accès restreint aux groupes inscrits.']);
         }
         return $next($request);

@@ -460,8 +460,24 @@ document.addEventListener('DOMContentLoaded', function () {
     async function loadMessages() {
         msgList.innerHTML = '<div class="section-vide">Chargement...</div>';
         try {
-            const res = await fetch('/visiteur/messages');
-            const data = await res.json();
+            const res = await fetch('/visiteur/messages', { headers: { 'Accept': 'application/json' } });
+            const textResponse = await res.text();
+
+            if (!res.ok) {
+                console.error('[Messagerie Visiteur] Erreur HTTP', res.status, textResponse.substring(0, 500));
+                msgList.innerHTML = `<div class="section-vide">Erreur ${res.status} - rechargez la page.</div>`;
+                return;
+            }
+
+            let data;
+            try {
+                data = JSON.parse(textResponse);
+            } catch (jsonErr) {
+                console.error('[Messagerie Visiteur] JSON Error:', jsonErr, 'Response:', textResponse.substring(0, 500));
+                msgList.innerHTML = `<div style="color:red; font-size: 0.8rem; padding:10px; word-break: break-all;">Erreur Serveur (HTML reçu au lieu de JSON) : <br><br>${textResponse.substring(0, 150).replace(/</g, '&lt;')}</div>`;
+                return;
+            }
+
             if (data.success) {
                 renderMessages(data.messages);
                 // Mark as read after loading
@@ -472,7 +488,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 notifDot.style.display = 'none';
             }
         } catch (e) {
-            msgList.innerHTML = '<div class="section-vide">Erreur de chargement.</div>';
+            console.error('[Messagerie Visiteur] Exception interceptée:', e);
+            msgList.innerHTML = `<div class="section-vide">Erreur critique JS: ${e.message}</div>`;
         }
     }
 
@@ -677,5 +694,36 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Init notifications checker
     checkUnread();
-    setInterval(checkUnread, 15000); // Check every 15s
+
+    // --- TEMPS REEL avec Laravel Echo ---
+    const visitorIdMeta = document.querySelector('meta[name="user-id"]');
+    const visitorId = visitorIdMeta ? parseInt(visitorIdMeta.content) : null;
+
+    if (visitorId) {
+        // On attend que Echo soit disponible (peut prendre un instant après le chargement du module Vite)
+        function initVisitorEcho(retries) {
+            if (window.Echo) {
+                console.log('[Echo] Visiteur: connexion au canal visitor.messages.' + visitorId);
+                window.Echo.private(`visitor.messages.${visitorId}`)
+                    .listen('.reply.received', (data) => {
+                        console.log('[Echo] Nouvelle réponse reçue en temps réel', data);
+                        checkUnread();
+                        if (document.getElementById('messages-overlay')?.classList.contains('open')) {
+                            loadMessages();
+                        }
+                    })
+                    .error((err) => {
+                        console.error('[Echo] Erreur canal visiteur:', err);
+                    });
+            } else if (retries > 0) {
+                setTimeout(() => initVisitorEcho(retries - 1), 200);
+            } else {
+                console.warn('[Echo] Non disponible, fallback polling toutes les 10s');
+                setInterval(checkUnread, 10000);
+            }
+        }
+        initVisitorEcho(50); // Essaie pendant 10 secondes (50 x 200ms)
+    } else {
+        setInterval(checkUnread, 10000);
+    }
 });

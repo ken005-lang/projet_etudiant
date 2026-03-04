@@ -5,12 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="user-id" content="{{ auth()->id() }}">
     <title>ITES - Espace Groupe</title>
     <link rel="stylesheet" href="{{ asset('style.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    @vite(['resources/js/app.js'])
 </head>
 
 <body class="group-dashboard-page">
@@ -60,7 +61,7 @@
                 <div class="messages-panel group-theme">
                     <div class="messages-header">
                         <h2># MESSAGERIE</h2>
-                        <button class="messages-clear-btn" id="group-clear-messages">TOUT SUPPRIMER <span><img src="{{ asset('ICON/trash-fill.svg') }}" alt="del" style="height:14px; filter: invert(35%) sepia(85%) saturate(3015%) hue-rotate(355deg) brightness(90%) contrast(95%);"></span></button>
+                        <button class="messages-clear-btn" id="group-clear-messages">TOUT SUPPRIMER <span><img src="{{ asset('ICON/trash-fill-orange.svg') }}" alt="del" style="height:14px;"></span></button>
                         <button class="messages-close-btn" id="close-messages-btn">&times;</button>
                     </div>
                     <div class="messages-body" id="messages-list-container">

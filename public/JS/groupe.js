@@ -770,8 +770,25 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadMessages() {
         msgList.innerHTML = '<div class="section-vide" style="color:black;">Chargement...</div>';
         try {
-            const res = await fetch('/groupe/messages');
-            const data = await res.json();
+            const res = await fetch('/groupe/messages', { headers: { 'Accept': 'application/json' } });
+            const textResponse = await res.text();
+
+            if (!res.ok) {
+                console.error('[Messagerie Groupe] Erreur HTTP', res.status, textResponse.substring(0, 500));
+                msgList.innerHTML = `<div class="section-vide" style="color:black;">Erreur ${res.status} - rechargez la page.</div>`;
+                return;
+            }
+
+            let data;
+            try {
+                data = JSON.parse(textResponse);
+            } catch (jsonErr) {
+                console.error('[Messagerie Groupe] JSON Error:', jsonErr, 'Response:', textResponse.substring(0, 500));
+                // Affiche les 100 premiers caractères de la réponse brute pour diagnostiquer l'HTML
+                msgList.innerHTML = `<div style="color:red; font-size: 0.8rem; padding:10px; word-break: break-all;">Erreur Serveur (HTML reçu au lieu de JSON) : <br><br>${textResponse.substring(0, 150).replace(/</g, '&lt;')}</div>`;
+                return;
+            }
+
             if (data.success) {
                 renderMessages(data.messages);
                 // Mark as read after loading
@@ -782,7 +799,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (msgNotifDot) msgNotifDot.style.display = 'none';
             }
         } catch (e) {
-            msgList.innerHTML = '<div class="section-vide" style="color:black;">Erreur de chargement.</div>';
+            console.error('[Messagerie Groupe] Exception interceptée:', e);
+            msgList.innerHTML = `<div class="section-vide" style="color:black;">Erreur critique JS: ${e.message}</div>`;
         }
     }
 
@@ -815,8 +833,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // If group replied, append the white block
             if (hasReply) {
-                const groupName = window.serverGroupData ? window.serverGroupData.project_name : 'Moi (Groupe)';
-                const groupImg = (window.serverGroupData && window.serverGroupData.project_image) ? `/${window.serverGroupData.project_image}` : '/ICON/group.svg';
+                const _gd = window.serverGroupData || {};
+                const groupName = _gd.project_name || _gd.name || 'Groupe';
+                const groupImg = _gd.project_image ? `/${_gd.project_image}` : '/ICON/group.svg';
 
                 html += `
                 <div class="message-block group-msg" style="margin-top: 10px;">
@@ -930,6 +949,36 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     checkUnreadMsgs();
-    setInterval(checkUnreadMsgs, 15000); // Check every 15s
+
+    // --- TEMPS REEL avec Laravel Echo ---
+    const groupIdMeta = document.querySelector('meta[name="user-id"]');
+    const groupUserId = groupIdMeta ? parseInt(groupIdMeta.content) : null;
+
+    if (groupUserId) {
+        function initGroupEcho(retries) {
+            if (window.Echo) {
+                console.log('[Echo] Groupe: connexion au canal group.messages.' + groupUserId);
+                window.Echo.private(`group.messages.${groupUserId}`)
+                    .listen('.message.received', (data) => {
+                        console.log('[Echo] Nouveau message visiteur reçu en temps réel', data);
+                        checkUnreadMsgs();
+                        if (document.getElementById('messages-overlay')?.classList.contains('open')) {
+                            loadMessages();
+                        }
+                    })
+                    .error((err) => {
+                        console.error('[Echo] Erreur canal groupe:', err);
+                    });
+            } else if (retries > 0) {
+                setTimeout(() => initGroupEcho(retries - 1), 200);
+            } else {
+                console.warn('[Echo] Non disponible pour le groupe, fallback polling 10s');
+                setInterval(checkUnreadMsgs, 10000);
+            }
+        }
+        initGroupEcho(50);
+    } else {
+        setInterval(checkUnreadMsgs, 10000);
+    }
 
 });
