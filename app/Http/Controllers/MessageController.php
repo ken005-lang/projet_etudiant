@@ -74,10 +74,20 @@ class MessageController extends Controller
             return response()->json(['success' => false, 'message' => 'Non autorisé'], 403);
         }
 
-        $messages = Message::with('group:id,name_groupe')
+        $messages = Message::with(['group:id,name', 'group.groupProfile:user_id,project_name,project_image'])
                            ->where('visitor_id', $visitor->id)
                            ->orderBy('created_at', 'desc')
                            ->get();
+
+        // Append project_name to each message's group for easier front-end use
+        $messages->each(function ($message) {
+            if ($message->group && $message->group->groupProfile) {
+                $message->group->project_name = $message->group->groupProfile->project_name;
+                $message->group->project_image = $message->group->groupProfile->project_image;
+            } else {
+                $message->group->project_name = $message->group->name ?? 'Groupe';
+            }
+        });
 
         return response()->json(['success' => true, 'messages' => $messages]);
     }

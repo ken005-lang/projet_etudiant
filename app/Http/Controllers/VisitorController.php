@@ -22,8 +22,9 @@ class VisitorController extends Controller
             }
 
             return [
-                'id' => $group->id,
-                'name' => $group->project_name,
+                'id'      => $group->id,          // GroupProfile.id (for display)
+                'user_id' => $group->user_id,      // User.id (for messaging API)
+                'name'    => $group->project_name,
                 'last_modified' => $group->updated_at ? $group->updated_at->toIso8601String() : now()->toIso8601String(),
                 'image' => $group->project_image ? asset($group->project_image) : 'IMG/rites_placeholder.png', 
                 'leader' => $group->leader_name,

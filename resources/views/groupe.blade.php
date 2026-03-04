@@ -60,7 +60,7 @@
                 <div class="messages-panel group-theme">
                     <div class="messages-header">
                         <h2># MESSAGERIE</h2>
-                        <button class="messages-clear-btn" id="group-clear-messages">TOUT SUPPRIMER <span><img src="{{ asset('ICON/poubelle.svg') }}" alt="del" style="height:14px;"></span></button>
+                        <button class="messages-clear-btn" id="group-clear-messages">TOUT SUPPRIMER <span><img src="{{ asset('ICON/trash-fill.svg') }}" alt="del" style="height:14px; filter: invert(35%) sepia(85%) saturate(3015%) hue-rotate(355deg) brightness(90%) contrast(95%);"></span></button>
                         <button class="messages-close-btn" id="close-messages-btn">&times;</button>
                     </div>
                     <div class="messages-body" id="messages-list-container">

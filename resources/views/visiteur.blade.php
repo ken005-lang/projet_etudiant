@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>ITES - Espace Visiteur</title>
     <link rel="stylesheet" href="{{ asset('style.css') }}?v={{ time() }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -124,7 +125,7 @@
         <div class="messages-panel visitor-theme">
             <div class="messages-header">
                 <h2># MESSAGERIE</h2>
-                <button class="messages-clear-btn" id="visitor-clear-messages">TOUT SUPPRIMER <span><img src="{{ asset('ICON/poubelle.svg') }}" alt="del" style="height:14px;"></span></button>
+                <button class="messages-clear-btn" id="visitor-clear-messages">TOUT SUPPRIMER <span><img src="{{ asset('ICON/trash-fill.svg') }}" alt="del" style="height:14px; filter: invert(35%) sepia(85%) saturate(3015%) hue-rotate(355deg) brightness(90%) contrast(95%);"></span></button>
                 <button class="messages-close-btn" id="close-messages-btn">&times;</button>
             </div>
             <div class="messages-body" id="messages-list-container">

@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>
                 <div class="contact-form-column">
                     <textarea class="contact-quick-textarea" placeholder="Envoyer un commentaire ou un message..."></textarea>
-                    <button class="contact-quick-valider">Valider</button>
+                    <button class="contact-quick-valider" data-group-id="${group.user_id}" data-group-name="${group.name}">Valider</button>
                 </div>
             </div>
         `;
@@ -499,6 +499,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     ${!msg.is_read_by_group ? '<div class="msg-status-dot" style="background-color: var(--orange); box-shadow: none;" title="Non lu par le groupe"></div>' : ''}
                 </div>
                 <p class="msg-content">${msg.visitor_message}</p>
+                <p class="msg-recipient" style="font-size:0.75rem; color:#888; margin: 4px 0 0 0; text-align:right; font-style:italic;">à ${msg.group ? (msg.group.project_name || msg.group.name || 'Groupe') : 'Groupe'}</p>
             `;
 
             // If group replied, append the black block
@@ -507,8 +508,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 <div class="message-block group-msg" style="margin-top: 10px;">
                     <div class="msg-header">
                         <div class="msg-user-info">
-                            <img src="/ICON/group-icon.svg" onerror="this.src='/ICON/profile_user_avatar_person_icon_192481.svg'" class="msg-user-icon" alt="group">
-                            <span>${msg.group.name_groupe}</span>
+                            <img src="${msg.group.project_image ? '/' + msg.group.project_image : '/ICON/group.svg'}" onerror="this.src='/ICON/profile_user_avatar_person_icon_192481.svg'" class="msg-user-icon" alt="group">
+                            <span>${msg.group.project_name || msg.group.name || 'Groupe'}</span>
                         </div>
                         <button class="msg-reply-btn" data-group-id="${msg.group.id}"><img src="/ICON/reply-icon.svg" onerror="this.style.display='none'"> RÉPONDRE</button>
                     </div>
@@ -614,28 +615,62 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Attach rapid contact form event handler via delegation since bands are dynamic
-    document.body.addEventListener('click', (e) => {
+    document.body.addEventListener('click', async (e) => {
         if (e.target.classList.contains('contact-quick-valider')) {
             const btn = e.target;
+            const groupId = btn.dataset.groupId;
             const textarea = btn.previousElementSibling;
-            const text = textarea.value.trim();
-            // Find the group name from the project card
-            const projectCard = btn.closest('.single-project-card');
-            if (!projectCard) return;
+            const text = textarea ? textarea.value.trim() : '';
 
-            const groupName = projectCard.querySelector('.project-name').textContent;
-            const groupInfo = window.serverGroupsData.find(g => g.name_groupe === groupName);
+            if (!groupId) {
+                console.error('group_id introuvable sur le bouton Valider');
+                return;
+            }
 
-            if (groupInfo && text) {
-                btn.textContent = '...';
-                sendNewMessage(groupInfo.id, text, null).then(() => {
-                    textarea.value = '';
-                    btn.textContent = 'Valider';
-                    alert('Message envoyé avec succès. Le groupe a été notifié ! Vous pouvez suivre sa réponse via la cloche.');
-                    checkUnread(); // Just in case
+            if (!text) {
+                alert('Veuillez écrire un message avant de valider.');
+                textarea.focus();
+                return;
+            }
+
+            // Disable button to prevent double-send
+            btn.disabled = true;
+            btn.textContent = '...';
+
+            try {
+                const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
+                const res = await fetch('/visiteur/messages/send', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrf
+                    },
+                    body: JSON.stringify({ group_id: parseInt(groupId), message: text })
                 });
-            } else if (!text) {
-                alert('Veuillez écrire un message.');
+
+                const data = await res.json();
+                if (data.success) {
+                    textarea.value = '';
+                    btn.textContent = '✓ Envoyé!';
+                    btn.style.backgroundColor = '#28a745';
+                    setTimeout(() => {
+                        btn.textContent = 'Valider';
+                        btn.style.backgroundColor = '';
+                        btn.disabled = false;
+                    }, 2500);
+                    // Update notification dot
+                    checkUnread();
+                } else {
+                    alert('Erreur: ' + (data.message || 'Impossible d\'envoyer le message.'));
+                    btn.textContent = 'Valider';
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                console.error('Erreur réseau:', err);
+                alert('Problème réseau. Veuillez réessayer.');
+                btn.textContent = 'Valider';
+                btn.disabled = false;
             }
         }
     });

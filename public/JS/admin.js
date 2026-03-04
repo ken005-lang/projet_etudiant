@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
             if (confirm('Voulez-vous vous déconnecter ?')) {
-                window.location.href = 'admin_login.html';
+                window.location.href = '/logout';
             }
         });
     }
