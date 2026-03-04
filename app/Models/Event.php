@@ -12,12 +12,14 @@ class Event extends Model
         'description',
         'image_path',
         'video_path',
+        'is_published',
     ];
 
     protected function casts(): array
     {
         return [
             'event_date' => 'datetime',
+            'is_published' => 'boolean',
         ];
     }
 }

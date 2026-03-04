@@ -179,8 +179,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (addEventBtn && eventInput && eventsList) {
 
-        // Helper function: Update Event Text (Title & Description)
-        const updateEventText = async (eventId, title, description, buttonToReset = null) => {
+        // Helper function: Update Event Text (Title & Description) & handles Publication
+        const updateEventText = async (eventId, title, description, buttonToReset = null, publish = false) => {
             try {
                 const response = await fetch(`/admin/events/${eventId}`, {
                     method: 'POST', // Using POST instead of PUT/PATCH for simpler FormData matching or direct JSON
@@ -191,14 +191,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     },
                     body: JSON.stringify({
                         title: title,
-                        description: description
+                        description: description,
+                        publish: publish
                     })
                 });
 
                 if (!response.ok) {
                     alert("Erreur lors de la mise à jour de l'événement.");
                 } else if (buttonToReset) {
-                    buttonToReset.textContent = 'Valider'; // Reset button text on success
+                    buttonToReset.textContent = publish ? 'Publié' : 'Valider';
+                    if (publish) {
+                        buttonToReset.style.backgroundColor = '#4CAF50';
+                        buttonToReset.style.color = '#fff';
+                        setTimeout(() => {
+                            buttonToReset.textContent = 'Valider';
+                            buttonToReset.style.backgroundColor = '';
+                            buttonToReset.style.color = '';
+                        }, 2000);
+                    }
                 }
             } catch (error) {
                 console.error("Erreur de mise à jour:", error);
@@ -226,7 +236,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 if (!response.ok) {
-                    alert("Erreur lors de la création de l'événement.");
+                    if (response.status === 419) {
+                        alert("Votre session a expiré. La page va se recharger, veuillez réessayer.");
+                        window.location.reload();
+                        return;
+                    }
+                    let errMsg = "Erreur lors de la création de l'événement.";
+                    try {
+                        const errData = await response.json();
+                        if (errData.message) errMsg += " (" + errData.message + ")";
+                    } catch (_) { }
+                    alert(errMsg);
                     return;
                 }
 
@@ -308,8 +328,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         if (response.ok) {
                             item.remove();
+                        } else if (response.status === 419) {
+                            alert("Votre session a expiré. La page va se recharger, veuillez réessayer.");
+                            window.location.reload();
                         } else {
-                            alert("Erreur lors de la suppression.");
+                            let errMsg = "Erreur lors de la suppression.";
+                            try {
+                                const errData = await response.json();
+                                if (errData.message) errMsg += " (" + errData.message + ")";
+                            } catch (_) { }
+                            alert(errMsg);
                         }
                     } catch (error) {
                         alert("Erreur réseau.");
@@ -325,7 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const description = item.querySelector('.event-desc-edit').value;
 
                 publishBtn.textContent = 'Enregistrement...';
-                await updateEventText(eventId, title, description, publishBtn);
+                await updateEventText(eventId, title, description, publishBtn, true);
 
                 // Keep it on 'Publier' visually if user wants (optional). Let's reset to Valider automatically for feedback.
                 return;
@@ -476,11 +504,19 @@ document.addEventListener('DOMContentLoaded', () => {
                         } catch (err) {
                             alert('Erreur parsing JSON.');
                         }
+                    } else if (xhr.status === 419) {
+                        alert("Votre session a expiré. La page va se recharger.");
+                        window.location.reload();
                     } else {
-                        alert('Erreur serveur lors de l\'upload.');
+                        let errMsg = "Erreur serveur lors de l'upload.";
+                        try {
+                            const errData = JSON.parse(xhr.responseText);
+                            if (errData.message) errMsg += " (" + errData.message + ")";
+                        } catch (_) { }
+                        alert(errMsg);
                         if (pTag) pTag.textContent = isImage ? 'upload image' : 'upload video';
                     }
-                    input.value = ''; // Reset
+                    input.value = ''; // Reset to allow re-upload of same file
                 };
 
                 xhr.onerror = () => {
@@ -494,4 +530,73 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // --- TEMPS REEL (Laravel Echo / Reverb) ---
+    // Écoute des nouvelles inscriptions (Visiteurs et Groupes)
+    if (window.Echo) {
+        console.log('[Echo] Admin: connexion au canal admin.notifications');
+        window.Echo.private('admin.notifications')
+            .listen('.user.registered', (data) => {
+                console.log('[Echo] Nouvel utilisateur inscrit:', data);
+                if (data && data.user) {
+                    if (data.user.type_role === 'visiteur') {
+                        // Incrémenter la stat Visiteur (cercle jaune)
+                        const statNum = document.querySelector('.icon-circle-group.bg-yellow')?.nextElementSibling?.querySelector('.stat-number');
+                        if (statNum) {
+                            statNum.textContent = parseInt(statNum.textContent || '0') + 1;
+                        }
+
+                        // Ajouter dans le tableau (le deuxième table.data-table)
+                        const visitorTableBody = document.querySelectorAll('.data-table')[1]?.querySelector('tbody');
+                        if (visitorTableBody && data.profile_data) {
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td>${data.user.id}</td>
+                                <td>${data.user.name}</td>
+                                <td>${data.user.username}</td>
+                                <td>${data.profile_data.gender}</td>
+                                <td><span class="status-badge valid">Inscrit</span></td>
+                                <td>À l'instant</td>
+                            `;
+                            visitorTableBody.prepend(tr);
+                        }
+                    } else if (data.user.type_role === 'groupe') {
+                        // Incrémenter la stat Groupes (cercle violet)
+                        const statNum = document.querySelector('.icon-circle-group.bg-purple')?.nextElementSibling?.querySelector('.stat-number');
+                        if (statNum) {
+                            statNum.textContent = parseInt(statNum.textContent || '0') + 1;
+                        }
+
+                        // Ajouter dans le tableau (le premier table.data-table)
+                        const groupTableBody = document.querySelectorAll('.data-table')[0]?.querySelector('tbody');
+                        if (groupTableBody && data.profile_data) {
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td>${data.user.username}</td>
+                                <td>${data.profile_data.project_name}</td>
+                                <td>${data.profile_data.leader_name}</td>
+                                <td>${data.profile_data.leader_sector}</td>
+                                <td>${data.profile_data.leader_level}</td>
+                                <td class="actions-cell">
+                                    <button class="action-btn delete-btn" data-id="${data.profile_data.id}" title="Supprimer">
+                                        <img src="/ICON/trash-fill.svg" alt="Supprimer">
+                                    </button>
+                                </td>
+                            `;
+                            groupTableBody.prepend(tr);
+                        }
+
+                        // Incrémenter les stats des projets au passage
+                        const projectStatNum = document.querySelector('.icon-circle-group.bg-orange')?.nextElementSibling?.querySelector('.stat-number');
+                        if (projectStatNum) {
+                            projectStatNum.textContent = parseInt(projectStatNum.textContent || '0') + 1;
+                        }
+                    }
+                }
+            })
+            .error((err) => {
+                console.error('[Echo] Erreur connexion admin:', err);
+            });
+    }
+
 });

@@ -55,8 +55,8 @@ class VisitorController extends Controller
             ];
         });
 
-        // Fetch all events
-        $events = Event::orderBy('event_date', 'desc')->get();
+        // Fetch only published events
+        $events = Event::where('is_published', true)->orderBy('event_date', 'desc')->get();
 
         // Map events to format expected by JS
         $eventsData = $events->map(function ($event) {

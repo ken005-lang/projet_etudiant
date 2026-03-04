@@ -80,6 +80,7 @@ class AdminController extends Controller
             'title' => $request->title,
         ]);
 
+        // Note: l'événement n'est PAS diffusé ici. Il le sera seulement quand l'admin clique "Valider".
         return response()->json(['success' => true, 'event' => $event]);
     }
 
@@ -90,9 +91,29 @@ class AdminController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
+            'publish' => 'nullable|boolean',
         ]);
 
-        $event->update($validated);
+        $updateData = [
+            'title' => $validated['title'],
+            'description' => $validated['description'] ?? '',
+        ];
+
+        // Si l'admin demande la publication (touche Valider)
+        if ($request->boolean('publish')) {
+            $updateData['is_published'] = true;
+        }
+
+        $event->update($updateData);
+
+        // On ne diffuse QUE si l'événement est publié ou s'il l'était déjà
+        if ($event->is_published) {
+            try {
+                broadcast(new \App\Events\NewEventPublishedEvent($event, 'updated'));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Broadcast failed on event update/publish: ' . $e->getMessage());
+            }
+        }
 
         return response()->json(['success' => true, 'event' => $event]);
     }
@@ -110,7 +131,15 @@ class AdminController extends Controller
             $fileName = time() . '_event_img_' . $file->getClientOriginalName();
             $file->move(public_path('IMG/events'), $fileName);
             $event->update(['image_path' => 'IMG/events/' . $fileName]);
-
+ 
+            if ($event->is_published) {
+                try {
+                    broadcast(new \App\Events\NewEventPublishedEvent($event, 'updated'));
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('Broadcast failed on image upload: ' . $e->getMessage());
+                }
+            }
+ 
             return response()->json(['success' => true, 'url' => asset('IMG/events/' . $fileName), 'type' => 'image']);
         }
 
@@ -123,7 +152,15 @@ class AdminController extends Controller
             $fileName = time() . '_event_vid_' . $file->getClientOriginalName();
             $file->move(public_path('VIDEO/events'), $fileName);
             $event->update(['video_path' => 'VIDEO/events/' . $fileName]);
-
+ 
+            if ($event->is_published) {
+                try {
+                    broadcast(new \App\Events\NewEventPublishedEvent($event, 'updated'));
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('Broadcast failed on video upload: ' . $e->getMessage());
+                }
+            }
+ 
             return response()->json(['success' => true, 'url' => asset('VIDEO/events/' . $fileName), 'type' => 'video']);
         }
 
@@ -132,18 +169,31 @@ class AdminController extends Controller
 
     public function destroyEvent($id)
     {
-        $event = Event::findOrFail($id);
+        try {
+            $event = Event::findOrFail($id);
 
-        // Optionnel: Supprimer les fichiers physiques associés
-        if ($event->image_path && File::exists(public_path($event->image_path))) {
-            File::delete(public_path($event->image_path));
+            // Optionnel: Supprimer les fichiers physiques associés
+            if ($event->image_path && \Illuminate\Support\Facades\File::exists(public_path($event->image_path))) {
+                \Illuminate\Support\Facades\File::delete(public_path($event->image_path));
+            }
+            if ($event->video_path && \Illuminate\Support\Facades\File::exists(public_path($event->video_path))) {
+                \Illuminate\Support\Facades\File::delete(public_path($event->video_path));
+            }
+
+            // Send broadcast before deletion so we have the ID and data
+            // Isolated try/catch so a WebSocket error doesn't block the deletion
+            try {
+                broadcast(new \App\Events\NewEventPublishedEvent($event, 'deleted'));
+            } catch (\Throwable $broadcastEx) {
+                \Illuminate\Support\Facades\Log::warning('Broadcast failed on event deletion: ' . $broadcastEx->getMessage());
+            }
+
+            $event->delete();
+
+            return response()->json(['success' => true]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('destroyEvent error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
-        if ($event->video_path && File::exists(public_path($event->video_path))) {
-            File::delete(public_path($event->video_path));
-        }
-
-        $event->delete();
-
-        return response()->json(['success' => true]);
     }
 }

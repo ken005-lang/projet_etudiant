@@ -324,7 +324,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // ---- EVENTS LOGIC (Dynamic from Backend) ----
-    const eventsData = window.serverEventsData || [];
+    let eventsData = window.serverEventsData || [];
 
     const eventsContainer = document.getElementById('events-list-container');
     const eventsEmptyState = document.getElementById('events-empty-state');
@@ -335,16 +335,18 @@ document.addEventListener('DOMContentLoaded', function () {
         let imageHtml = event.image ? `<img src="${event.image.match(/^https?:\/\//i) ? event.image : '/' + event.image}" alt="Event Image" class="actual-image">` : inlineImageSvg;
 
         let videoHtml = event.video ? `
-            <div class="custom-video-wrapper">
-                <video id="video-event-${event.id}" src="${event.video.match(/^https?:\/\//i) ? event.video : '/' + event.video}" preload="metadata" controls></video>
-                <div class="video-overlay" onclick="document.getElementById('video-event-${event.id}').play(); document.getElementById('video-event-${event.id}').setAttribute('controls', 'controls'); this.style.display='none';">
-                    <div class="icon-container">
-                        <img src="/ICON/film-strip.svg" alt="Play Video" class="video-play-icon">
+            <div class="event-video-placeholder">
+                <div class="custom-video-wrapper">
+                    <video id="video-event-${event.id}" src="${event.video.match(/^https?:\/\//i) ? event.video : '/' + event.video}" preload="metadata" controls></video>
+                    <div class="video-overlay" onclick="document.getElementById('video-event-${event.id}').play(); document.getElementById('video-event-${event.id}').setAttribute('controls', 'controls'); this.style.display='none';">
+                        <div class="icon-container">
+                            <img src="/ICON/film-strip.svg" alt="Play Video" class="video-play-icon">
+                        </div>
+                        <span class="video-label">Voir la vidéo</span>
                     </div>
-                    <span class="video-label">Voir la vidéo</span>
                 </div>
             </div>
-        ` : inlineVideoSvg;
+        ` : '';
 
         return `
             <div class="event-band" data-id="${event.id}">
@@ -364,9 +366,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <div class="event-description">
                             ${event.description.replace(/\n/g, '<br>')}
                         </div>
-                        <div class="event-video-placeholder">
-                            ${videoHtml}
-                        </div>
+                        ${videoHtml}
                     </div>
                 </div>
             </div>
@@ -714,6 +714,79 @@ document.addEventListener('DOMContentLoaded', function () {
                     })
                     .error((err) => {
                         console.error('[Echo] Erreur canal visiteur:', err);
+                    });
+
+                // Écoute des mises à jour globales (Canal public)
+                console.log('[Echo] Visiteur: connexion au canal public.updates');
+                window.Echo.channel('public.updates')
+                    .listen('.group.updated', (data) => {
+                        console.log('[Echo] Mise à jour groupe reçue:', data);
+                        if (data && data.group) {
+                            const index = window.serverGroupsData.findIndex(g => g.id === data.group.id);
+                            if (index !== -1) {
+                                window.serverGroupsData[index] = data.group;
+                            } else {
+                                window.serverGroupsData.push(data.group);
+                            }
+                            // Rafraîchir la grille si actif
+                            if (document.getElementById('projects-section').classList.contains('active')) {
+                                renderProjects(window.serverGroupsData);
+                            }
+                            // Mettre à jour le panneau latéral s'il est ouvert pour ce groupe
+                            const clickItem = document.querySelector(`.project-item[data-id="${data.group.id}"]`);
+                            const panel = document.getElementById('project-side-panel');
+                            if (panel && panel.classList.contains('open')) {
+                                // Extract current opened ID from visually identifying it (dirty but works)
+                                const submitBtn = document.getElementById('contact-quick-submit');
+                                if (submitBtn && parseInt(submitBtn.dataset.groupId) === data.group.id) {
+                                    openProjectPanel(data.group); // Recharge le panel
+                                }
+                            }
+                        }
+                    })
+                    .listen('.event.published', (data) => {
+                        console.log('[Echo] Mise à jour événement reçue:', data);
+                        if (data && data.event && data.action) {
+                            if (data.action === 'updated') {
+                                const index = eventsData.findIndex(e => e.id === data.event.id);
+                                if (index !== -1) {
+                                    // L'événement existe déjà : mise à jour simple
+                                    eventsData[index] = data.event;
+                                } else {
+                                    // L'événement n'existe pas encore : première publication via "Valider"
+                                    eventsData.unshift(data.event);
+                                    const dot = document.getElementById('events-notif-dot');
+                                    if (dot) dot.style.display = 'inline-block';
+                                }
+                            } else if (data.action === 'created') {
+                                // Cas rarissime (garde pour compatibilité)
+                                eventsData.unshift(data.event);
+                                const dot = document.getElementById('events-notif-dot');
+                                if (dot) dot.style.display = 'inline-block';
+                            } else if (data.action === 'deleted') {
+                                eventsData = eventsData.filter(e => e.id !== data.event.id);
+                            }
+
+                            // Rafraîchir les listes
+                            console.log('[Echo] Mise à jour du rendu des événements (total: ' + eventsData.length + ')');
+                            renderEventsList();
+
+                            // Mettre à jour ou fermer la modale évènement si ouverte
+                            const modal = document.getElementById('event-modal-fullscreen');
+                            if (modal && modal.classList.contains('active')) {
+                                // Find event details in DOM (hacky, let's just close/reopen or close if deleted)
+                                if (data.action === 'deleted') {
+                                    closeEventModal();
+                                } else {
+                                    // It's harder to know WHICH event is open, so we just blindly update if the title matches or close
+                                    const modalTitle = document.getElementById('modal-event-title').textContent;
+                                    const oldEvent = eventsData.find(e => e.title === modalTitle || e.id === data.event.id);
+                                    if (oldEvent && oldEvent.id === data.event.id) {
+                                        openEventModalFullscreen(data.event);
+                                    }
+                                }
+                            }
+                        }
                     });
             } else if (retries > 0) {
                 setTimeout(() => initVisitorEcho(retries - 1), 200);

@@ -15,3 +15,8 @@ Broadcast::channel('group.messages.{id}', function ($user, $id) {
 Broadcast::channel('visitor.messages.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id && $user->type_role === 'visiteur';
 });
+
+// Canal privé pour les notifications administrateur
+Broadcast::channel('admin.notifications', function ($user) {
+    return $user->type_role === 'admin';
+});

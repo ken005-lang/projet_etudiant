@@ -3228,6 +3228,13 @@ main {
   transition: background-color 0.3s, color 0.3s;
 }
 
+@media (max-width: 480px) {
+  .event-band-header {
+    padding: 0.8rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+
 .event-band.expanded .event-band-header {
   background-color: #000;
   color: #fff;
@@ -3254,14 +3261,47 @@ main {
   padding: 1.2rem 4rem;
 }
 
+@media (max-width: 992px) {
+  .event-band-content {
+    padding: 1.2rem 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .event-band-content {
+    padding: 1rem 1rem;
+  }
+}
+
 .event-band.expanded .event-band-content {
   display: flex;
   gap: 2rem;
 }
 
+@media (max-width: 768px) {
+  .event-band.expanded .event-band-content {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+}
+
 .event-content-left {
   flex-shrink: 0;
   width: 350px;
+}
+
+@media (max-width: 992px) {
+  .event-content-left {
+    width: 280px;
+  }
+}
+
+@media (max-width: 768px) {
+  .event-content-left {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+  }
 }
 
 /* Gray Image Placeholder */
@@ -3302,6 +3342,18 @@ main {
   font-size: 0.85rem;
   line-height: 1.4;
   font-weight: 500;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  /* Force break for very long strings */
+  hyphens: auto;
+}
+
+@media (max-width: 480px) {
+  .event-description {
+    font-size: 0.8rem;
+    text-align: justify;
+  }
 }
 
 /* Black Video Placeholder */
@@ -3681,6 +3733,7 @@ main {
   text-align: center;
   padding: 3rem 1rem;
 }
+
 /* =============================================
    MESSAGERIE (VISITEUR & GROUPE)
    ============================================= */
@@ -3735,15 +3788,15 @@ main {
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem 2rem;
-  border-bottom: 2px solid rgba(0,0,0,0.05);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.05);
 }
 
 .visitor-theme .messages-header {
-  border-bottom: 2px solid rgba(0,0,0,0.05);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.05);
 }
 
 .group-theme .messages-header {
-  border-bottom: 2px solid rgba(255,255,255,0.1);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
 }
 
 .messages-header h2 {
@@ -3801,8 +3854,13 @@ main {
   transition: transform 0.2s;
 }
 
-.visitor-theme .messages-close-btn { color: var(--black); }
-.group-theme .messages-close-btn { color: var(--white); }
+.visitor-theme .messages-close-btn {
+  color: var(--black);
+}
+
+.group-theme .messages-close-btn {
+  color: var(--white);
+}
 
 .messages-close-btn:hover {
   transform: scale(1.2);
@@ -3826,7 +3884,7 @@ main {
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 /* Visitor Theme Blocks */
@@ -3842,7 +3900,8 @@ main {
 
 /* Group Theme Blocks */
 .group-theme .message-block.visitor-msg {
-  background-color: #8c3b06; /* Dark brown orange */
+  background-color: #8c3b06;
+  /* Dark brown orange */
   color: var(--white);
 }
 
@@ -3921,9 +3980,10 @@ main {
 .msg-status-dot {
   width: 12px;
   height: 12px;
-  background-color: #00ff00; /* Green unread dot */
+  background-color: #00ff00;
+  /* Green unread dot */
   border-radius: 50%;
-  box-shadow: 0 0 5px rgba(0,255,0,0.5);
+  box-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
 }
 
 /* Editor for replying */
@@ -3952,8 +4012,8 @@ main {
 }
 
 .group-theme .reply-textarea {
-  background: rgba(255,255,255,0.9);
-  border: 1px solid rgba(0,0,0,0.1);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   color: var(--black);
 }
 
@@ -3981,4 +4041,3 @@ main {
 .send-reply-btn:hover {
   transform: scale(1.05);
 }
-

@@ -29,8 +29,8 @@ class GroupController extends Controller
             ];
         }
 
-        // Fetch all events for the group's event panel
-        $events = Event::orderBy('created_at', 'desc')->get()->map(function ($event) {
+        // Fetch only published events for the group's event panel
+        $events = Event::where('is_published', true)->orderBy('created_at', 'desc')->get()->map(function ($event) {
             return [
                 'id' => $event->id,
                 'title' => $event->title,
@@ -76,6 +76,10 @@ class GroupController extends Controller
                 ];
             }
 
+            // Broadcast the update to the public channel
+            $group->load(['reports', 'members']);
+            broadcast(new \App\Events\GroupUpdatedEvent($group));
+
             return response()->json([
                 'success' => true,
                 'message' => 'Reports uploaded successfully',
@@ -108,6 +112,10 @@ class GroupController extends Controller
 
         $report->delete();
 
+        // Broadcast the update to the public channel
+        $group->load(['reports', 'members']);
+        broadcast(new \App\Events\GroupUpdatedEvent($group));
+
         return response()->json(['success' => true, 'message' => 'Report deleted successfully']);
     }
 
@@ -134,6 +142,10 @@ class GroupController extends Controller
             $videoPath = 'VIDEO/' . $fileName;
             $group->project_video = $videoPath;
             $group->save();
+
+            // Broadcast the update to the public channel
+            $group->load(['reports', 'members']);
+            broadcast(new \App\Events\GroupUpdatedEvent($group));
 
             return response()->json([
                 'success' => true,
@@ -164,6 +176,10 @@ class GroupController extends Controller
 
         $group->update($validated);
 
+        // Broadcast the update to the public channel
+        $group->load(['reports', 'members']);
+        broadcast(new \App\Events\GroupUpdatedEvent($group));
+
         return response()->json(['success' => true, 'message' => 'Profile updated']);
     }
 
@@ -183,6 +199,10 @@ class GroupController extends Controller
 
         $member = $group->members()->create($validated);
 
+        // Broadcast the update to the public channel
+        $group->load(['reports', 'members']);
+        broadcast(new \App\Events\GroupUpdatedEvent($group));
+
         return response()->json(['success' => true, 'member' => $member]);
     }
 
@@ -201,6 +221,10 @@ class GroupController extends Controller
         }
 
         $member->delete();
+
+        // Broadcast the update to the public channel
+        $group->load(['reports', 'members']);
+        broadcast(new \App\Events\GroupUpdatedEvent($group));
 
         return response()->json(['success' => true]);
     }
@@ -249,6 +273,10 @@ class GroupController extends Controller
                 // Save path in database
                 $path = 'IMG/uploads/' . $filename;
                 $group->update(['project_image' => $path]);
+
+                // Broadcast the update to the public channel
+                $group->load(['reports', 'members']);
+                broadcast(new \App\Events\GroupUpdatedEvent($group));
 
                 return response()->json([
                     'success' => true,

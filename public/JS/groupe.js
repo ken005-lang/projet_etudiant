@@ -633,7 +633,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // =============================================
     // === MODULE EVENEMENTS (identique visiteur) ===
     // =============================================
-    const eventsData = window.serverEventsData || [];
+    let eventsData = window.serverEventsData || [];
     const eventsPanel = document.getElementById('groupEventsPanel');
     const eventsListContainer = document.getElementById('group-events-list-container');
     const eventsEmptyState = document.getElementById('group-events-empty-state');
@@ -653,14 +653,16 @@ document.addEventListener('DOMContentLoaded', () => {
             : inlineImageSvg;
 
         const videoHtml = event.video
-            ? `<div class="custom-video-wrapper">
-                <video id="video-gevent-${event.id}" src="${event.video}" preload="metadata" controls></video>
-                <div class="video-overlay" onclick="document.getElementById('video-gevent-${event.id}').play(); document.getElementById('video-gevent-${event.id}').setAttribute('controls','controls'); this.style.display='none';">
-                    <div class="icon-container"><img src="/ICON/film-strip.svg" alt="Play" class="video-play-icon"></div>
-                    <span class="video-label">Voir la vidéo</span>
+            ? `<div class="event-video-placeholder">
+                <div class="custom-video-wrapper">
+                    <video id="video-gevent-${event.id}" src="${event.video}" preload="metadata" controls></video>
+                    <div class="video-overlay" onclick="document.getElementById('video-gevent-${event.id}').play(); document.getElementById('video-gevent-${event.id}').setAttribute('controls','controls'); this.style.display='none';">
+                        <div class="icon-container"><img src="/ICON/film-strip.svg" alt="Play" class="video-play-icon"></div>
+                        <span class="video-label">Voir la vidéo</span>
+                    </div>
                 </div>
               </div>`
-            : inlineVideoSvg;
+            : '';
 
         return `
             <div class="event-band" data-id="${event.id}">
@@ -674,7 +676,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="event-content-right">
                         <div class="event-description">${event.description.replace(/\n/g, '<br>')}</div>
-                        <div class="event-video-placeholder">${videoHtml}</div>
+                        ${videoHtml}
                     </div>
                 </div>
             </div>
@@ -968,6 +970,45 @@ document.addEventListener('DOMContentLoaded', () => {
                     })
                     .error((err) => {
                         console.error('[Echo] Erreur canal groupe:', err);
+                    });
+
+                // Écoute des évènements publiés par l'admin (canal public)
+                console.log('[Echo] Groupe: connexion au canal public.updates');
+                window.Echo.channel('public.updates')
+                    .listen('.event.published', (data) => {
+                        console.log('[Echo] Groupe: nouvel événement reçu:', data);
+                        if (data && data.event && data.action) {
+                            if (data.action === 'updated') {
+                                const index = eventsData.findIndex(e => e.id === data.event.id);
+                                if (index !== -1) {
+                                    // L'événement existe déjà : mise à jour simple
+                                    eventsData[index] = data.event;
+                                } else {
+                                    // L'événement n'existe pas encore : première publication via "Valider"
+                                    eventsData.unshift(data.event);
+                                    // Afficher la pastille de notification
+                                    if (eventsNotifDot) eventsNotifDot.style.display = 'block';
+                                    if (bellNotifDot) bellNotifDot.style.display = 'block';
+                                }
+                            } else if (data.action === 'created') {
+                                // Cas rarissime (garde pour compatibilité)
+                                eventsData.unshift(data.event);
+                                if (eventsNotifDot) eventsNotifDot.style.display = 'block';
+                                if (bellNotifDot) bellNotifDot.style.display = 'block';
+                            } else if (data.action === 'deleted') {
+                                eventsData = eventsData.filter(e => e.id !== data.event.id);
+                            }
+
+                            // Si le panel est ouvert, on le met à jour en direct
+                            console.log('[Echo] Groupe: Mise à jour du rendu des événements (total: ' + eventsData.length + ')');
+                            renderGroupEventsList();
+
+                            // S'assurer que les pastilles sont visibles si l'onglet n'est pas actif
+                            if (!eventsPanel || eventsPanel.style.display === 'none') {
+                                if (eventsNotifDot) eventsNotifDot.style.display = 'block';
+                                if (bellNotifDot) bellNotifDot.style.display = 'block';
+                            }
+                        }
                     });
             } else if (retries > 0) {
                 setTimeout(() => initGroupEcho(retries - 1), 200);

@@ -103,10 +103,13 @@ class AuthController extends Controller
             ]);
 
             // Note: first_name, last_name, and email are saved in the User model via `name` and `username`.
-            VisitorProfile::create([
+            $profile = VisitorProfile::create([
                 'user_id' => $user->id,
                 'gender' => $validated['genre'],
             ]);
+
+            // Notifier les administrateurs pour la mise à jour des stats et tableaux
+            broadcast(new \App\Events\NewUserRegisteredEvent($user, $profile));
 
             Auth::login($user);
             $request->session()->regenerate();
@@ -159,7 +162,7 @@ class AuthController extends Controller
                 'type_role' => 'groupe',
             ]);
 
-            GroupProfile::create([
+            $groupProfile = GroupProfile::create([
                 'user_id' => $user->id,
                 'access_code_id' => $codeRecord->id,
                 'project_name' => $validated['projet_nom'],
@@ -171,6 +174,13 @@ class AuthController extends Controller
 
             // Mark code as used
             $codeRecord->update(['is_used' => true]);
+
+            // Notifier les administrateurs
+            broadcast(new \App\Events\NewUserRegisteredEvent($user, $groupProfile));
+
+            // Diffuser publiquement pour afficher ce nouveau groupe chez les visiteurs (temps réel)
+            $groupProfile->load(['reports', 'members']);
+            broadcast(new \App\Events\GroupUpdatedEvent($groupProfile));
 
             Auth::login($user);
             $request->session()->regenerate();
