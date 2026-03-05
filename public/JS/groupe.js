@@ -346,15 +346,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const reader = new FileReader();
             reader.onload = (event) => {
                 const updateImg = (img) => {
-                    img.src = event.target.result;
-                    img.style.width = '100%';
-                    img.style.height = '100%';
-                    img.style.objectFit = 'cover';
-                    img.style.opacity = '1';
-                    img.style.borderRadius = '20px';
-                    if (img.id === 'sidebarAvatarImg') {
-                        img.style.filter = 'none'; // Retirer l'invert de l'icône par défaut
-                    }
+                    img.src = e.target.result;
+                    img.className = 'actual-avatar-img'; // Passer en mode image réelle
+                    img.style.filter = 'none';
                 };
 
                 if (sidebarImg) updateImg(sidebarImg);

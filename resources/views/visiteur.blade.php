@@ -127,7 +127,7 @@
         <div class="messages-panel visitor-theme">
             <div class="messages-header">
                 <h2># MESSAGERIE</h2>
-                <button class="messages-clear-btn" id="visitor-clear-messages">TOUT SUPPRIMER <span><img src="{{ asset('ICON/trash-fill-orange.svg') }}" alt="del" style="height:14px;"></span></button>
+                <button class="messages-clear-btn" id="visitor-clear-messages">TOUT SUPPRIMER <span><img src="{{ asset('ICON/trash-fill.svg') }}" alt="del" style="height:14px;"></span></button>
                 <button class="messages-close-btn" id="close-messages-btn">&times;</button>
             </div>
             <div class="messages-body" id="messages-list-container">

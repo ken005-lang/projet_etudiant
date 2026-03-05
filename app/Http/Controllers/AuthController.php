@@ -170,6 +170,7 @@ class AuthController extends Controller
                 'leader_name' => $validated['chef_nom'] . ' ' . $validated['chef_prenom'],
                 'leader_sector' => $validated['filiere'],
                 'leader_level' => $validated['niveau'],
+                'project_image' => 'ICON/group.svg',
             ]);
 
             // Mark code as used

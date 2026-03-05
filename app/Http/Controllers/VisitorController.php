@@ -26,7 +26,7 @@ class VisitorController extends Controller
                 'user_id' => $group->user_id,      // User.id (for messaging API)
                 'name'    => $group->project_name,
                 'last_modified' => $group->updated_at ? $group->updated_at->toIso8601String() : now()->toIso8601String(),
-                'image' => $group->project_image ? asset($group->project_image) : 'IMG/rites_placeholder.png', 
+                'image' => $group->project_image ? asset($group->project_image) : asset('ICON/group.svg'), 
                 'leader' => $group->leader_name,
                 'niveau' => $group->leader_level,
                 'filiere' => $group->leader_sector,

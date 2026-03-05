@@ -169,6 +169,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Fallback images path correction assuming base URL
         const imgSrc = group.image.match(/^https?:\/\//i) ? group.image : '/' + group.image;
+        const isDefaultImg = imgSrc.includes('group.svg');
+        const imgClass = isDefaultImg ? 'default-project-img' : 'actual-image';
+        const containerClass = isDefaultImg ? 'project-image-container default-bg' : 'project-image-container';
 
         return `
             <div class="project-band" data-id="${group.id}">
@@ -182,8 +185,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 
                 <div class="project-band-content">
                     <div class="project-content-left">
-                        <div class="project-image-container">
-                            <img src="${imgSrc}" alt="${group.name}">
+                        <div class="${containerClass}">
+                            <img src="${imgSrc}" alt="${group.name}" class="${imgClass}">
                         </div>
                         <span class="project-group-name">${group.name}</span>
                     </div>
@@ -707,6 +710,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 window.Echo.private(`visitor.messages.${visitorId}`)
                     .listen('.reply.received', (data) => {
                         console.log('[Echo] Nouvelle réponse reçue en temps réel', data);
+                        if (notifDot) notifDot.style.display = 'block'; // Alerte instantanée visuelle
                         checkUnread();
                         if (document.getElementById('messages-overlay')?.classList.contains('open')) {
                             loadMessages();

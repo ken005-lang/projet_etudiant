@@ -1917,11 +1917,22 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  /* Garantit que l'image reste dans le cercle */
 }
 
 .profile-avatar-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Modifier pour l'icône par défaut spécifiquement */
+.profile-avatar-circle img.default-avatar-img {
   width: 24px;
+  height: auto;
   filter: invert(1);
+  background: transparent;
 }
 
 .sidebar-icons {
@@ -2955,9 +2966,22 @@ main {
   position: relative;
 }
 
+@media (max-width: 768px) {
+  .project-band-content {
+    padding: 1.5rem 1rem;
+  }
+}
+
 .project-band.expanded .project-band-content {
   display: flex;
   gap: 2rem;
+}
+
+@media (max-width: 768px) {
+  .project-band.expanded .project-band-content {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
 }
 
 /* Left Sidebar in Content */
@@ -2968,6 +2992,14 @@ main {
   gap: 1rem;
   width: 250px;
   flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .project-content-left {
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+  }
 }
 
 .project-image-container {
@@ -2989,6 +3021,18 @@ main {
   border-radius: 17px;
 }
 
+.project-image-container.default-bg {
+  background-color: #000;
+}
+
+.project-image-container img.default-project-img {
+  object-fit: contain;
+  padding: 15%;
+  background-color: transparent;
+  filter: invert(1);
+  /* L'inversion rend l'icône noire -> blanche sur le fond noir du parent */
+}
+
 .project-group-name {
   font-weight: 900;
   font-size: 1rem;
@@ -3002,6 +3046,8 @@ main {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  /* Important for text overflow in flex */
 }
 
 .project-tabs {
@@ -3009,6 +3055,26 @@ main {
   gap: 2rem;
   margin-bottom: 2rem;
   border-bottom: none;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  scrollbar-width: none;
+  /* Hide scrollbar Firefox */
+}
+
+.project-tabs::-webkit-scrollbar {
+  display: none;
+  /* Hide scrollbar Chrome/Safari */
+}
+
+@media (max-width: 480px) {
+  .project-tabs {
+    gap: 1rem;
+  }
+
+  .project-tab-btn {
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
 }
 
 .project-tab-btn {
@@ -3457,13 +3523,16 @@ main {
 /* Notification Dot */
 .notif-dot {
   position: absolute;
-  top: -2px;
-  right: -11px;
+  top: 1px;
+  right: -3px;
   width: 9px;
   height: 9px;
   background-color: var(--orange);
   border-radius: 50%;
   display: none;
+  z-index: 10;
+  border: 1.5px solid var(--white);
+  /* Petit contour blanc pour la faire ressortir */
 }
 
 /* Visitor Header - Enhanced Actions */
@@ -3486,6 +3555,8 @@ main {
   align-items: center;
   justify-content: center;
   transition: transform 0.2s ease;
+  position: relative;
+  /* Crucial pour le placement de la pastille */
 }
 
 .header-action-btn:hover {
@@ -3678,6 +3749,18 @@ main {
   animation: slideUpPanel 0.25s ease;
 }
 
+@media (max-width: 768px) {
+  .group-events-panel-inner {
+    padding: 1.5rem;
+    max-height: 90vh;
+    border-radius: 15px;
+  }
+
+  .group-events-panel-title {
+    font-size: 1.2rem;
+  }
+}
+
 @keyframes slideUpPanel {
   from {
     transform: translateY(20px);
@@ -3828,6 +3911,12 @@ main {
   gap: 5px;
   transition: all 0.2s;
 }
+
+.messages-clear-btn img {
+  filter: invert(1);
+  /* Rend l'icône noire -> blanche */
+}
+
 
 .visitor-theme .messages-clear-btn {
   background-color: var(--orange);

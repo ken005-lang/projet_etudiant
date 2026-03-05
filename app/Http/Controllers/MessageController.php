@@ -84,6 +84,7 @@ class MessageController extends Controller
 
         $messages = Message::with(['group:id,name', 'group.groupProfile:user_id,project_name,project_image'])
                            ->where('visitor_id', $visitor->id)
+                           ->where('is_deleted_by_visitor', false)
                            ->orderBy('created_at', 'desc')
                            ->get();
 
@@ -114,6 +115,7 @@ class MessageController extends Controller
         // On a besoin du profil visiteur pour afficher le nom du visiteur
         $messages = Message::with('visitor.visitorProfile')
                            ->where('group_id', $group->id)
+                           ->where('is_deleted_by_group', false)
                            ->orderBy('created_at', 'desc')
                            ->get();
 
@@ -130,10 +132,12 @@ class MessageController extends Controller
         if ($user->type_role === 'visiteur') {
             Message::where('visitor_id', $user->id)
                    ->where('is_read_by_visitor', false)
+                   ->where('is_deleted_by_visitor', false)
                    ->update(['is_read_by_visitor' => true]);
         } elseif ($user->type_role === 'groupe') {
             Message::where('group_id', $user->id)
                    ->where('is_read_by_group', false)
+                   ->where('is_deleted_by_group', false)
                    ->update(['is_read_by_group' => true]);
         }
 
@@ -152,10 +156,12 @@ class MessageController extends Controller
             if ($user->type_role === 'visiteur') {
                 $count = Message::where('visitor_id', $user->id)
                                ->where('is_read_by_visitor', false)
+                               ->where('is_deleted_by_visitor', false)
                                ->count();
             } elseif ($user->type_role === 'groupe') {
                 $count = Message::where('group_id', $user->id)
                                ->where('is_read_by_group', false)
+                               ->where('is_deleted_by_group', false)
                                ->count();
             }
         }
@@ -171,9 +177,9 @@ class MessageController extends Controller
         $user = Auth::user();
 
         if ($user->type_role === 'visiteur') {
-            Message::where('visitor_id', $user->id)->delete();
+            Message::where('visitor_id', $user->id)->update(['is_deleted_by_visitor' => true]);
         } elseif ($user->type_role === 'groupe') {
-            Message::where('group_id', $user->id)->delete();
+            Message::where('group_id', $user->id)->update(['is_deleted_by_group' => true]);
         }
 
         return response()->json(['success' => true]);

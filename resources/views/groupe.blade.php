@@ -233,7 +233,11 @@
         <aside class="dashboard-sidebar">
             <div class="sidebar-top">
                 <div class="profile-avatar-circle">
-                    <img src="{{ $group->project_image ? asset($group->project_image) : asset('ICON/group.svg') }}" alt="User" id="sidebarAvatarImg" style="{{ $group->project_image ? 'width:100%;height:100%;object-fit:cover;filter:none;border-radius:20px;' : 'border-radius:20px;' }}">
+                    @php
+                        $isDefault = !$group->project_image || str_contains($group->project_image, 'group.svg');
+                        $avatarUrl = $group->project_image ? asset($group->project_image) : asset('ICON/group.svg');
+                    @endphp
+                    <img src="{{ $avatarUrl }}" alt="User" id="sidebarAvatarImg" class="{{ $isDefault ? 'default-avatar-img' : 'actual-avatar-img' }}">
                 </div>
                 <div class="side-icon-box small" id="triggerUploadBtn" style="margin-top: 1rem;">
                     <img src="{{ asset('ICON/camera-rotate-fill.svg') }}" alt="Camera">

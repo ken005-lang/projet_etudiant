@@ -12,7 +12,9 @@ class Message extends Model
         'visitor_message',
         'group_reply',
         'is_read_by_group',
-        'is_read_by_visitor'
+        'is_read_by_visitor',
+        'is_deleted_by_visitor',
+        'is_deleted_by_group'
     ];
 
     public function visitor()
