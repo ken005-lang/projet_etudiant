@@ -311,11 +311,40 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (confirmDeleteBtn) {
-            confirmDeleteBtn.addEventListener('click', () => {
+            confirmDeleteBtn.addEventListener('click', async () => {
                 const code = groupDeleteCode.value.trim();
                 if (code) {
-                    alert(`Groupe supprimé avec succès ! (Code: ${code})`);
-                    // Here you would typically redirect or perform cleanup
+                    confirmDeleteBtn.textContent = 'Suppression...';
+                    confirmDeleteBtn.disabled = true;
+
+                    try {
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+                        const response = await fetch('/groupe/account', {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({ code: code })
+                        });
+
+                        const data = await response.json();
+
+                        if (response.ok && data.success) {
+                            alert('Groupe supprimé avec succès !');
+                            window.location.href = '/login'; // Redirection vers connexion ou accueil
+                        } else {
+                            alert(data.error || 'Erreur lors de la suppression.');
+                            confirmDeleteBtn.textContent = 'Valider';
+                            confirmDeleteBtn.disabled = false;
+                        }
+                    } catch (error) {
+                        console.error('Delete error:', error);
+                        alert('Erreur réseau lors de la suppression.');
+                        confirmDeleteBtn.textContent = 'Valider';
+                        confirmDeleteBtn.disabled = false;
+                    }
                 } else {
                     alert('Veuillez entrer le code du groupe.');
                 }
@@ -346,7 +375,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const reader = new FileReader();
             reader.onload = (event) => {
                 const updateImg = (img) => {
-                    img.src = e.target.result;
+                    img.src = event.target.result;
                     img.className = 'actual-avatar-img'; // Passer en mode image réelle
                     img.style.filter = 'none';
                 };

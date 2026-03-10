@@ -22,9 +22,9 @@
 
         <nav class="visitor-nav">
             <div class="nav-links">
-                <a href="#" class="visitor-nav-link active" data-tab="projects">projets</a>
+                <a href="#" class="visitor-nav-link active" data-tab="projects">Projets</a>
                 <span class="nav-divider">|</span>
-                <a href="#" class="visitor-nav-link" data-tab="events">évènements<span class="notif-dot" id="events-notif-dot"></span></a>
+                <a href="#" class="visitor-nav-link" data-tab="events">Evènements<span class="notif-dot" id="events-notif-dot"></span></a>
             </div>
 
             <div class="user-profile">
@@ -47,6 +47,10 @@
             </div>
 
             <div class="header-divider">|</div>
+
+            <a href="#" id="delete-account-btn" class="logout-link" title="Supprimer mon compte">
+                <img src="{{ asset('ICON/trash-fill.svg') }}" alt="Delete" class="header-logout-icon header-trash-icon">
+            </a>
 
             <a href="{{ url('/') }}" class="logout-link">
                 <img src="{{ asset('ICON/logout_icon.svg') }}" alt="Logout" title="Déconnexion" class="header-logout-icon">
@@ -77,7 +81,7 @@
 
             <div id="projects-empty-state" class="empty-state">
                 <div class="empty-icon-container">
-                    <img src="{{ asset('IMG/mascotte ITES.png') }}" alt="No result" class="empty-icon">
+                    <img src="{{ asset('ICON/cactus.svg') }}" alt="No result" class="empty-icon">
                 </div>
                 <p class="empty-text">Aucun resultat.</p>
             </div>
@@ -96,7 +100,7 @@
 
             <div id="events-empty-state" class="empty-state">
                 <div class="empty-icon-container">
-                    <img src="{{ asset('IMG/mascotte ITES.png') }}" alt="No events" class="empty-icon">
+                    <img src="{{ asset('ICON/cactus.svg') }}" alt="No events" class="empty-icon">
                 </div>
                 <p class="empty-text">Aucun évènement pour le moment.</p>
             </div>
@@ -115,7 +119,7 @@
 
             <div id="favorites-empty-state" class="empty-state">
                 <div class="empty-icon-container">
-                    <img src="{{ asset('IMG/mascotte ITES.png') }}" alt="No favorites" class="empty-icon">
+                    <img src="{{ asset('ICON/cactus.svg') }}" alt="No favorites" class="empty-icon">
                 </div>
                 <p class="empty-text">Aucun favori pour le moment.</p>
             </div>

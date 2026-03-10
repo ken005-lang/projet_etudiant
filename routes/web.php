@@ -59,6 +59,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/codes', [AdminController::class, 'storeCode'])->name('codes.store');
     Route::delete('/codes/{id}', [AdminController::class, 'destroyCode'])->name('codes.destroy');
     Route::delete('/groups/{id}', [AdminController::class, 'destroyGroup'])->name('groups.destroy');
+    Route::delete('/visitors/{id}', [AdminController::class, 'destroyVisitor'])->name('visitors.destroy');
     
     // Admin Events Routes
     Route::post('/events', [AdminController::class, 'storeEvent'])->name('events.store');
@@ -70,6 +71,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 // --- VISITOR ROUTES ---
 Route::middleware(['auth', 'visiteur'])->prefix('visiteur')->name('visiteur.')->group(function () {
     Route::get('/', [VisitorController::class, 'index'])->name('dashboard');
+    Route::delete('/account', [VisitorController::class, 'deleteAccount'])->name('delete.account');
     
     // Visitor Messaging
     Route::post('/messages/send', [MessageController::class, 'sendMessage'])->name('messages.send');
@@ -98,4 +100,7 @@ Route::middleware(['auth', 'groupe'])->prefix('groupe')->name('groupe.')->group(
     Route::post('/messages/read', [MessageController::class, 'markAsRead'])->name('messages.read');
     Route::get('/messages/unread', [MessageController::class, 'unreadCount'])->name('messages.unreadCount');
     Route::delete('/messages/clear', [MessageController::class, 'clearMessages'])->name('messages.clear');
+    
+    // Self-deletion
+    Route::delete('/account', [GroupController::class, 'deleteAccount'])->name('delete.account');
 });

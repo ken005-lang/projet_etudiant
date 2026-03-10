@@ -172,6 +172,44 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // === Visitors Table Logic ===
+    const visitorsTableBody = document.querySelector('.visitors-table tbody');
+    if (visitorsTableBody) {
+        visitorsTableBody.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('delete-visitor-btn')) {
+                const row = e.target.closest('tr');
+                if (!row) return;
+
+                const visitorId = e.target.getAttribute('data-id');
+
+                if (confirm("Voulez-vous vraiment supprimer ce visiteur ?")) {
+                    try {
+                        const response = await fetch(`/admin/visitors/${visitorId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': getCsrfToken(),
+                                'Accept': 'application/json'
+                            }
+                        });
+
+                        if (!response.ok) {
+                            alert("Erreur lors de la suppression du visiteur.");
+                            return;
+                        }
+
+                        // Remove row visually
+                        row.remove();
+                        // Reload page to refresh counts
+                        window.location.reload();
+                    } catch (error) {
+                        console.error("Erreur de suppression:", error);
+                        alert("Erreur réseau lors de la suppression.");
+                    }
+                }
+            }
+        });
+    }
+
     // === Events Logic (Creation, Update, Media & Deletion) ===
     const eventInput = document.getElementById('admin-event-input');
     const addEventBtn = document.getElementById('add-event-btn');
@@ -546,17 +584,18 @@ document.addEventListener('DOMContentLoaded', () => {
                             statNum.textContent = parseInt(statNum.textContent || '0') + 1;
                         }
 
-                        // Ajouter dans le tableau (le deuxième table.data-table)
-                        const visitorTableBody = document.querySelectorAll('.data-table')[1]?.querySelector('tbody');
+                        // Ajouter dans le tableau
+                        const visitorTableBody = document.querySelector('.visitors-table tbody');
                         if (visitorTableBody && data.profile_data) {
                             const tr = document.createElement('tr');
                             tr.innerHTML = `
-                                <td>${data.user.id}</td>
                                 <td>${data.user.name}</td>
+                                <td style="text-transform: capitalize;">${data.profile_data.gender}</td>
                                 <td>${data.user.username}</td>
-                                <td>${data.profile_data.gender}</td>
-                                <td><span class="status-badge valid">Inscrit</span></td>
                                 <td>À l'instant</td>
+                                <td class="action-cell">
+                                    <img src="/ICON/trash-fill.svg" alt="delete" class="action-icon delete-visitor-btn" data-id="${data.profile_data.id}">
+                                </td>
                             `;
                             visitorTableBody.prepend(tr);
                         }
@@ -567,20 +606,20 @@ document.addEventListener('DOMContentLoaded', () => {
                             statNum.textContent = parseInt(statNum.textContent || '0') + 1;
                         }
 
-                        // Ajouter dans le tableau (le premier table.data-table)
-                        const groupTableBody = document.querySelectorAll('.data-table')[0]?.querySelector('tbody');
+                        // Ajouter dans le tableau
+                        const groupTableBody = document.querySelector('.groups-table tbody');
                         if (groupTableBody && data.profile_data) {
                             const tr = document.createElement('tr');
                             tr.innerHTML = `
-                                <td>${data.user.username}</td>
                                 <td>${data.profile_data.project_name}</td>
+                                <td>${data.user.username}</td>
                                 <td>${data.profile_data.leader_name}</td>
-                                <td>${data.profile_data.leader_sector}</td>
                                 <td>${data.profile_data.leader_level}</td>
+                                <td>${data.profile_data.leader_sector}</td>
+                                <td>À l'instant</td>
+                                <td>Inactif</td>
                                 <td class="actions-cell">
-                                    <button class="action-btn delete-btn" data-id="${data.profile_data.id}" title="Supprimer">
-                                        <img src="/ICON/trash-fill.svg" alt="Supprimer">
-                                    </button>
+                                    <img src="/ICON/trash-fill.svg" alt="delete" class="action-icon" data-id="${data.profile_data.id}">
                                 </td>
                             `;
                             groupTableBody.prepend(tr);
@@ -596,6 +635,60 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .error((err) => {
                 console.error('[Echo] Erreur connexion admin:', err);
+            });
+
+        // Écoute des suppressions globales (Ex: un groupe qui s'auto-supprime)
+        window.Echo.channel('public.updates')
+            .listen('.group.deleted', (data) => {
+                console.log('[Echo] Admin: Suppression de groupe reçue:', data);
+                if (data && data.groupId) {
+                    // Trouver la corbeille correspondant à l'ID
+                    const trashIcons = document.querySelectorAll('.groups-table tbody .action-icon');
+                    trashIcons.forEach(icon => {
+                        if (parseInt(icon.getAttribute('data-id')) === parseInt(data.groupId)) {
+                            const row = icon.closest('tr');
+                            if (row) {
+                                row.remove();
+
+                                // Décrémenter la stat Groupes (cercle violet)
+                                const statNumGroup = document.querySelector('.icon-circle-group.bg-purple')?.nextElementSibling?.querySelector('.stat-number');
+                                if (statNumGroup) {
+                                    let currentVal = parseInt(statNumGroup.textContent || '0');
+                                    statNumGroup.textContent = Math.max(0, currentVal - 1);
+                                }
+
+                                // Décrémenter la stat Projets (cercle orange)
+                                const statNumProj = document.querySelector('.icon-circle-group.bg-orange')?.nextElementSibling?.querySelector('.stat-number');
+                                if (statNumProj) {
+                                    let currentVal = parseInt(statNumProj.textContent || '0');
+                                    statNumProj.textContent = Math.max(0, currentVal - 1);
+                                }
+                            }
+                        }
+                    });
+                }
+            })
+            .listen('.visitor.deleted', (data) => {
+                console.log('[Echo] Admin: Suppression de visiteur reçue:', data);
+                if (data && data.visitorId) {
+                    // Trouver la corbeille correspondant à l'ID dans le tableau des visiteurs
+                    const trashIcons = document.querySelectorAll('.visitors-table tbody .action-icon');
+                    trashIcons.forEach(icon => {
+                        if (parseInt(icon.getAttribute('data-id')) === parseInt(data.visitorId)) {
+                            const row = icon.closest('tr');
+                            if (row) {
+                                row.remove();
+
+                                // Décrémenter la stat Visiteurs (cercle jaune)
+                                const statNumVis = document.querySelector('.icon-circle-group.bg-yellow')?.nextElementSibling?.querySelector('.stat-number');
+                                if (statNumVis) {
+                                    let currentVal = parseInt(statNumVis.textContent || '0');
+                                    statNumVis.textContent = Math.max(0, currentVal - 1);
+                                }
+                            }
+                        }
+                    });
+                }
             });
     }
 

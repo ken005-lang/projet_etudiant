@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    @vite(['resources/js/app.js'])
 </head>
 
 <body class="admin-dashboard-page">
@@ -100,6 +101,7 @@
                                 <th colspan="3">Chef de groupe</th>
                                 <th>Compte</th>
                                 <th>Session</th>
+                                <th>Gestion</th>
                             </tr>
                             <tr class="sub-headers">
                                 <th>Nom</th>
@@ -109,6 +111,7 @@
                                 <th>Filière</th>
                                 <th>Date de création</th>
                                 <th>Connexion</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -146,6 +149,7 @@
                                 <th>Genre</th>
                                 <th>E-mail</th>
                                 <th>Date de création du compte</th>
+                                <th class="gestion-column"><div class="gestion-header">Gestion</div><div class="action-header">Action</div></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -155,10 +159,13 @@
                                 <td style="text-transform: capitalize;">{{ $visitor->gender }}</td>
                                 <td>{{ $visitor->user->username ?? 'N/A' }}</td>
                                 <td>{{ $visitor->created_at->format('d/m/Y') }}</td>
+                                <td class="action-cell">
+                                    <img src="{{ asset('ICON/trash-fill.svg') }}" alt="delete" class="action-icon delete-visitor-btn" data-id="{{ $visitor->id }}">
+                                </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="4" style="text-align: center;">Aucun visiteur inscrit pour le moment.</td>
+                                <td colspan="5" style="text-align: center;">Aucun visiteur inscrit pour le moment.</td>
                             </tr>
                             @endforelse
                         </tbody>

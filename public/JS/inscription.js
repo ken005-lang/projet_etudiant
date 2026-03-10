@@ -21,6 +21,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (formModeInput) {
             formModeInput.value = group ? 'groupe' : 'visiteur';
+
+            // Update form action immediately
+            var actionUrlGroup = document.getElementById('actionUrlGroup').value;
+            var actionUrlVisitor = document.getElementById('actionUrlVisitor').value;
+            form.action = group ? actionUrlGroup : actionUrlVisitor;
         }
     }
 

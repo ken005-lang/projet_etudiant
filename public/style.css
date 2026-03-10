@@ -1688,7 +1688,10 @@ main {
 
 /* Members Table */
 .members-management {
-  margin-top: 1rem;
+  margin-top: 1.5rem;
+  overflow-x: auto;
+  /* Permet le défilement horizontal sur mobile pour le tableau */
+  -webkit-overflow-scrolling: touch;
 }
 
 .members-dashboard-table {
@@ -1743,10 +1746,30 @@ main {
 
 .add-member-form {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
   background: rgba(255, 255, 255, 0.1);
-  padding: 1rem;
+  padding: 1.25rem;
   border-radius: 15px;
+  flex-wrap: wrap;
+  /* Permet le passage à la ligne au besoin */
+}
+
+@media (max-width: 768px) {
+  .add-member-form {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .add-member-form input {
+    width: 100%;
+    min-height: 40px;
+    font-size: 0.85rem !important;
+  }
+
+  .add-member-form .btn-pill-small {
+    width: 100%;
+    padding: 0.75rem !important;
+  }
 }
 
 .add-member-form input {
@@ -3578,6 +3601,12 @@ main {
 .header-logout-icon:hover {
   opacity: 1;
   transform: translateX(2px);
+}
+
+.header-trash-icon:hover {
+  filter: invert(27%) sepia(91%) auto(100%) saturate(7463%) hue-rotate(357deg) brightness(91%) contrast(114%);
+  /* Red-ish tint for trash on hover */
+  transform: scale(1.1) rotate(-5deg);
 }
 
 /* Visitor Contact Tab - Quick Form */

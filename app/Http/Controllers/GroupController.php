@@ -77,8 +77,12 @@ class GroupController extends Controller
             }
 
             // Broadcast the update to the public channel
-            $group->load(['reports', 'members']);
-            broadcast(new \App\Events\GroupUpdatedEvent($group));
+            try {
+                $group->load(['reports', 'members']);
+                broadcast(new \App\Events\GroupUpdatedEvent($group));
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::warning('Broadcast failed on reports upload: ' . $e->getMessage());
+            }
 
             return response()->json([
                 'success' => true,
@@ -113,8 +117,12 @@ class GroupController extends Controller
         $report->delete();
 
         // Broadcast the update to the public channel
-        $group->load(['reports', 'members']);
-        broadcast(new \App\Events\GroupUpdatedEvent($group));
+        try {
+            $group->load(['reports', 'members']);
+            broadcast(new \App\Events\GroupUpdatedEvent($group));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning('Broadcast failed on report deletion: ' . $e->getMessage());
+        }
 
         return response()->json(['success' => true, 'message' => 'Report deleted successfully']);
     }
@@ -144,8 +152,12 @@ class GroupController extends Controller
             $group->save();
 
             // Broadcast the update to the public channel
-            $group->load(['reports', 'members']);
-            broadcast(new \App\Events\GroupUpdatedEvent($group));
+            try {
+                $group->load(['reports', 'members']);
+                broadcast(new \App\Events\GroupUpdatedEvent($group));
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::warning('Broadcast failed on video upload: ' . $e->getMessage());
+            }
 
             return response()->json([
                 'success' => true,
@@ -177,8 +189,12 @@ class GroupController extends Controller
         $group->update($validated);
 
         // Broadcast the update to the public channel
-        $group->load(['reports', 'members']);
-        broadcast(new \App\Events\GroupUpdatedEvent($group));
+        try {
+            $group->load(['reports', 'members']);
+            broadcast(new \App\Events\GroupUpdatedEvent($group));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning('Broadcast failed on profile update: ' . $e->getMessage());
+        }
 
         return response()->json(['success' => true, 'message' => 'Profile updated']);
     }
@@ -200,8 +216,12 @@ class GroupController extends Controller
         $member = $group->members()->create($validated);
 
         // Broadcast the update to the public channel
-        $group->load(['reports', 'members']);
-        broadcast(new \App\Events\GroupUpdatedEvent($group));
+        try {
+            $group->load(['reports', 'members']);
+            broadcast(new \App\Events\GroupUpdatedEvent($group));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning('Broadcast failed on member add: ' . $e->getMessage());
+        }
 
         return response()->json(['success' => true, 'member' => $member]);
     }
@@ -223,8 +243,12 @@ class GroupController extends Controller
         $member->delete();
 
         // Broadcast the update to the public channel
-        $group->load(['reports', 'members']);
-        broadcast(new \App\Events\GroupUpdatedEvent($group));
+        try {
+            $group->load(['reports', 'members']);
+            broadcast(new \App\Events\GroupUpdatedEvent($group));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning('Broadcast failed on member removal: ' . $e->getMessage());
+        }
 
         return response()->json(['success' => true]);
     }
@@ -275,8 +299,12 @@ class GroupController extends Controller
                 $group->update(['project_image' => $path]);
 
                 // Broadcast the update to the public channel
-                $group->load(['reports', 'members']);
-                broadcast(new \App\Events\GroupUpdatedEvent($group));
+                try {
+                    $group->load(['reports', 'members']);
+                    broadcast(new \App\Events\GroupUpdatedEvent($group));
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::warning('Broadcast failed on profile image upload: ' . $e->getMessage());
+                }
 
                 return response()->json([
                     'success' => true,
@@ -293,5 +321,51 @@ class GroupController extends Controller
                 'error' => 'Erreur serveur: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function deleteAccount(Request $request)
+    {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $group = $user->groupProfile;
+
+        if (!$group) {
+            return response()->json(['success' => false, 'error' => 'Profil de groupe non trouvé'], 404);
+        }
+
+        $validated = $request->validate([
+            'code' => 'required|string',
+        ]);
+
+        $accessCode = $group->accessCode;
+
+        if (!$accessCode || $accessCode->code !== $validated['code']) {
+            return response()->json(['success' => false, 'error' => 'Code d\'accès incorrect'], 400);
+        }
+
+        $groupId = $group->id;
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($group, $user, $accessCode, $groupId) {
+            // Libérer le code d'accès
+            $accessCode->update(['is_used' => false]);
+
+            // Supprimer le profil du groupe
+            $group->delete();
+
+            // Notifier les visiteurs via WebSocket
+            try {
+                broadcast(new \App\Events\GroupDeletedEvent($groupId));
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::warning("Broadcast failed on group self-deletion: " . $e->getMessage());
+            }
+
+            // Supprimer le compte utilisateur (supprimera les dépendances onDelete cascade si configurées)
+            $user->delete();
+        });
+
+        \Illuminate\Support\Facades\Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return response()->json(['success' => true]);
     }
 }

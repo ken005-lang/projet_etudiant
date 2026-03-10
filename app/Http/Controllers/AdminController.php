@@ -50,7 +50,7 @@ class AdminController extends Controller
         $user = $group->user;
         $accessCode = $group->accessCode;
 
-        \Illuminate\Support\Facades\DB::transaction(function () use ($group, $user, $accessCode) {
+        \Illuminate\Support\Facades\DB::transaction(function () use ($group, $user, $accessCode, $id) {
             // Free up the access code so it can be used again
             if ($accessCode) {
                 $accessCode->update(['is_used' => false]);
@@ -59,11 +59,37 @@ class AdminController extends Controller
             // Delete the group profile
             $group->delete();
 
+            // Notify visitors via WebSocket
+            try {
+                broadcast(new \App\Events\GroupDeletedEvent($id));
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::warning("Broadcast failed on group deletion: " . $e->getMessage());
+            }
+
             // Delete the associated user account
             if ($user) {
                 $user->delete();
             }
         });
+
+        return response()->json(['success' => true]);
+    }
+
+    public function destroyVisitor($id)
+    {
+        $visitor = \App\Models\VisitorProfile::findOrFail($id);
+        
+        $user = $visitor->user;
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($visitor, $user) {
+            $visitor->delete();
+
+            if ($user) {
+                $user->delete();
+            }
+        });
+
+        event(new \App\Events\VisitorDeletedEvent($id));
 
         return response()->json(['success' => true]);
     }

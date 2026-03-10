@@ -727,23 +727,53 @@ document.addEventListener('DOMContentLoaded', function () {
                         console.log('[Echo] Mise à jour groupe reçue:', data);
                         if (data && data.group) {
                             const index = window.serverGroupsData.findIndex(g => g.id === data.group.id);
+
                             if (index !== -1) {
+                                // Le groupe existe déjà : Mise à jour immédiate
                                 window.serverGroupsData[index] = data.group;
                             } else {
+                                // Nouveau groupe : Ajout immédiat
+                                console.log('[Echo] Nouveau groupe détecté. Intégration instantanée.');
                                 window.serverGroupsData.push(data.group);
                             }
-                            // Rafraîchir la grille si actif
+
+                            // Rafraîchir la liste si l'onglet projet est actif
                             if (document.getElementById('projects-section').classList.contains('active')) {
-                                renderProjects(window.serverGroupsData);
+                                renderProjectsList(document.getElementById('projectSearch')?.value || '');
                             }
+
                             // Mettre à jour le panneau latéral s'il est ouvert pour ce groupe
-                            const clickItem = document.querySelector(`.project-item[data-id="${data.group.id}"]`);
                             const panel = document.getElementById('project-side-panel');
                             if (panel && panel.classList.contains('open')) {
-                                // Extract current opened ID from visually identifying it (dirty but works)
                                 const submitBtn = document.getElementById('contact-quick-submit');
                                 if (submitBtn && parseInt(submitBtn.dataset.groupId) === data.group.id) {
                                     openProjectPanel(data.group); // Recharge le panel
+                                }
+                            }
+                        }
+                    })
+                    .listen('.group.deleted', (data) => {
+                        console.log('[Echo] Suppression de groupe reçue:', data);
+                        if (data && data.groupId) {
+                            // Supprimer du tableau global
+                            const index = window.serverGroupsData.findIndex(g => g.id === parseInt(data.groupId));
+                            if (index !== -1) {
+                                window.serverGroupsData.splice(index, 1);
+                                console.log('[Echo] Groupe retiré de la mémoire locale.');
+
+                                // Rafraîchir la liste si l'onglet projet est actif
+                                if (document.getElementById('projects-section').classList.contains('active')) {
+                                    renderProjectsList(document.getElementById('projectSearch')?.value || '');
+                                }
+
+                                // Fermer le panneau latéral s'il était ouvert pour ce groupe supprimé
+                                const panel = document.getElementById('project-side-panel');
+                                if (panel && panel.classList.contains('open')) {
+                                    const submitBtn = document.getElementById('contact-quick-submit');
+                                    // S'assurer qu'on ferme bien le panneau du groupe supprimé
+                                    if (submitBtn && parseInt(submitBtn.dataset.groupId) === parseInt(data.groupId)) {
+                                        closeProjectPanel();
+                                    }
                                 }
                             }
                         }
@@ -802,5 +832,37 @@ document.addEventListener('DOMContentLoaded', function () {
         initVisitorEcho(50); // Essaie pendant 10 secondes (50 x 200ms)
     } else {
         setInterval(checkUnread, 10000);
+    }
+    // --- SUPPRESSION DE COMPTE ---
+    const deleteAccountBtn = document.getElementById('delete-account-btn');
+    if (deleteAccountBtn) {
+        deleteAccountBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+
+            if (confirm('Êtes-vous sûr de vouloir supprimer votre compte visiteur ? Cette action est irréversible.')) {
+                try {
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+                    const response = await fetch('/visiteur/account', {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        alert('Votre compte a été supprimé avec succès.');
+                        window.location.href = '/';
+                    } else {
+                        alert(data.error || 'Une erreur est survenue.');
+                    }
+                } catch (error) {
+                    console.error('Error deleting account:', error);
+                    alert('Erreur réseau lors de la suppression.');
+                }
+            }
+        });
     }
 });

@@ -29,7 +29,7 @@
                 </div>
                 <div class="group-header-actions">
                     <button class="group-header-btn" id="groupEventsBtn">
-                        <span class="group-events-label">évènements</span>
+                        <span class="group-events-label">Evènements</span>
                         <span class="notif-dot group-events-notif" id="group-events-notif-dot"></span>
                     </button>
                     <button class="group-header-btn" id="groupBellBtn" title="Notifications">
@@ -49,7 +49,7 @@
                     <div id="group-events-list-container" class="projects-list-container"></div>
                     <div id="group-events-empty-state" class="empty-state" style="display:none;">
                         <div class="empty-icon-container">
-                            <img src="{{ asset('IMG/mascotte ITES.png') }}" alt="Aucun évènement" class="empty-icon">
+                            <img src="{{ asset('ICON/cactus.svg') }}" alt="Aucun évènement" class="empty-icon">
                         </div>
                         <p class="empty-text">Aucun évènement pour le moment.</p>
                     </div>
@@ -161,7 +161,7 @@
                     </div>
 
                     <div class="empty-state-container">
-                        <img src="{{ asset('IMG/mascotte ITES.png') }}" alt="Cactus" class="empty-icon-lg">
+                        <img src="{{ asset('ICON/cactus.svg') }}" alt="Cactus" class="empty-icon-lg">
                         <p class="empty-text">Aucun rapport ajouté.</p>
                         <button class="btn-pill-main publish-btn-empty">Publier un rapport</button>
                     </div>

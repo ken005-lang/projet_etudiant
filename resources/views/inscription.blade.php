@@ -36,7 +36,7 @@
                     </div>
                 @endif
 
-                <form method="POST" class="registration-form" id="registrationForm" action="">
+                <form method="POST" class="registration-form" id="registrationForm" action="{{ route('auth.register.group') }}">
                     @csrf
                     
                     <!-- Toggle Groupe / Visiteur -->
@@ -85,12 +85,12 @@
                                 <label for="niveau">Niveau</label>
                                 <select id="niveau" name="niveau" class="@error('niveau') error-highlight @enderror" style="@error('niveau') border: 1px solid #ffcccc; @enderror; width: 100%;">
                                     <option value="" disabled {{ old('niveau') ? '' : 'selected' }}>Choisir un niveau</option>
-                                    <option value="l1" {{ old('niveau') == 'l1' ? 'selected' : '' }}>L 1</option>
-                                    <option value="l2" {{ old('niveau') == 'l2' ? 'selected' : '' }}>L 2</option>
-                                    <option value="l3" {{ old('niveau') == 'l3' ? 'selected' : '' }}>L 3</option>
-                                    <option value="m1" {{ old('niveau') == 'm1' ? 'selected' : '' }}>M 1</option>
-                                    <option value="m2" {{ old('niveau') == 'm2' ? 'selected' : '' }}>M 2</option>
-                                    <option value="m3" {{ old('niveau') == 'm3' ? 'selected' : '' }}>M 3</option>
+                                    <option value="licence 1" {{ old('niveau') == 'licence 1' ? 'selected' : '' }}>licence 1</option>
+                                    <option value="licence 2" {{ old('niveau') == 'licence 2' ? 'selected' : '' }}>licence 2</option>
+                                    <option value="licence 3" {{ old('niveau') == 'licence 3' ? 'selected' : '' }}>licence 3</option>
+                                    <option value="master 1" {{ old('niveau') == 'master 1' ? 'selected' : '' }}>master 1</option>
+                                    <option value="master 2" {{ old('niveau') == 'master 2' ? 'selected' : '' }}>master 2</option>
+                                    <option value="master 3" {{ old('niveau') == 'master 3' ? 'selected' : '' }}>master 3</option>
                                 </select>
                                 @error('niveau')
                                     <div class="validation-error-message" style="color: #ffcccc; font-size: 0.85rem; margin-top: 0.25rem;">{{ $message }}</div>

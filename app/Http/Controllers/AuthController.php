@@ -109,7 +109,11 @@ class AuthController extends Controller
             ]);
 
             // Notifier les administrateurs pour la mise à jour des stats et tableaux
-            broadcast(new \App\Events\NewUserRegisteredEvent($user, $profile));
+            try {
+                broadcast(new \App\Events\NewUserRegisteredEvent($user, $profile));
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::warning("Broadcast failed on user registration: " . $e->getMessage());
+            }
 
             Auth::login($user);
             $request->session()->regenerate();
@@ -177,11 +181,15 @@ class AuthController extends Controller
             $codeRecord->update(['is_used' => true]);
 
             // Notifier les administrateurs
-            broadcast(new \App\Events\NewUserRegisteredEvent($user, $groupProfile));
+            try {
+                broadcast(new \App\Events\NewUserRegisteredEvent($user, $groupProfile));
 
-            // Diffuser publiquement pour afficher ce nouveau groupe chez les visiteurs (temps réel)
-            $groupProfile->load(['reports', 'members']);
-            broadcast(new \App\Events\GroupUpdatedEvent($groupProfile));
+                // Diffuser publiquement pour afficher ce nouveau groupe chez les visiteurs (temps réel)
+                $groupProfile->load(['reports', 'members']);
+                broadcast(new \App\Events\GroupUpdatedEvent($groupProfile));
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::warning("Broadcast failed on group registration: " . $e->getMessage());
+            }
 
             Auth::login($user);
             $request->session()->regenerate();

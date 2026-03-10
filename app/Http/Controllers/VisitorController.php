@@ -74,4 +74,35 @@ class VisitorController extends Controller
             'eventsData' => $eventsData,
         ]);
     }
+    public function deleteAccount(Request $request)
+    {
+        $user = auth()->user();
+        
+        try {
+            $visitorProfileId = null;
+
+            \DB::transaction(function () use ($user, &$visitorProfileId) {
+                // Delete visitor profile if it exists
+                if ($user->visitorProfile) {
+                    $visitorProfileId = $user->visitorProfile->id;
+                    $user->visitorProfile->delete();
+                }
+                
+                // Delete user
+                $user->delete();
+            });
+
+            if ($visitorProfileId) {
+                event(new \App\Events\VisitorDeletedEvent($visitorProfileId));
+            }
+
+            auth()->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => 'Erreur lors de la suppression du compte.'], 500);
+        }
+    }
 }

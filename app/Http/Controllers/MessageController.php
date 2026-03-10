@@ -37,7 +37,11 @@ class MessageController extends Controller
         ]);
 
         // Diffuser l'événement en temps réel
-        broadcast(new MessageToGroupEvent($message));
+        try {
+            broadcast(new MessageToGroupEvent($message));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning('Broadcast failed on message to group: ' . $e->getMessage());
+        }
 
         return response()->json(['success' => true, 'message' => $message]);
     }
@@ -66,7 +70,11 @@ class MessageController extends Controller
         ]);
         
         // Diffuser l'événement en temps réel
-        broadcast(new MessageToVisitorEvent($message));
+        try {
+            broadcast(new MessageToVisitorEvent($message));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning('Broadcast failed on message to visitor: ' . $e->getMessage());
+        }
 
         return response()->json(['success' => true, 'message' => $message]);
     }
