@@ -1209,7 +1209,6 @@ main {
 .visitor-nav-link {
   color: #000000;
   text-decoration: none;
-  text-transform: lowercase;
 }
 
 .visitor-nav-link.active {
@@ -3609,6 +3608,34 @@ main {
   transform: scale(1.1) rotate(-5deg);
 }
 
+/* Style pour les domaines cliquables */
+.clickable-domain {
+  cursor: pointer;
+  transition: opacity 0.2s, color 0.2s;
+  display: inline-block;
+}
+
+.clickable-domain:hover {
+  opacity: 0.8;
+  color: #ffd7b5; /* Nuance claire de l'orange */
+}
+
+/* Icône de recherche externe associée aux domaines */
+.external-search-icon {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  margin-left: 8px;
+  vertical-align: middle;
+  transition: transform 0.2s, opacity 0.2s;
+  opacity: 0.9;
+}
+
+.external-search-icon:hover {
+  transform: scale(1.1);
+  opacity: 1;
+}
+
 /* Visitor Contact Tab - Quick Form */
 .contact-tab-container {
   display: flex;
@@ -3687,6 +3714,26 @@ main {
 .contact-item span {
   font-size: 1.1rem;
   letter-spacing: 0.3px;
+}
+
+@media (max-width: 768px) {
+  .contact-tab-container {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .contact-info-column,
+  .contact-form-column {
+    width: 100%;
+    flex: none;
+  }
+
+  .contact-quick-valider {
+    align-self: center;
+    width: 100%;
+    max-width: 300px;
+    padding: 0.8rem 1.5rem;
+  }
 }
 
 /* =============================================
@@ -3955,6 +4002,18 @@ main {
 .group-theme .messages-clear-btn {
   background-color: var(--white);
   color: var(--orange);
+  border: none;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.7rem;
+}
+
+.group-theme .messages-clear-btn img {
+  filter: invert(26%) sepia(98%) saturate(3475%) hue-rotate(15deg) brightness(95%) contrast(108%);
+}
+
+.group-theme .messages-clear-btn:hover {
+  background-color: #f8f8f8;
+  transform: scale(1.02);
 }
 
 .messages-clear-btn:hover {

@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function () {
             introHtml = `<div class="section-vide">Section vide</div>`;
         } else {
             let domainsHtml = group.domains.length > 0
-                ? group.domains.map(d => `<div>-${d}</div>`).join('')
+                ? group.domains.map(d => `<div><span class="clickable-domain" onclick="executeDomainSearch('${d.replace(/'/g, "\\'")}')">-${d}</span><img src="/ICON/research_icon.svg" class="external-search-icon" onclick="openDomainInfo('${d.replace(/'/g, "\\'")}')" alt="chercher"></div>`).join('')
                 : `<div class="section-vide">Aucun domaine</div>`;
 
             let membersHtml = `
@@ -193,13 +193,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     <div class="project-content-right">
                         <div class="project-tabs">
-                            <button class="project-tab-btn active" data-target="intro-${group.id}">INTRODUCTION</button>
+                             <button class="project-tab-btn active" data-target="presentation-${group.id}">PRESENTATION</button>
                             <button class="project-tab-btn" data-target="rapports-${group.id}">RAPPORTS</button>
                             <button class="project-tab-btn" data-target="ensavoir-${group.id}">EN SAVOIR PLUS</button>
                             <button class="project-tab-btn" data-target="contact-${group.id}">CONTACT</button>
                         </div>
                         
-                        <div class="project-tab-panel active" id="intro-${group.id}">
+                        <div class="project-tab-panel active" id="presentation-${group.id}">
                             ${introHtml}
                         </div>
                         <div class="project-tab-panel" id="rapports-${group.id}">
@@ -217,8 +217,26 @@ document.addEventListener('DOMContentLoaded', function () {
         `;
     }
 
-    // Attach local toggle logic to window for inline onclick execution
+    // Attach logic to window for inline onclick execution
     window.toggleFavorite = toggleFavorite;
+    window.executeDomainSearch = function(domain) {
+        const searchInput = document.getElementById('projectSearch');
+        if (searchInput) {
+            searchInput.value = domain;
+            renderProjectsList(domain);
+            
+            // Collapse all expanded bands
+            const allBands = projectsContainer.querySelectorAll('.project-band');
+            allBands.forEach(band => band.classList.remove('expanded'));
+            
+            // Scroll to the top of the projects section
+            document.getElementById('projects-section').scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+    
+    window.openDomainInfo = function(domain) {
+        window.open('https://www.google.com/search?q=' + encodeURIComponent(domain), '_blank');
+    };
 
     function renderList(container, emptyState, dataToRender) {
         container.innerHTML = '';
@@ -265,7 +283,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function renderProjectsList(searchTerm = '') {
         const lowerTerm = searchTerm.toLowerCase();
-        const filteredGroups = groupsData.filter(g => g.name.toLowerCase().includes(lowerTerm));
+        const filteredGroups = groupsData.filter(g => {
+            const matchName = g.name.toLowerCase().includes(lowerTerm);
+            const matchDomain = g.domains && g.domains.some(d => d.toLowerCase().includes(lowerTerm));
+            return matchName || matchDomain;
+        });
         renderList(projectsContainer, projectsEmptyState, filteredGroups);
     }
 
@@ -723,35 +745,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Écoute des mises à jour globales (Canal public)
                 console.log('[Echo] Visiteur: connexion au canal public.updates');
                 window.Echo.channel('public.updates')
-                    .listen('.group.updated', (data) => {
-                        console.log('[Echo] Mise à jour groupe reçue:', data);
-                        if (data && data.group) {
-                            const index = window.serverGroupsData.findIndex(g => g.id === data.group.id);
-
-                            if (index !== -1) {
-                                // Le groupe existe déjà : Mise à jour immédiate
-                                window.serverGroupsData[index] = data.group;
-                            } else {
-                                // Nouveau groupe : Ajout immédiat
-                                console.log('[Echo] Nouveau groupe détecté. Intégration instantanée.');
-                                window.serverGroupsData.push(data.group);
-                            }
-
-                            // Rafraîchir la liste si l'onglet projet est actif
-                            if (document.getElementById('projects-section').classList.contains('active')) {
-                                renderProjectsList(document.getElementById('projectSearch')?.value || '');
-                            }
-
-                            // Mettre à jour le panneau latéral s'il est ouvert pour ce groupe
-                            const panel = document.getElementById('project-side-panel');
-                            if (panel && panel.classList.contains('open')) {
-                                const submitBtn = document.getElementById('contact-quick-submit');
-                                if (submitBtn && parseInt(submitBtn.dataset.groupId) === data.group.id) {
-                                    openProjectPanel(data.group); // Recharge le panel
-                                }
-                            }
-                        }
-                    })
                     .listen('.group.deleted', (data) => {
                         console.log('[Echo] Suppression de groupe reçue:', data);
                         if (data && data.groupId) {

@@ -71,18 +71,24 @@
             </div>
 
             <nav class="dashboard-tabs">
-                <button class="nav-tab active" data-tab="introduction">INTRODUCTION</button>
+                <button class="nav-tab active" data-tab="presentation">PRESENTATION</button>
                 <button class="nav-tab" data-tab="rapports">RAPPORTS</button>
                 <button class="nav-tab" data-tab="multimedia">EN SAVOIR PLUS</button>
                 <button class="nav-tab" data-tab="contact">CONTACT</button>
             </nav>
 
             <main class="dashboard-content-panes">
-                <!-- Section INTRODUCTION -->
-                <section id="introduction-pane" class="tab-pane active">
+                <!-- Section PRESENTATION -->
+                <section id="presentation-pane" class="tab-pane active">
                     <div class="pane-column">
                         <div class="intro-input-card">
-                            <div id="introTextDisplay" class="text-display" style="display: flex; align-items: flex-start; justify-content: center; min-height: 150px; text-align: center; width: 100%; flex: 1; padding-top: 1rem;">{{ $group->project_intro ?? '_ _ _ _' }}</div>
+                            <div id="introTextDisplay" class="text-display" style="display: flex; align-items: flex-start; justify-content: center; min-height: 150px; text-align: center; width: 100%; flex: 1; padding-top: 1rem;">
+                                @if($group->project_intro)
+                                    {{ $group->project_intro }}
+                                @else
+                                    <img src="{{ asset('ICON/pen-nib.svg') }}" alt="Edit" class="empty-intro-icon" style="width: 50px; height: 50px; opacity: 0.5;">
+                                @endif
+                            </div>
                             <textarea id="introTextArea" style="display: none;" maxlength="1000"
                                 placeholder="Saisissez votre introduction..."></textarea>
                             <div class="intro-footer">

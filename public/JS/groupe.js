@@ -85,7 +85,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const newText = introTextArea.value;
                 const res = await updateProfile({ project_intro: newText });
                 if (res && res.success) {
-                    introTextDisplay.innerText = newText.trim() === '' ? '_ _ _ _' : newText;
+                    const iconHtml = `<img src="/ICON/pen-nib.svg" alt="Edit" class="empty-intro-icon" style="width: 50px; height: 50px; opacity: 0.5;">`;
+                    introTextDisplay.innerHTML = newText.trim() === '' ? iconHtml : newText;
                     introTextDisplay.style.display = 'block';
                     introTextArea.style.display = 'none';
                     introToggleBtn.textContent = 'Modifier';

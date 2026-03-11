@@ -55,7 +55,7 @@
 
                     <!-- Visitor Mode Inputs -->
                     <div class="input-group-reg visitor-mode" style="display: none;">
-                        <label for="visitor-name">Adresse e-mail (Visiteur)</label>
+                        <label for="visitor-name">Adresse e-mail</label>
                         <input type="email" id="visitor-name" name="visitor_email" value="{{ old('login_mode') === 'visiteur' ? old('login') : '' }}" class="@if(old('login_mode') === 'visiteur' && $errors->has('login') && $errors->first('login') !== 'Les informations d\'identification fournies ne correspondent pas à nos enregistrements.') error-highlight @endif" style="@if(old('login_mode') === 'visiteur' && $errors->has('login') && $errors->first('login') !== 'Les informations d\'identification fournies ne correspondent pas à nos enregistrements.') border: 1px solid #ffcccc; @endif">
                         @if(old('login_mode') === 'visiteur' && $errors->has('login') && $errors->first('login') !== 'Les informations d\'identification fournies ne correspondent pas à nos enregistrements.')
                             <div class="validation-error-message" style="color: #ffcccc; font-size: 0.85rem; margin-top: 0.25rem;">{{ $errors->first('login') }}</div>

@@ -53,7 +53,10 @@
             </a>
 
             <a href="{{ url('/') }}" class="logout-link">
-                <img src="{{ asset('ICON/logout_icon.svg') }}" alt="Logout" title="Déconnexion" class="header-logout-icon">
+                <!-- Icône de Retour modifiée (flèche pointant vers la gauche) -->
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="header-logout-icon" title="Retour à l'accueil" style="width: 24px; height: 24px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 9l-3 3m0 0l3 3m-3-3h7.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
             </a>
         </nav>
     </header>
@@ -67,7 +70,7 @@
 
             <div class="visitor-search-container">
                 <div class="search-bar">
-                    <input type="text" placeholder="Rechercher un projet..." id="projectSearch">
+                    <input type="text" placeholder="Rechercher un projet ou un domaine..." id="projectSearch">
                     <div class="search-icon">
                         <img src="{{ asset('ICON/research_icon.svg') }}" alt="Search">
                     </div>
@@ -102,7 +105,7 @@
                 <div class="empty-icon-container">
                     <img src="{{ asset('ICON/cactus.svg') }}" alt="No events" class="empty-icon">
                 </div>
-                <p class="empty-text">Aucun évènement pour le moment.</p>
+                <p class="empty-text">Aucun Evènement pour le moment.</p>
             </div>
         </section>
 
