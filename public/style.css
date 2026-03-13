@@ -1899,21 +1899,46 @@ main {
   width: 180px;
 }
 
-.logout-link {
+.logout-form {
+  display: inline-flex;
+}
+
+.logout-btn {
   color: var(--black);
-  text-decoration: none;
-  font-size: 0.8rem;
+  background: var(--white);
+  border: none;
+  border-radius: 30px;
+  padding: 0.6rem 1.5rem;
+  font-size: 0.85rem;
   font-weight: 800;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  background: var(--white);
-  padding: 0.4rem 1rem;
-  border-radius: 20px;
+  gap: 0.75rem;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  width: auto;
+  text-decoration: none;
+  line-height: normal;
 }
 
-.logout-link img {
+.logout-btn:hover {
+  background: #f8f8f8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.logout-btn img {
   width: 18px;
+  height: 18px;
+}
+
+@media (max-width: 768px) {
+  .logout-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 0.8rem;
+  }
 }
 
 /* Right Sidebar */

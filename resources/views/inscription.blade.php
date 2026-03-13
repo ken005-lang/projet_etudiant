@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ITES - Inscription</title>
     <link rel="stylesheet" href="{{ asset('style.css') }}">
+    <link rel="icon" type="image/png" href="{{ asset('IMG/LOGOITES.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -14,7 +15,7 @@
 <body class="login-page">
     <header class="header login-header">
         <a href="{{ url('/') }}" class="logo-block">
-            <img src="{{ asset('IMG/ITESLOGO.svg') }}" alt="ITES" class="logo-img">
+            <img src="{{ asset('IMG/ITESLOGO.svg') }}" alt="ITES" class="logo-img" style="border-radius: 5px;">
         </a>
         <a href="{{ url('/login') }}" class="top-nav-link">connexion</a>
     </header>
@@ -51,7 +52,7 @@
                     <!-- === GROUPE FIELDS === -->
                     <div id="group-fields" class="input-group-reg">
                         <label for="projet_nom">Nom du projet</label>
-                        <input type="text" id="projet_nom" name="projet_nom" placeholder="Ex: Antigravity" value="{{ old('projet_nom') }}" class="@error('projet_nom') error-highlight @enderror" style="@error('projet_nom') border: 1px solid #ffcccc; @enderror">
+                        <input type="text" id="projet_nom" name="projet_nom" placeholder="Ex: Solaris" value="{{ old('projet_nom') }}" class="@error('projet_nom') error-highlight @enderror" style="@error('projet_nom') border: 1px solid #ffcccc; @enderror">
                         @error('projet_nom')
                             <div class="validation-error-message" style="color: #ffcccc; font-size: 0.85rem; margin-top: 0.25rem;">{{ $message }}</div>
                         @enderror

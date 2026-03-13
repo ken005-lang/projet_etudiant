@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ITES - Connexion</title>
     <link rel="stylesheet" href="{{ asset('style.css') }}">
+    <link rel="icon" type="image/png" href="{{ asset('IMG/LOGOITES.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -14,7 +15,7 @@
 <body class="login-page">
     <header class="header login-header">
         <a href="{{ url('/') }}" class="logo-block">
-            <img src="{{ asset('IMG/ITESLOGO.svg') }}" alt="ITES" class="logo-img">
+            <img src="{{ asset('IMG/ITESLOGO.svg') }}" alt="ITES" class="logo-img" style="border-radius: 5px;">
         </a>
         <a href="{{ url('/inscription') }}" class="top-nav-link">INSCRIPTION</a>
     </header>

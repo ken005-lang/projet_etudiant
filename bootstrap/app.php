@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => \App\Http\Middleware\EnsureIsAdmin::class,
             'groupe' => \App\Http\Middleware\EnsureIsGroup::class,
             'visiteur' => \App\Http\Middleware\EnsureIsVisitor::class,
+            'prevent-back' => \App\Http\Middleware\PreventBackHistory::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

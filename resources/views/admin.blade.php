@@ -7,6 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>ITES - Admin Dashboard</title>
     <link rel="stylesheet" href="{{ asset('style.css') }}">
+    <link rel="icon" type="image/png" href="{{ asset('IMG/LOGOITES.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -16,7 +17,7 @@
 <body class="admin-dashboard-page">
     <header class="admin-dashboard-header">
         <div class="header-left">
-            <img src="{{ asset('IMG/ITESLOGO.svg') }}" alt="ITES" class="header-logo">
+            <img src="{{ asset('IMG/ITESLOGO.svg') }}" alt="ITES" class="header-logo" style="border-radius: 5px;">
         </div>
         <div class="header-right">
             <span class="admin-text">Admin</span>

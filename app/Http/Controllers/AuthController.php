@@ -41,6 +41,34 @@ class AuthController extends Controller
             'password' => $password,
         ];
 
+        // --- Blocage strict : vérifier si ce compte a déjà une session active ---
+        // On utilise une fenêtre courte (3 min) car les pages actives envoient un heartbeat toutes les 60s.
+        // Si aucun heartbeat n'est reçu pendant 3 min, la session est considérée comme abandonnée (navigateur fermé).
+        $targetUser = User::where('username', $request->login)->first();
+        if ($targetUser && in_array($targetUser->type_role, ['visiteur', 'groupe'])) {
+            // D'abord, nettoyer les sessions vraiment expirées (plus vieilles que le lifetime complet)
+            \Illuminate\Support\Facades\DB::table('sessions')
+                ->where('user_id', $targetUser->id)
+                ->where('last_activity', '<', now()->subMinutes(config('session.lifetime'))->getTimestamp())
+                ->delete();
+
+            // Ensuite, vérifier s'il reste des sessions récentes (heartbeat actif = navigateur ouvert)
+            $activeSessionWindow = 3; // minutes
+            $activeSessions = \Illuminate\Support\Facades\DB::table('sessions')
+                ->where('user_id', $targetUser->id)
+                ->where('last_activity', '>=', now()->subMinutes($activeSessionWindow)->getTimestamp())
+                ->count();
+
+            if ($activeSessions > 0) {
+                RateLimiter::hit($throttleKey);
+                $roleLabel = $targetUser->type_role === 'visiteur' ? 'visiteur' : 'groupe';
+                return back()->withErrors([
+                    'login' => "Ce compte {$roleLabel} est déjà connecté ailleurs. Veuillez d'abord vous déconnecter de l'autre session.",
+                ])->withInput($request->except('password'));
+            }
+        }
+        // --- Fin blocage strict ---
+
         if (Auth::attempt($credentials)) {
             RateLimiter::clear($throttleKey);
             $request->session()->regenerate();

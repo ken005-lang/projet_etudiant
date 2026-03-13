@@ -8,6 +8,7 @@
     <meta name="user-id" content="{{ auth()->id() }}">
     <title>ITES - Espace Visiteur</title>
     <link rel="stylesheet" href="{{ asset('style.css') }}?v={{ time() }}">
+    <link rel="icon" type="image/png" href="{{ asset('IMG/LOGOITES.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -17,7 +18,7 @@
 <body class="visitor-page">
     <header class="header visitor-header">
         <div class="header-left">
-            <img src="{{ asset('IMG/ITESLOGO.svg') }}" alt="ITES" class="logo-img">
+            <img src="{{ asset('IMG/ITESLOGO.svg') }}" alt="ITES" class="logo-img" style="border-radius: 5px;">
         </div>
 
         <nav class="visitor-nav">
@@ -52,11 +53,8 @@
                 <img src="{{ asset('ICON/trash-fill.svg') }}" alt="Delete" class="header-logout-icon header-trash-icon">
             </a>
 
-            <a href="{{ url('/') }}" class="logout-link">
-                <!-- Icône de Retour modifiée (flèche pointant vers la gauche) -->
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="header-logout-icon" title="Retour à l'accueil" style="width: 24px; height: 24px;">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 9l-3 3m0 0l3 3m-3-3h7.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+            <a href="{{ route('logout') }}" class="logout-btn" style="padding: 0.4rem 0.8rem;">
+                <img src="{{ asset('ICON/sign-out-fill.svg') }}" alt="Déconnexion" title="Déconnexion" style="width: 22px; height: 22px;">
             </a>
         </nav>
     </header>
@@ -150,6 +148,18 @@
         window.serverEventsData = @json($eventsData ?? []);
     </script>
     <script src="{{ asset('JS/visiteur.js') }}?v={{ time() }}"></script>
+    <script>
+        // Heartbeat : maintient la session active (ping toutes les 60s)
+        setInterval(() => {
+            fetch('/heartbeat', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
+            }).catch(() => {});
+        }, 60000);
+    </script>
 </body>
 
 </html>

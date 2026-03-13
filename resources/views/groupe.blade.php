@@ -8,6 +8,7 @@
     <meta name="user-id" content="{{ auth()->id() }}">
     <title>ITES - Espace Groupe</title>
     <link rel="stylesheet" href="{{ asset('style.css') }}">
+    <link rel="icon" type="image/png" href="{{ asset('IMG/LOGOITES.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -20,7 +21,7 @@
         <div class="dashboard-main-area">
             <header class="dashboard-header">
                 <div class="header-left">
-                    <img src="{{ asset('IMG/ITESLOGO.svg') }}" alt="Group" class="header-logo">
+                    <img src="{{ asset('IMG/ITESLOGO.svg') }}" alt="Group" class="header-logo" style="border-radius: 5px;">
                     <div class="group-info-display">
                         <span id="groupNameValue" class="group-label">{{ $group->project_name }}</span>
                         <input type="text" id="groupNameInput" style="display: none;" class="header-name-input">
@@ -228,8 +229,9 @@
                             <button id="confirmDeleteBtn" class="btn-pill-small danger">Valider</button>
                         </div>
                     </div>
-                    <a href="{{ url('/login') }}" class="logout-link">
-                        Deconnexion <img src="{{ asset('ICON/logout_icon.svg') }}" alt="Logout">
+                    <a href="{{ route('logout') }}" class="logout-btn">
+                        <span>Deconnexion</span>
+                        <img src="{{ asset('ICON/sign-out-fill.svg') }}" alt="Logout">
                     </a>
                 </div>
             </footer>
@@ -260,6 +262,52 @@
         window.serverEventsData = @json($events);
     </script>
     <script src="{{ asset('JS/groupe.js') }}?v={{ time() }}"></script>
+    <script>
+        // Heartbeat : maintient la session active (ping toutes les 60s)
+        setInterval(() => {
+            fetch('/heartbeat', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
+            }).catch(() => {});
+        }, 60000);
+
+        // ======= PROTECTION ANTI-RETOUR =======
+        // Empêche l'accès à la page Groupe via le bouton "Précédent" du navigateur.
+        // Si l'utilisateur appuie sur "Retour" : la session est détruite et il est redirigé vers le login.
+        (function() {
+            var logoutClicked = false;
+
+            // Marquer le bouton de déconnexion pour éviter un double traitement
+            var logoutBtn = document.querySelector('.logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function() {
+                    logoutClicked = true;
+                });
+            }
+
+            // Pousser un état dans l'historique pour intercepter le bouton retour
+            history.pushState(null, '', window.location.href);
+
+            window.addEventListener('popstate', function() {
+                if (!logoutClicked) {
+                    // L'utilisateur a appuyé sur "Retour" → déconnexion immédiate
+                    window.location.replace('/logout');
+                }
+            });
+
+            // Gérer le bfcache (back-forward cache) :
+            // Si le navigateur tente d'afficher une version en cache de cette page,
+            // on force un rechargement qui sera intercepté par le middleware auth.
+            window.addEventListener('pageshow', function(event) {
+                if (event.persisted) {
+                    window.location.replace('/logout');
+                }
+            });
+        })();
+    </script>
 </body>
 
 </html>

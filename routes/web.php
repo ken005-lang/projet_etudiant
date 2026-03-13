@@ -49,6 +49,11 @@ Route::post('/admin_login', [AdminAuthController::class, 'login'])->name('admin.
 // Logout (Requires Auth)
 Route::match(['get', 'post'], '/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
+// Heartbeat : maintient last_activity à jour pour la vérification de session unique
+Route::post('/heartbeat', function () {
+    return response()->json(['status' => 'ok']);
+})->middleware('auth')->name('heartbeat');
+
 // ---------------------------------------------------------
 // PROTECTED ROUTES
 // ---------------------------------------------------------
@@ -69,7 +74,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 });
 
 // --- VISITOR ROUTES ---
-Route::middleware(['auth', 'visiteur'])->prefix('visiteur')->name('visiteur.')->group(function () {
+Route::middleware(['auth', 'visiteur', 'prevent-back'])->prefix('visiteur')->name('visiteur.')->group(function () {
     Route::get('/', [VisitorController::class, 'index'])->name('dashboard');
     Route::delete('/account', [VisitorController::class, 'deleteAccount'])->name('delete.account');
     
@@ -82,7 +87,7 @@ Route::middleware(['auth', 'visiteur'])->prefix('visiteur')->name('visiteur.')->
 });
 
 // --- GROUP ROUTES ---
-Route::middleware(['auth', 'groupe'])->prefix('groupe')->name('groupe.')->group(function () {
+Route::middleware(['auth', 'groupe', 'prevent-back'])->prefix('groupe')->name('groupe.')->group(function () {
     Route::get('/', [GroupController::class, 'index'])->name('dashboard');
     Route::post('/upload-video', [GroupController::class, 'uploadVideo'])->name('upload.video');
     Route::post('/upload-reports', [GroupController::class, 'uploadReports'])->name('upload.reports');
