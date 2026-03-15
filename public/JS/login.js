@@ -35,6 +35,23 @@ document.addEventListener('DOMContentLoaded', () => {
         if (formModeInput) {
             formModeInput.value = group ? 'groupe' : 'visiteur';
         }
+
+        // Toggle Forgot Password links visibility
+        const forgotGroup = document.getElementById('forgot-group');
+        const forgotVisitor = document.getElementById('forgot-visitor');
+        if (forgotGroup && forgotVisitor) {
+            if (group) {
+                forgotGroup.classList.add('active');
+                forgotVisitor.classList.remove('active');
+                forgotGroup.style.display = 'block';
+                forgotVisitor.style.display = 'none';
+            } else {
+                forgotVisitor.classList.add('active');
+                forgotGroup.classList.remove('active');
+                forgotVisitor.style.display = 'block';
+                forgotGroup.style.display = 'none';
+            }
+        }
     }
 
     btnGroupe.addEventListener('click', () => setMode(true));
@@ -95,4 +112,22 @@ document.addEventListener('DOMContentLoaded', () => {
             firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }, 100);
     }
+
+    // Password Visibility Toggle Logic
+    const toggleButtons = document.querySelectorAll('.password-toggle');
+    toggleButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const input = document.getElementById(targetId);
+            const icon = this.querySelector('.toggle-icon');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.src = icon.src.replace('eye-fill.svg', 'eye-slash-fill.svg');
+            } else {
+                input.type = 'password';
+                icon.src = icon.src.replace('eye-slash-fill.svg', 'eye-fill.svg');
+            }
+        });
+    });
 });

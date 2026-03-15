@@ -1,0 +1,14 @@
+{
+  "name": "mcp-notebooklm-bridge",
+  "version": "1.0.0",
+  "description": "MCP server bridge to Google NotebookLM via Playwright browser automation",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "playwright-core": "^1.52.0"
+  }
+}

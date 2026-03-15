@@ -1,0 +1,25 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: projet_etudiant_app
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "8080:8080" # Reverb
+    volumes:
+      - .:/var/www/html
+      - ./database:/var/www/html/database
+      - ./storage:/var/www/html/storage
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - DB_CONNECTION=sqlite
+      - DB_DATABASE=/var/www/html/database/database.sqlite
+    networks:
+      - laravel
+
+networks:
+  laravel:
+    driver: bridge

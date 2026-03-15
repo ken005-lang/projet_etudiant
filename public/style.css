@@ -644,6 +644,12 @@ main {
   position: relative;
 }
 
+.login-form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
 .input-wrapper {
   margin-top: 0;
 }
@@ -687,7 +693,7 @@ main {
 .input-group input,
 .input-group-reg input {
   width: 100%;
-  padding: 12px 20px;
+  padding: 12px 45px 12px 20px; /* Réduit le padding droit (45px) pour l'icône de l'œil uniquement */
   border-radius: 30px;
   /* Rounded pill shape */
   border: none;
@@ -696,10 +702,41 @@ main {
   background: rgba(255, 255, 255, 0.9);
 }
 
-.login-submit-btn {
+/* Password Toggle Style */
+.password-toggle {
   position: absolute;
-  bottom: 0.1rem;
-  right: 2rem;
+  right: 15px; /* Retour à l'extrême droite du champ */
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.password-toggle:hover {
+  opacity: 1;
+}
+
+.password-toggle .toggle-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Hide native browser password reveal buttons (Edge, IE) */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
+
+.login-submit-btn {
+  position: relative; /* Sorti du positionnement absolu */
+  margin-top: 2rem; /* Espace sous les champs */
+  margin-left: auto; /* Aligné à droite */
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -714,6 +751,28 @@ main {
   overflow: hidden;
   white-space: nowrap;
   padding: 0;
+}
+
+/* Forgot Password Links */
+.forgot-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-top: 1.5rem;
+}
+
+.forgot-link {
+  color: #000 !important; /* Couleur noire demandée par l'utilisateur */
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: underline;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  cursor: pointer;
+}
+
+.forgot-link:hover {
+  opacity: 1;
 }
 
 .login-submit-btn .btn-text {
@@ -3305,9 +3364,18 @@ main {
 
 .section-vide {
   font-style: italic;
-  color: rgba(255, 255, 255, 0.6);
+  color: #666; /* Couleur sombre par défaut pour fond blanc */
   font-weight: 600;
   margin: 1rem 0;
+  text-align: center;
+}
+
+.group-theme .section-vide {
+  color: rgba(255, 255, 255, 0.8) !important; /* Couleur claire pour fond orange (Espace Groupe) */
+}
+
+.visitor-theme .section-vide {
+  color: #555; /* Couleur grise pour fond blanc (Espace Visiteur) */
 }
 
 

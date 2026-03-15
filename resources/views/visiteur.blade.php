@@ -137,7 +137,7 @@
             </div>
             <div class="messages-body" id="messages-list-container">
                 <!-- Les messages seront injectés ici par JS -->
-                <div class="section-vide">Chargement des messages...</div>
+                <div class="section-vide">Chargement...</div>
             </div>
         </div>
     </div>

@@ -46,8 +46,11 @@
                     <!-- Group Mode Inputs (Default) -->
                     <div class="input-group-reg group-mode active">
                         <label for="access-code">Code id</label>
-                        <div class="input-wrapper">
+                        <div class="input-wrapper" style="position: relative; display: flex; align-items: center;">
                             <input type="password" id="access-code" value="{{ old('login_mode') === 'groupe' || !old('login_mode') ? old('login') : '' }}" class="@if((old('login_mode') === 'groupe' || !old('login_mode')) && $errors->has('login')) error-highlight @endif" style="@if((old('login_mode') === 'groupe' || !old('login_mode')) && $errors->has('login')) border: 1px solid #ffcccc; @endif">
+                            <button type="button" class="password-toggle" data-target="access-code" title="Afficher/Masquer le code">
+                                <img src="{{ asset('ICON/eye-fill.svg') }}" alt="Toggle Visibility" class="toggle-icon">
+                            </button>
                         </div>
                         @if((old('login_mode') === 'groupe' || !old('login_mode')) && $errors->has('login'))
                             <div class="validation-error-message" style="color: #ffcccc; font-size: 0.85rem; margin-top: 0.25rem;">{{ $errors->first('login') }}</div>
@@ -63,7 +66,12 @@
                         @endif
 
                         <label for="visitor-pass" style="margin-top: 1rem;">Mot de passe</label>
-                        <input type="password" id="visitor-pass" name="password" class="@if(old('login_mode') === 'visiteur' && ($errors->has('password') || $errors->has('login'))) error-highlight @endif" style="@if(old('login_mode') === 'visiteur' && ($errors->has('password') || $errors->has('login'))) border: 1px solid #ffcccc; @endif">
+                        <div class="input-wrapper" style="position: relative; display: flex; align-items: center;">
+                            <input type="password" id="visitor-pass" name="password" class="@if(old('login_mode') === 'visiteur' && ($errors->has('password') || $errors->has('login'))) error-highlight @endif" style="@if(old('login_mode') === 'visiteur' && ($errors->has('password') || $errors->has('login'))) border: 1px solid #ffcccc; @endif">
+                            <button type="button" class="password-toggle" data-target="visitor-pass" title="Afficher/Masquer le mot de passe">
+                                <img src="{{ asset('ICON/eye-fill.svg') }}" alt="Toggle Visibility" class="toggle-icon">
+                            </button>
+                        </div>
                         @if(old('login_mode') === 'visiteur' && $errors->has('password'))
                             <div class="validation-error-message" style="color: #ffcccc; font-size: 0.85rem; margin-top: 0.25rem;">{{ $errors->first('password') }}</div>
                         @elseif(old('login_mode') === 'visiteur' && $errors->has('login') && $errors->first('login') === 'Les informations d\'identification fournies ne correspondent pas à nos enregistrements.')
@@ -77,6 +85,11 @@
                         <span class="arrow-icon">›</span>
                     </button>
                 </form>
+
+                <div class="forgot-container">
+                    <a href="#" class="forgot-link group-mode active" id="forgot-group">Code id oublié.</a>
+                    <a href="#" class="forgot-link visitor-mode" id="forgot-visitor" style="display: none;">Mot de passe oublié.</a>
+                </div>
             </div>
 
             <div class="login-decoration">

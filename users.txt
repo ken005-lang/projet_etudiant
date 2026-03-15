@@ -1,0 +1,1 @@
+[{"email":"admin@admin.com","type_role":"admin"},{"email":null,"type_role":"groupe"},{"email":null,"type_role":"visiteur"}]

@@ -3,13 +3,19 @@ import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
 window.Pusher = Pusher;
 
+// Utilise window.location.hostname pour être compatible avec Docker et tous les environnements.
+// Les variables VITE sont compilées au moment du build, mais l'hôte peut changer selon l'environnement.
+const reverbKey = import.meta.env.VITE_REVERB_APP_KEY;
+const reverbScheme = import.meta.env.VITE_REVERB_SCHEME ?? 'http';
+const isTLS = reverbScheme === 'https';
+
 window.Echo = new Echo({
     broadcaster: 'reverb',
-    key: import.meta.env.VITE_REVERB_APP_KEY,
-    wsHost: import.meta.env.VITE_REVERB_HOST,
-    wsPort: import.meta.env.VITE_REVERB_PORT ?? 80,
-    wssPort: import.meta.env.VITE_REVERB_PORT ?? 443,
-    forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https',
-    enabledTransports: ['ws', 'wss'],
+    key: reverbKey,
+    wsHost: window.location.hostname,
+    wsPort: isTLS ? 443 : 80,
+    wssPort: 443,
+    forceTLS: isTLS,
+    enabledTransports: isTLS ? ['wss'] : ['ws'],
     authEndpoint: '/broadcasting/auth',
 });

@@ -51,7 +51,7 @@
           <a href="{{ url('/inscription') }}" class="btn">S'inscrire</a>
         </div>
         <div class="presentation-video">
-          <video src="{{ asset('VIDEO/NARUTO.mp4') }}" controls muted class="video-presentation"></video>
+          <video src="{{ asset('VIDEO/NARUTO.mp4') }}" controls class="video-presentation"></video>
         </div>
       </div>
     </section>
