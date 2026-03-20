@@ -46,7 +46,7 @@
 
                 <button class="admin-logout-btn">
                     <span>Déconnexion</span>
-                    <img src="{{ asset('ICON/logout_icon.svg') }}" alt="Logout" class="logout-icon">
+                    <img src="{{ asset('ICON/sign-out-fill.svg') }}" alt="Logout" class="logout-icon">
                 </button>
             </div>
         </aside>
@@ -101,7 +101,6 @@
                                 <th colspan="2">Groupe</th>
                                 <th colspan="3">Chef de groupe</th>
                                 <th>Compte</th>
-                                <th>Session</th>
                                 <th>Gestion</th>
                             </tr>
                             <tr class="sub-headers">
@@ -111,7 +110,6 @@
                                 <th>Niveau</th>
                                 <th>Filière</th>
                                 <th>Date de création</th>
-                                <th>Connexion</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -124,12 +122,11 @@
                                 <td>{{ $groupe->leader_level }}</td>
                                 <td>{{ $groupe->leader_sector }}</td>
                                 <td>{{ $groupe->created_at->format('d/m/Y') }}</td>
-                                <td>Inactif</td>
                                 <td><img src="{{ asset('ICON/trash-fill.svg') }}" alt="delete" class="action-icon" data-id="{{ $groupe->id }}"></td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="8" style="text-align: center;">Aucun groupe inscrit pour le moment.</td>
+                                <td colspan="7" style="text-align: center;">Aucun groupe inscrit pour le moment.</td>
                             </tr>
                             @endforelse
                         </tbody>

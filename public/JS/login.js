@@ -6,6 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const formModeInput = document.getElementById('formMode');
     // const loginCard = document.querySelector('.login-card'); // Not strictly needed for logic unless resizing explicitly
 
+    // Link visibility logic is below
+
     // Initial state
     let isGroupMode = true;
 

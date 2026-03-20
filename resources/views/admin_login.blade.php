@@ -26,13 +26,25 @@
         <div class="admin-login-card">
             <form class="admin-login-form" method="POST" action="{{ route('admin.login.post') }}">
                 @csrf
+                @if ($errors->any())
+                    <div style="background-color: #ffcccc; color: #cc0000; padding: 10px; border-radius: 4px; font-weight: 600; text-align: center;">
+                        @foreach ($errors->all() as $error)
+                            <p style="margin: 0; font-size: 0.95rem;">{{ $error }}</p>
+                        @endforeach
+                    </div>
+                @endif
                 <div class="admin-input-group">
                     <label for="username">Utilisateur</label>
                     <input type="text" id="username" name="username" value="{{ old('username') }}">
                 </div>
                 <div class="admin-input-group">
                     <label for="password">Mot de passe</label>
-                    <input type="password" id="password" name="password">
+                    <div class="admin-password-wrapper">
+                        <input type="password" id="password" name="password">
+                        <button type="button" class="admin-password-toggle" id="togglePassword">
+                            <img src="{{ asset('ICON/eye-fill.svg') }}" alt="Voir" id="toggleIcon">
+                        </button>
+                    </div>
                 </div>
                 <div class="admin-form-footer">
                     <button type="submit" class="admin-submit-btn">Connexion</button>
@@ -40,6 +52,21 @@
             </form>
         </div>
     </main>
+
+    <script>
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.src = "{{ asset('ICON/eye-slash-fill.svg') }}";
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.src = "{{ asset('ICON/eye-fill.svg') }}";
+            }
+        });
+    </script>
 </body>
 
 </html>

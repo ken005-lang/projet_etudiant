@@ -1,19 +1,30 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // === Tab Switching Logic ===
+    // === Tab Switching Logic (with localStorage persistence) ===
     const tabs = document.querySelectorAll('.admin-nav-item');
     const panes = document.querySelectorAll('.admin-pane');
+
+    function activateTab(tabName) {
+        tabs.forEach(t => t.classList.remove('active'));
+        panes.forEach(p => p.classList.remove('active'));
+        const targetTab = document.querySelector(`.admin-nav-item[data-tab="${tabName}"]`);
+        const targetPane = document.getElementById(`${tabName}-pane`);
+        if (targetTab && targetPane) {
+            targetTab.classList.add('active');
+            targetPane.classList.add('active');
+        }
+    }
+
+    // Restore saved tab on page load
+    const savedTab = localStorage.getItem('admin_active_tab');
+    if (savedTab) {
+        activateTab(savedTab);
+    }
 
     tabs.forEach(tab => {
         tab.addEventListener('click', () => {
             const target = tab.getAttribute('data-tab');
-
-            // Remove active classes
-            tabs.forEach(t => t.classList.remove('active'));
-            panes.forEach(p => p.classList.remove('active'));
-
-            // Add active class to clicked tab and its pane
-            tab.classList.add('active');
-            document.getElementById(`${target}-pane`).classList.add('active');
+            activateTab(target);
+            localStorage.setItem('admin_active_tab', target);
         });
     });
 
@@ -617,7 +628,6 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <td>${data.profile_data.leader_level}</td>
                                 <td>${data.profile_data.leader_sector}</td>
                                 <td>À l'instant</td>
-                                <td>Inactif</td>
                                 <td class="actions-cell">
                                     <img src="/ICON/trash-fill.svg" alt="delete" class="action-icon" data-id="${data.profile_data.id}">
                                 </td>

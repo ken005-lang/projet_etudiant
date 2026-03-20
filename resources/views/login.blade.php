@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 
 <body class="login-page">
@@ -87,9 +88,9 @@
                 </form>
 
                 <div class="forgot-container">
-                    <a href="#" class="forgot-link group-mode active" id="forgot-group">Code id oublié.</a>
-                    <a href="#" class="forgot-link visitor-mode" id="forgot-visitor" style="display: none;">Mot de passe oublié.</a>
-                </div>
+        <a href="{{ route('recovery.choice') }}" class="forgot-link group-mode active" id="forgot-group">Code id oublié.</a>
+        <a href="{{ route('password.request', ['mode' => 'visiteur']) }}" class="forgot-link visitor-mode" id="forgot-visitor" style="display: none;">Mot de passe oublié.</a>
+    </div>
             </div>
 
             <div class="login-decoration">

@@ -7,6 +7,55 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\VisitorController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\Auth\RecoveryController;
+
+// ---------------------------------------------------------
+// RECOVERY ROUTES (Secure)
+// ---------------------------------------------------------
+Route::middleware('guest')->group(function () {
+    // Show request form
+    Route::get('/forgot-password', [RecoveryController::class, 'showLinkRequestForm'])
+        ->name('password.request');
+
+    // Initial request
+    Route::post('/forgot-password', [RecoveryController::class, 'sendResetLink'])
+        ->name('password.email')
+        ->middleware('throttle:5,1');
+
+    // Visitor: Verify code
+    Route::get('/verify-code', [RecoveryController::class, 'showVerifyCodeForm'])
+        ->name('verify.code');
+    Route::post('/verify-code', [RecoveryController::class, 'submitVerifyCode'])
+        ->name('verify.code.post')
+        ->middleware('throttle:5,1');
+
+    // Visitor: Choice / Reset landing (via email)
+    Route::get('/reset-password/{token}', [RecoveryController::class, 'showRecoveryOptions'])
+        ->name('password.reset');
+
+    // Group: Direct Recovery Choice (No token)
+    Route::get('/recovery-choice', [RecoveryController::class, 'showDirectRecoveryChoice'])
+        ->name('recovery.choice');
+
+    // Group: Modify Code ID (Direct)
+    Route::get('/modify-code-id', [RecoveryController::class, 'showModifyCodeIdForm'])
+        ->name('code.modify');
+    Route::post('/modify-code-id', [RecoveryController::class, 'submitCodeIdModification'])
+        ->name('code.modify.post')
+        ->middleware('throttle:3,10');
+
+    // Group: Identity recovery (Direct)
+    Route::get('/recover-identity', [RecoveryController::class, 'showIdentityForm'])
+        ->name('identity.recover');
+    Route::post('/recover-identity', [RecoveryController::class, 'submitIdentityRecovery'])
+        ->name('identity.recover.post')
+        ->middleware('throttle:3,10');
+
+    // Final Reset (Visitor)
+    Route::post('/reset-password', [RecoveryController::class, 'reset'])
+        ->name('password.update')
+        ->middleware('throttle:3,10');
+});
 
 // ---------------------------------------------------------
 // PUBLIC ROUTES
@@ -14,7 +63,7 @@ use App\Http\Controllers\MessageController;
 
 Route::get('/', function () {
     return view('index');
-});
+})->name('home');
 
 // Temporary debug route - remove after diagnosis
 Route::get('/php-debug', function () {
