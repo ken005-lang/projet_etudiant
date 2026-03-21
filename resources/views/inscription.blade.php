@@ -101,9 +101,7 @@
                                 <label for="filiere">Filière</label>
                                 <select id="filiere" name="filiere" class="@error('filiere') error-highlight @enderror" style="@error('filiere') border: 1px solid #ffcccc; @enderror; width: 100%;">
                                     <option value="" disabled {{ old('filiere') ? '' : 'selected' }}>Choisir une filière</option>
-                                    <option value="info" {{ old('filiere') == 'info' ? 'selected' : '' }}>INFO</option>
-                                    <option value="elt" {{ old('filiere') == 'elt' ? 'selected' : '' }}>ELT</option>
-                                    <option value="meca" {{ old('filiere') == 'meca' ? 'selected' : '' }}>MECA</option>
+                                    <option value="Informatique" {{ old('filiere') == 'Informatique' ? 'selected' : '' }}>Informatique</option>
                                 </select>
                                 @error('filiere')
                                     <div class="validation-error-message" style="color: #ffcccc; font-size: 0.85rem; margin-top: 0.25rem;">{{ $message }}</div>
@@ -115,7 +113,12 @@
                             <img src="{{ asset('ICON/info_icon.svg') }}" alt="Info" class="info-icon"
                                 title="Demander le code d'accès à l'admin du site">
                             <label for="code_acces">Code d'accès (Sera votre identifiant)</label>
-                            <input type="password" id="code_acces" name="code_acces" class="@error('code_acces') error-highlight @enderror" style="@error('code_acces') border: 1px solid #ffcccc; @enderror">
+                            <div class="input-wrapper">
+                                <input type="password" id="code_acces" name="code_acces" class="@error('code_acces') error-highlight @enderror" style="@error('code_acces') border: 1px solid #ffcccc; @endif">
+                                <button type="button" class="password-toggle" data-target="code_acces" title="Afficher/Masquer le code">
+                                    <img src="{{ asset('ICON/eye-fill.svg') }}" alt="Toggle Visibility" class="toggle-icon">
+                                </button>
+                            </div>
                             @error('code_acces')
                                 <div class="validation-error-message" style="color: #ffcccc; font-size: 0.85rem; margin-top: 0.25rem;">{{ $message }}</div>
                             @enderror
@@ -161,7 +164,12 @@
                             <h3 style="margin-top: 1rem;">Accès &amp; Sécurité</h3>
                         </u>
                         <label for="password">Créer un mot de passe</label>
-                        <input type="password" id="password" name="password" class="@error('password') error-highlight @enderror" style="@error('password') border: 1px solid #ffcccc; @enderror">
+                        <div class="input-wrapper">
+                            <input type="password" id="password" name="password" class="@error('password') error-highlight @enderror" style="@error('password') border: 1px solid #ffcccc; @endif">
+                            <button type="button" class="password-toggle" data-target="password" title="Afficher/Masquer le mot de passe">
+                                <img src="{{ asset('ICON/eye-fill.svg') }}" alt="Toggle Visibility" class="toggle-icon">
+                            </button>
+                        </div>
                         
                         <!-- Dynamic Password Policy Checklist -->
                         <div id="password-policy" style="margin-top: 0.5rem; color: white; transition: color 0.3s; font-size: 0.85rem;">
@@ -293,6 +301,8 @@
             }
         });
     </script>
+    <script src="{{ asset('JS/password-toggle.js') }}"></script>
+    <script src="{{ asset('JS/global-loading.js') }}"></script>
 </body>
 
 </html>

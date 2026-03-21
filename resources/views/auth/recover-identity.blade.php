@@ -87,5 +87,6 @@
             </form>
         </div>
     </div>
+    <script src="{{ asset('JS/global-loading.js') }}"></script>
 </body>
 </html>

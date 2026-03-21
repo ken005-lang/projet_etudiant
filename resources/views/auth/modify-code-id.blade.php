@@ -87,10 +87,10 @@
 
                 <div class="form-group">
                     <label>Nouveau Code ID</label>
-                    <div class="password-wrapper">
+                    <div class="input-wrapper">
                         <input type="password" name="password" id="new_password" class="form-control" required>
-                        <button type="button" class="password-toggle" onclick="togglePassword('new_password', 'icon_new')">
-                            <img src="{{ asset('ICON/eye-fill.svg') }}" id="icon_new" alt="Toggle">
+                        <button type="button" class="password-toggle" data-target="new_password" title="Afficher/Masquer le code">
+                            <img src="{{ asset('ICON/eye-fill.svg') }}" class="toggle-icon" alt="Toggle">
                         </button>
                     </div>
                     <div id="password-policy" style="margin-top: 0.5rem; color: #666; transition: color 0.3s; font-size: 0.85rem;">
@@ -107,10 +107,10 @@
 
                 <div class="form-group">
                     <label>Confirmer le nouveau Code ID</label>
-                    <div class="password-wrapper">
+                    <div class="input-wrapper">
                         <input type="password" name="password_confirmation" id="confirm_password" class="form-control" required>
-                        <button type="button" class="password-toggle" onclick="togglePassword('confirm_password', 'icon_confirm')">
-                            <img src="{{ asset('ICON/eye-fill.svg') }}" id="icon_confirm" alt="Toggle">
+                        <button type="button" class="password-toggle" data-target="confirm_password" title="Afficher/Masquer le code">
+                            <img src="{{ asset('ICON/eye-fill.svg') }}" class="toggle-icon" alt="Toggle">
                         </button>
                     </div>
                 </div>
@@ -124,6 +124,7 @@
         </div>
     </div>
 
+    <script src="{{ asset('JS/password-toggle.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const passwordInput = document.querySelector('input[name="password"]');
@@ -166,18 +167,7 @@
             }
         });
 
-        // Password Visibility Toggle Function
-        function togglePassword(inputId, iconId) {
-            const input = document.getElementById(inputId);
-            const icon = document.getElementById(iconId);
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.src = "{{ asset('ICON/eye-slash-fill.svg') }}";
-            } else {
-                input.type = 'password';
-                icon.src = "{{ asset('ICON/eye-fill.svg') }}";
-            }
-        }
+        });
     </script>
 </body>
 </html>

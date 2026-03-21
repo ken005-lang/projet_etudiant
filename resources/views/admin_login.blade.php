@@ -39,10 +39,10 @@
                 </div>
                 <div class="admin-input-group">
                     <label for="password">Mot de passe</label>
-                    <div class="admin-password-wrapper">
+                    <div class="input-wrapper">
                         <input type="password" id="password" name="password">
-                        <button type="button" class="admin-password-toggle" id="togglePassword">
-                            <img src="{{ asset('ICON/eye-fill.svg') }}" alt="Voir" id="toggleIcon">
+                        <button type="button" class="password-toggle" data-target="password" title="Afficher/Masquer le mot de passe">
+                            <img src="{{ asset('ICON/eye-fill.svg') }}" class="toggle-icon" alt="Voir">
                         </button>
                     </div>
                 </div>
@@ -53,20 +53,8 @@
         </div>
     </main>
 
-    <script>
-        document.getElementById('togglePassword').addEventListener('click', function() {
-            const passwordInput = document.getElementById('password');
-            const toggleIcon = document.getElementById('toggleIcon');
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleIcon.src = "{{ asset('ICON/eye-slash-fill.svg') }}";
-            } else {
-                passwordInput.type = 'password';
-                toggleIcon.src = "{{ asset('ICON/eye-fill.svg') }}";
-            }
-        });
-    </script>
+    <script src="{{ asset('JS/password-toggle.js') }}"></script>
 </body>
+
 
 </html>

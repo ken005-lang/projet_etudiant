@@ -139,6 +139,7 @@ Route::middleware(['auth', 'visiteur', 'prevent-back'])->prefix('visiteur')->nam
 Route::middleware(['auth', 'groupe', 'prevent-back'])->prefix('groupe')->name('groupe.')->group(function () {
     Route::get('/', [GroupController::class, 'index'])->name('dashboard');
     Route::post('/upload-video', [GroupController::class, 'uploadVideo'])->name('upload.video');
+    Route::delete('/remove-video', [GroupController::class, 'removeVideo'])->name('remove.video');
     Route::post('/upload-reports', [GroupController::class, 'uploadReports'])->name('upload.reports');
     Route::delete('/reports/{id}', [GroupController::class, 'deleteReport'])->name('delete.report');
     

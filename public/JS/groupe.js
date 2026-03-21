@@ -8,12 +8,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                     'X-CSRF-TOKEN': csrfToken
                 },
                 body: JSON.stringify(data)
             });
             const result = await response.json();
-            if (!result.success) {
+            if (!response.ok) {
+                let errorMsg = result.message || 'Erreur réseau';
+                if (result.errors) {
+                    errorMsg += '\n' + Object.values(result.errors).flat().join('\n');
+                }
+                alert('Erreur de validation : \n' + errorMsg);
+                return { success: false };
+            }
+            if (result.success === false) {
                 alert('Erreur lors de la sauvegarde : ' + result.message);
             }
             return result;
@@ -53,7 +62,15 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 const newName = groupNameInput.value.trim();
                 if (newName) {
+                    const originalText = groupNameToggleBtn.textContent;
+                    groupNameToggleBtn.textContent = 'Chargement...';
+                    groupNameToggleBtn.disabled = true;
+
                     const res = await updateProfile({ project_name: newName });
+                    
+                    groupNameToggleBtn.textContent = originalText;
+                    groupNameToggleBtn.disabled = false;
+
                     if (res && res.success) {
                         groupNameValue.textContent = newName;
                         groupNameValue.style.display = 'block';
@@ -83,7 +100,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 introToggleBtn.textContent = 'Appliquer';
             } else {
                 const newText = introTextArea.value;
+                const originalText = introToggleBtn.textContent;
+                introToggleBtn.textContent = 'Chargement...';
+                introToggleBtn.disabled = true;
+
                 const res = await updateProfile({ project_intro: newText });
+
+                introToggleBtn.textContent = originalText;
+                introToggleBtn.disabled = false;
+
                 if (res && res.success) {
                     const iconHtml = `<img src="/ICON/pen-nib.svg" alt="Edit" class="empty-intro-icon" style="width: 50px; height: 50px; opacity: 0.5;">`;
                     introTextDisplay.innerHTML = newText.trim() === '' ? iconHtml : newText;
@@ -118,7 +143,15 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 const newLevel = projectLevelInput.value.trim();
                 if (newLevel) {
+                    const originalText = projectLevelToggleBtn.textContent;
+                    projectLevelToggleBtn.textContent = 'Chargement...';
+                    projectLevelToggleBtn.disabled = true;
+
                     const res = await updateProfile({ leader_level: newLevel });
+
+                    projectLevelToggleBtn.textContent = originalText;
+                    projectLevelToggleBtn.disabled = false;
+
                     if (res && res.success) {
                         projectLevelValue.textContent = newLevel;
                         group.classList.remove('editing');
@@ -143,11 +176,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const addDomain = async () => {
         const value = domainInput.value.trim();
         if (value) {
+            const originalText = addDomainBtn.textContent;
+            addDomainBtn.textContent = 'Chargement...';
+            addDomainBtn.disabled = true;
+
             const li = document.createElement('li');
             li.innerHTML = `-${value} <img src="ICON/x-circle-fill.svg" class="remove-domain" alt="x">`;
             domainList.appendChild(li);
 
             const res = await updateProfile({ project_domain: getDomainsString() });
+
+            addDomainBtn.textContent = originalText;
+            addDomainBtn.disabled = false;
+
             if (res && res.success) {
                 domainInput.value = '';
                 li.querySelector('.remove-domain').addEventListener('click', async () => {
@@ -209,6 +250,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (name && sector && level) {
                 try {
+                    const originalText = addMemberBtn.textContent;
+                    addMemberBtn.textContent = 'Chargement...';
+                    addMemberBtn.disabled = true;
+
                     const response = await fetch('/groupe/members', {
                         method: 'POST',
                         headers: {
@@ -218,6 +263,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         body: JSON.stringify({ name, sector, level })
                     });
                     const result = await response.json();
+
+                    addMemberBtn.textContent = originalText;
+                    addMemberBtn.disabled = false;
 
                     if (result.success) {
                         const tr = document.createElement('tr');
@@ -280,10 +328,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (submitContact) {
         submitContact.addEventListener('click', async () => {
+            const originalText = submitContact.textContent;
+            submitContact.textContent = 'Chargement...';
+            submitContact.disabled = true;
+
             const res = await updateProfile({
                 contact_whatsapp: contactWhatsapp.value.trim(),
                 contact_email: contactEmail.value.trim()
             });
+
+            submitContact.textContent = originalText;
+            submitContact.disabled = false;
+
             if (res && res.success) {
                 alert('Informations de contact mises à jour !');
             }
@@ -315,7 +371,8 @@ document.addEventListener('DOMContentLoaded', () => {
             confirmDeleteBtn.addEventListener('click', async () => {
                 const code = groupDeleteCode.value.trim();
                 if (code) {
-                    confirmDeleteBtn.textContent = 'Suppression...';
+                    const originalText = confirmDeleteBtn.textContent;
+                    confirmDeleteBtn.textContent = 'Chargement...';
                     confirmDeleteBtn.disabled = true;
 
                     try {
@@ -337,13 +394,13 @@ document.addEventListener('DOMContentLoaded', () => {
                             window.location.href = '/login'; // Redirection vers connexion ou accueil
                         } else {
                             alert(data.error || 'Erreur lors de la suppression.');
-                            confirmDeleteBtn.textContent = 'Valider';
+                            confirmDeleteBtn.textContent = originalText;
                             confirmDeleteBtn.disabled = false;
                         }
                     } catch (error) {
                         console.error('Delete error:', error);
                         alert('Erreur réseau lors de la suppression.');
-                        confirmDeleteBtn.textContent = 'Valider';
+                        confirmDeleteBtn.textContent = originalText;
                         confirmDeleteBtn.disabled = false;
                     }
                 } else {
@@ -426,6 +483,51 @@ document.addEventListener('DOMContentLoaded', () => {
     const videoContainer = document.getElementById('videoContainer');
     const projectVideoPlayer = document.getElementById('projectVideoPlayer');
 
+    const removeVideoBtn = document.getElementById('removeVideoBtn');
+
+    if (removeVideoBtn) {
+        removeVideoBtn.addEventListener('click', async () => {
+            if (confirm('Voulez-vous vraiment retirer la présentation vidéo ?')) {
+                const originalText = removeVideoBtn.textContent;
+                removeVideoBtn.textContent = 'Chargement...';
+                removeVideoBtn.disabled = true;
+
+                try {
+                    const response = await fetch('/groupe/remove-video', {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    removeVideoBtn.textContent = originalText;
+                    removeVideoBtn.disabled = false;
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success) {
+                            videoContainer.style.display = 'none';
+                            projectVideoPlayer.src = '';
+                            projectVideoPlayer.load(); // Reset player completely
+                            videoEmptyState.style.display = 'flex';
+                            alert('Vidéo retirée avec succès !');
+                        } else {
+                            alert(data.error || 'Erreur lors du retrait de la vidéo.');
+                        }
+                    } else {
+                        alert('Erreur réseau lors du retrait de la vidéo.');
+                    }
+                } catch (error) {
+                    removeVideoBtn.textContent = originalText;
+                    removeVideoBtn.disabled = false;
+                    console.error('Erreur removeVideo:', error);
+                    alert('Erreur réseau lors de la communication serveur.');
+                }
+            }
+        });
+    }
+
     if (videoInput) {
         const triggerUpload = () => videoInput.click();
         if (triggerVideoUploadBtn) triggerVideoUploadBtn.addEventListener('click', triggerUpload);
@@ -442,9 +544,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Show progress bar, hide buttons
-            videoEmptyState.style.display = 'none';
-            videoContainer.style.display = 'none';
+            // Identify active button
+            let activeVideoBtn = null;
+            let originalVideoBtnText = '';
+            if (triggerVideoUploadBtn && triggerVideoUploadBtn.offsetParent !== null) activeVideoBtn = triggerVideoUploadBtn;
+            else if (replaceVideoBtn && replaceVideoBtn.offsetParent !== null) activeVideoBtn = replaceVideoBtn;
+
+            if (activeVideoBtn) {
+                originalVideoBtnText = activeVideoBtn.textContent;
+                activeVideoBtn.textContent = 'Chargement...';
+                activeVideoBtn.disabled = true;
+            }
+
+            // Show progress bar
             videoUploadProgressContainer.style.display = 'block';
             videoUploadProgressBar.style.width = '0%';
             videoUploadPercent.textContent = '0%';
@@ -468,10 +580,16 @@ document.addEventListener('DOMContentLoaded', () => {
             xhr.onload = () => {
                 videoUploadProgressContainer.style.display = 'none';
 
+                if (activeVideoBtn) {
+                    activeVideoBtn.textContent = originalVideoBtnText;
+                    activeVideoBtn.disabled = false;
+                }
+
                 if (xhr.status === 200) {
                     try {
                         const response = JSON.parse(xhr.responseText);
                         if (response.success) {
+                            videoEmptyState.style.display = 'none';
                             projectVideoPlayer.src = response.video_url;
                             videoContainer.style.display = 'flex';
                             alert('Vidéo téléversée avec succès !');
@@ -479,7 +597,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             throw new Error(response.error || 'Erreur inconnue');
                         }
                     } catch (e) {
-                        videoEmptyState.style.display = 'flex';
                         alert('Erreur: ' + e.message);
                     }
                 } else {
@@ -497,7 +614,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             xhr.onerror = () => {
                 videoUploadProgressContainer.style.display = 'none';
-                videoEmptyState.style.display = 'flex';
+                
+                if (activeVideoBtn) {
+                    activeVideoBtn.textContent = originalVideoBtnText;
+                    activeVideoBtn.disabled = false;
+                }
+
                 alert('Erreur réseau lors de l\'envoi de la vidéo.');
                 videoInput.value = ''; // Reset
             };
@@ -524,6 +646,18 @@ document.addEventListener('DOMContentLoaded', () => {
         reportInput.addEventListener('change', async (e) => {
             const files = Array.from(e.target.files);
             if (files.length > 0) {
+                // Determine which button triggered it to update text
+                let activeBtn = null;
+                let originalBtnText = '';
+                if (publishBtnEmpty && publishBtnEmpty.offsetParent !== null) activeBtn = publishBtnEmpty;
+                else if (publishBtnHeader && publishBtnHeader.offsetParent !== null) activeBtn = publishBtnHeader;
+                
+                if (activeBtn) {
+                    originalBtnText = activeBtn.textContent;
+                    activeBtn.textContent = 'Chargement...';
+                    activeBtn.disabled = true;
+                }
+
                 // Prepare FormData for the actual API upload
                 const formData = new FormData();
                 files.forEach(file => {
@@ -551,6 +685,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error('Erreur API Upload Report:', err);
                     alert('Erreur réseau lors de la publication des rapports.');
                 }
+
+                if (activeBtn) {
+                    activeBtn.textContent = originalBtnText;
+                    activeBtn.disabled = false;
+                }
+
                 reportInput.value = ''; // Reset for same file selection
             }
         });
@@ -728,22 +868,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Notification dot logic (same as visitor)
+    // Notification dot logic
+    const userIdMeta = document.querySelector('meta[name="user-id"]');
+    const eventsGroupUserId = userIdMeta ? userIdMeta.content : 'guest';
+    const lsKey = `ites_last_seen_event_id_${eventsGroupUserId}`;
+
     function checkGroupNewEvents() {
         if (eventsData.length === 0) return;
-        const lastSeenId = parseInt(localStorage.getItem('ites_last_seen_event_id') || '0');
+        const lastSeenId = parseInt(localStorage.getItem(lsKey) || '0');
         const maxEventId = Math.max(...eventsData.map(e => e.id));
         const hasNew = maxEventId > lastSeenId;
         if (eventsNotifDot) eventsNotifDot.style.display = hasNew ? 'block' : 'none';
-        if (bellNotifDot) bellNotifDot.style.display = hasNew ? 'block' : 'none';
     }
 
     function markEventsAsSeen() {
         if (eventsData.length === 0) return;
         const maxEventId = Math.max(...eventsData.map(e => e.id));
-        localStorage.setItem('ites_last_seen_event_id', maxEventId.toString());
+        localStorage.setItem(lsKey, maxEventId.toString());
         if (eventsNotifDot) eventsNotifDot.style.display = 'none';
-        if (bellNotifDot) bellNotifDot.style.display = 'none';
     }
 
     function openEventsPanel() {
@@ -1005,29 +1147,77 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (data.action === 'updated') {
                                 const index = eventsData.findIndex(e => e.id === data.event.id);
                                 if (index !== -1) {
-                                    // L'événement existe déjà : mise à jour simple
                                     eventsData[index] = data.event;
+                                    // In-place DOM update (preserves expanded state)
+                                    const existingBand = eventsListContainer ? eventsListContainer.querySelector(`.event-band[data-id="${data.event.id}"]`) : null;
+                                    if (existingBand) {
+                                        // Update title
+                                        const titleSpan = existingBand.querySelector('.event-band-header span');
+                                        if (titleSpan) titleSpan.textContent = data.event.title;
+                                        // Update description
+                                        const descDiv = existingBand.querySelector('.event-description');
+                                        if (descDiv && data.event.description) {
+                                            descDiv.innerHTML = data.event.description.replace(/\n/g, '<br>');
+                                        }
+                                        // Update image
+                                        const imgPlaceholder = existingBand.querySelector('.event-image-placeholder');
+                                        if (imgPlaceholder && data.event.image) {
+                                            imgPlaceholder.innerHTML = `<img src="${data.event.image}" alt="Event Image" class="actual-image">`;
+                                        }
+                                        // Update video
+                                        const videoPlaceholder = existingBand.querySelector('.event-video-placeholder');
+                                        if (data.event.video) {
+                                            const videoHTML = `
+                                                <div class="event-video-placeholder">
+                                                    <div class="custom-video-wrapper">
+                                                        <video id="video-gevent-${data.event.id}" src="${data.event.video}" preload="metadata" controls></video>
+                                                        <div class="video-overlay" onclick="document.getElementById('video-gevent-${data.event.id}').play(); document.getElementById('video-gevent-${data.event.id}').setAttribute('controls','controls'); this.style.display='none';">
+                                                            <div class="icon-container"><img src="/ICON/film-strip.svg" alt="Play" class="video-play-icon"></div>
+                                                            <span class="video-label">Voir la vidéo</span>
+                                                        </div>
+                                                    </div>
+                                                </div>`;
+                                            if (videoPlaceholder) {
+                                                videoPlaceholder.outerHTML = videoHTML;
+                                            } else {
+                                                const contentRight = existingBand.querySelector('.event-content-right');
+                                                if (contentRight) contentRight.insertAdjacentHTML('beforeend', videoHTML);
+                                            }
+                                        }
+                                        // Flash effect
+                                        existingBand.style.transition = 'box-shadow 0.3s ease';
+                                        existingBand.style.boxShadow = '0 0 15px 3px rgba(255, 102, 0, 0.6)';
+                                        setTimeout(() => { existingBand.style.boxShadow = ''; }, 3000);
+                                    }
                                 } else {
-                                    // L'événement n'existe pas encore : première publication via "Valider"
+                                    // First publication via "Valider"
                                     eventsData.unshift(data.event);
-                                    // Afficher la pastille de notification
                                     if (eventsNotifDot) eventsNotifDot.style.display = 'block';
                                     if (bellNotifDot) bellNotifDot.style.display = 'block';
+                                    // If panel is open, re-render to show the new event
+                                    if (eventsPanel && eventsPanel.style.display !== 'none') {
+                                        renderGroupEventsList();
+                                    }
                                 }
                             } else if (data.action === 'created') {
-                                // Cas rarissime (garde pour compatibilité)
                                 eventsData.unshift(data.event);
                                 if (eventsNotifDot) eventsNotifDot.style.display = 'block';
                                 if (bellNotifDot) bellNotifDot.style.display = 'block';
+                                if (eventsPanel && eventsPanel.style.display !== 'none') {
+                                    renderGroupEventsList();
+                                }
                             } else if (data.action === 'deleted') {
                                 eventsData = eventsData.filter(e => e.id !== data.event.id);
+                                const bandToRemove = eventsListContainer ? eventsListContainer.querySelector(`.event-band[data-id="${data.event.id}"]`) : null;
+                                if (bandToRemove) bandToRemove.remove();
+                                if (eventsData.length === 0 && eventsPanel && eventsPanel.style.display !== 'none') {
+                                    renderGroupEventsList();
+                                }
                             }
 
-                            // Si le panel est ouvert, on le met à jour en direct
-                            console.log('[Echo] Groupe: Mise à jour du rendu des événements (total: ' + eventsData.length + ')');
-                            renderGroupEventsList();
+                            console.log('[Echo] Groupe: événements mis à jour in-place (total: ' + eventsData.length + ')');
 
-                            // S'assurer que les pastilles sont visibles si l'onglet n'est pas actif
+                            // Show notification dots if panel is closed
                             if (!eventsPanel || eventsPanel.style.display === 'none') {
                                 if (eventsNotifDot) eventsNotifDot.style.display = 'block';
                                 if (bellNotifDot) bellNotifDot.style.display = 'block';

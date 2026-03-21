@@ -169,6 +169,41 @@ class GroupController extends Controller
         return response()->json(['error' => 'No video file provided.'], 400);
     }
 
+    public function removeVideo(Request $request)
+    {
+        $group = \Illuminate\Support\Facades\Auth::user()->groupProfile;
+
+        if (!$group) {
+            return response()->json(['error' => 'Group profile not found.'], 404);
+        }
+
+        if ($group->project_video) {
+            // Deleting file physically
+            $fullPath = public_path($group->project_video);
+            if (\Illuminate\Support\Facades\File::exists($fullPath)) {
+                \Illuminate\Support\Facades\File::delete($fullPath);
+            }
+
+            $group->project_video = null;
+            $group->save();
+
+            // Broadcast the update to the public channel
+            try {
+                $group->load(['reports', 'members']);
+                broadcast(new \App\Events\GroupUpdatedEvent($group));
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::warning('Broadcast failed on video removal: ' . $e->getMessage());
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Video removed successfully'
+            ]);
+        }
+
+        return response()->json(['error' => 'No video to remove.'], 400);
+    }
+
     public function updateProfile(Request $request)
     {
         $group = \Illuminate\Support\Facades\Auth::user()->groupProfile;
@@ -182,7 +217,7 @@ class GroupController extends Controller
             'project_intro' => 'nullable|string|max:1000',
             'leader_level' => 'nullable|string|max:50',
             'project_domain' => 'nullable|string',
-            'contact_whatsapp' => 'nullable|string|max:20',
+            'contact_whatsapp' => 'nullable|string|max:255',
             'contact_email' => 'nullable|email|max:255',
         ]);
 

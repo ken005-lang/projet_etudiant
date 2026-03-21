@@ -188,7 +188,10 @@
 
                     <div class="video-container" id="videoContainer" style="display: flex; flex-direction: column; align-items: center; {{ $group->project_video ? '' : 'display: none;' }}">
                         <video id="projectVideoPlayer" src="{{ $group->project_video ? asset($group->project_video) : '' }}" controls style="width: 100%; max-width: 800px; border-radius: 10px; max-height: 400px; background: #000;"></video>
-                        <button class="btn-pill-main" id="replaceVideoBtn" style="margin-top: 1rem;">Remplacer la vidéo</button>
+                        <div class="video-actions" style="display: flex; gap: 1rem; margin-top: 1rem; justify-content: center; width: 100%;">
+                            <button class="btn-pill-main" id="replaceVideoBtn">Remplacer la vidéo</button>
+                            <button class="btn-pill-action danger" id="removeVideoBtn" style="color: #fff; border: 1px solid #ff0000; background-color: #ff0000; padding: 0.5rem 1.5rem; border-radius: 50px; font-weight: bold; cursor: pointer; transition: 0.3s;">Retirer la vidéo</button>
+                        </div>
                     </div>
 
                     <div id="videoUploadProgressContainer" style="display: none; width: 100%; max-width: 400px; margin: 1rem auto; text-align: center;">
@@ -283,8 +286,12 @@
             // Marquer le bouton de déconnexion pour éviter un double traitement
             var logoutBtn = document.querySelector('.logout-btn');
             if (logoutBtn) {
-                logoutBtn.addEventListener('click', function() {
+                logoutBtn.addEventListener('click', function(e) {
                     logoutClicked = true;
+                    var span = this.querySelector('span');
+                    if (span) span.textContent = 'Chargement...';
+                    this.style.pointerEvents = 'none';
+                    this.style.opacity = '0.7';
                 });
             }
 

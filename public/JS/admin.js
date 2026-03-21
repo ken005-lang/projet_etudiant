@@ -68,6 +68,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            const originalText = createCodeBtn.textContent;
+            createCodeBtn.textContent = 'Chargement...';
+            createCodeBtn.disabled = true;
+
             try {
                 // Send to backend
                 const response = await fetch('/admin/codes', {
@@ -79,6 +83,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     },
                     body: JSON.stringify({ code: codeValue })
                 });
+
+                createCodeBtn.textContent = originalText;
+                createCodeBtn.disabled = false;
 
                 if (!response.ok) {
                     const errorData = await response.json();
@@ -105,6 +112,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     codeInput.value = "";
                 }
             } catch (error) {
+                createCodeBtn.textContent = originalText;
+                createCodeBtn.disabled = false;
                 console.error("Erreur serveur:", error);
                 alert("Erreur de connexion au serveur.");
             }
@@ -147,6 +156,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // === Groups Table Logic ===
     const groupsTableBody = document.querySelector('.groups-table tbody');
+    const groupsSearchInput = document.getElementById('groups-search-input');
+    const groupsFilterBtn = document.getElementById('groups-filter-btn');
+    const groupsRefreshBtn = document.getElementById('groups-refresh-btn');
+
+    // Filtering logic
+    function filterGroupsTable() {
+        if (!groupsTableBody || !groupsSearchInput) return;
+        const searchTerm = groupsSearchInput.value.toLowerCase().trim();
+        const rows = groupsTableBody.querySelectorAll('tr');
+
+        rows.forEach(row => {
+            // S'il s'agit de la ligne "Aucun groupe inscrit", on la laisse si le champ est vide
+            if (row.querySelector('td[colspan]')) return;
+
+            const textContent = row.textContent.toLowerCase();
+            if (textContent.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    if (groupsSearchInput) {
+        // Filter as the user types
+        groupsSearchInput.addEventListener('input', filterGroupsTable);
+        
+        // Handle "Enter" key
+        groupsSearchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                filterGroupsTable();
+            }
+        });
+    }
+
+    if (groupsFilterBtn) {
+        groupsFilterBtn.addEventListener('click', filterGroupsTable);
+    }
+
+    if (groupsRefreshBtn) {
+        groupsRefreshBtn.addEventListener('click', () => {
+            if (groupsSearchInput) groupsSearchInput.value = '';
+            window.location.reload();
+        });
+    }
+
     if (groupsTableBody) {
         groupsTableBody.addEventListener('click', async (e) => {
             if (e.target.classList.contains('action-icon')) {
@@ -166,13 +222,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         });
 
                         if (!response.ok) {
-                            alert("Erreur lors de la suppression du groupe.");
+                            alert("Erreur lors la suppression du groupe.");
                             return;
                         }
 
                         // Remove row visually
                         row.remove();
-                        // Optional: Reload page to refresh counts and access code list
+                        // Reload page to refresh counts and access code list
                         window.location.reload();
                     } catch (error) {
                         console.error("Erreur de suppression:", error);
@@ -222,11 +278,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // === Events Logic (Creation, Update, Media & Deletion) ===
-    const eventInput = document.getElementById('admin-event-input');
+    const eventNameInput = document.getElementById('admin-event-name-input');
+    const eventDateInput = document.getElementById('admin-event-date-input');
     const addEventBtn = document.getElementById('add-event-btn');
     const eventsList = document.getElementById('admin-events-list');
 
-    if (addEventBtn && eventInput && eventsList) {
+    if (addEventBtn && eventNameInput && eventsList) {
 
         // Helper function: Update Event Text (Title & Description) & handles Publication
         const updateEventText = async (eventId, title, description, buttonToReset = null, publish = false) => {
@@ -267,11 +324,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- Create Event ---
         addEventBtn.addEventListener('click', async () => {
-            const val = eventInput.value.trim();
-            if (val === "") {
-                alert("Veuillez saisir le nom et la date de l'évènement.");
+            const name = eventNameInput.value.trim();
+            const date = eventDateInput ? eventDateInput.value.trim() : '';
+
+            if (name === "") {
+                alert("Veuillez saisir le nom de l'évènement.");
                 return;
             }
+
+            // Combine name and date with " | " separator
+            const title = date ? `${name} | ${date}` : name;
+
+            const originalText = addEventBtn.textContent;
+            addEventBtn.textContent = 'Chargement...';
+            addEventBtn.disabled = true;
 
             try {
                 const response = await fetch('/admin/events', {
@@ -281,8 +347,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         'X-CSRF-TOKEN': getCsrfToken(),
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify({ title: val })
+                    body: JSON.stringify({ title: title })
                 });
+
+                addEventBtn.textContent = originalText;
+                addEventBtn.disabled = false;
 
                 if (!response.ok) {
                     if (response.status === 419) {
@@ -314,8 +383,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     newItem.setAttribute('data-id', event.id);
                     newItem.innerHTML = `
                         <div class="event-header">
-                            <input type="text" value="${event.title}" class="event-title-edit">
+                            <input type="text" value="${event.title}" class="event-title-edit" readonly>
                             <div class="header-buttons">
+                                <button class="btn-pill-small white-btn rewrite-btn">Réécrire</button>
                                 <button class="btn-pill-small white-btn toggle-publish-btn">Valider</button>
                                 <img src="ICON/arrow-down_icon.svg" alt="expand" class="expand-arrow">
                                 <img src="ICON/trash-fill.svg" alt="delete" class="action-icon">
@@ -347,7 +417,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
 
                     eventsList.prepend(newItem); // Add at the top
-                    eventInput.value = "";
+                    eventNameInput.value = "";
+                    if (eventDateInput) eventDateInput.value = "";
                 }
             } catch (error) {
                 console.error("Erreur serveur:", error);
@@ -395,20 +466,69 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // 2. Button Save Logic (Valider -> Publier)
+            // 2. Réécrire button logic
+            const rewriteBtn = e.target.closest('.rewrite-btn');
+            if (rewriteBtn && item) {
+                const titleInput = item.querySelector('.event-title-edit');
+                const descTextarea = item.querySelector('.event-desc-edit');
+                const isReadonly = titleInput.hasAttribute('readonly');
+
+                if (isReadonly) {
+                    // Enable editing
+                    titleInput.removeAttribute('readonly');
+                    titleInput.focus();
+                    titleInput.style.border = '2px solid #ff6600';
+                    titleInput.style.backgroundColor = '#fff';
+                    if (descTextarea) {
+                        descTextarea.style.border = '2px solid #ff6600';
+                    }
+                    rewriteBtn.textContent = 'Terminer';
+                    rewriteBtn.style.backgroundColor = '#ff6600';
+                    rewriteBtn.style.color = '#fff';
+
+                    // Expand the accordion so user can also edit description
+                    if (!item.classList.contains('expanded')) {
+                        item.classList.add('expanded');
+                        const arrow = item.querySelector('.expand-arrow');
+                        if (arrow) arrow.src = 'ICON/up-arrow_icon.svg';
+                    }
+                } else {
+                    // Save and disable editing
+                    titleInput.setAttribute('readonly', true);
+                    titleInput.style.border = '';
+                    titleInput.style.backgroundColor = '';
+                    if (descTextarea) {
+                        descTextarea.style.border = '';
+                    }
+                    rewriteBtn.textContent = 'Réécrire';
+                    rewriteBtn.style.backgroundColor = '';
+                    rewriteBtn.style.color = '';
+
+                    // Auto-save changes
+                    const eventId = item.getAttribute('data-id');
+                    const title = titleInput.value;
+                    const description = descTextarea ? descTextarea.value : '';
+                    updateEventText(eventId, title, description);
+                }
+                return;
+            }
+
+            // 3. Button Save Logic (Valider -> Publier)
             if (publishBtn && item) {
                 const eventId = item.getAttribute('data-id');
                 const title = item.querySelector('.event-title-edit').value;
                 const description = item.querySelector('.event-desc-edit').value;
 
-                publishBtn.textContent = 'Enregistrement...';
+                publishBtn.textContent = 'Chargement...';
+                publishBtn.disabled = true;
                 await updateEventText(eventId, title, description, publishBtn, true);
 
+                publishBtn.disabled = false;
                 // Keep it on 'Publier' visually if user wants (optional). Let's reset to Valider automatically for feedback.
                 return;
             }
 
-            // 3. Toggle Accordion Logic
+            // 4. Toggle Accordion Logic
             if (header) {
                 if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') {
                     return;
@@ -639,6 +759,30 @@ document.addEventListener('DOMContentLoaded', () => {
                         const projectStatNum = document.querySelector('.icon-circle-group.bg-orange')?.nextElementSibling?.querySelector('.stat-number');
                         if (projectStatNum) {
                             projectStatNum.textContent = parseInt(projectStatNum.textContent || '0') + 1;
+                        }
+                    }
+                }
+            })
+            .listen('.codeid.changed', (data) => {
+                console.log('[Echo] Code ID modifié:', data);
+                if (data && data.group_profile_id && data.new_code_id) {
+                    // Find the matching row in the groups table
+                    const row = document.querySelector(`.groups-table tbody tr[data-group-id="${data.group_profile_id}"]`);
+                    if (row) {
+                        // The Code ID is in the 2nd cell (index 1)
+                        const codeCell = row.querySelectorAll('td')[1];
+                        if (codeCell) {
+                            codeCell.textContent = data.new_code_id;
+                            // Visual flash to highlight the change
+                            codeCell.style.transition = 'background-color 0.3s ease';
+                            codeCell.style.backgroundColor = '#ff6600';
+                            codeCell.style.color = '#fff';
+                            codeCell.style.fontWeight = 'bold';
+                            setTimeout(() => {
+                                codeCell.style.backgroundColor = '';
+                                codeCell.style.color = '';
+                                codeCell.style.fontWeight = '';
+                            }, 3000);
                         }
                     }
                 }

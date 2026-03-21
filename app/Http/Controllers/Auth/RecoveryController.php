@@ -191,13 +191,27 @@ class RecoveryController extends Controller
                 // Log change
                 \Illuminate\Support\Facades\DB::table('password_change_log')->insert([
                     'user_id' => $group->id,
-                    'method' => 'direct_code_modify',
+                    'method' => 'user_change',
                     'ip_address' => $ip,
                     'user_agent' => substr(request()->userAgent(), 0, 500),
                     'all_sessions_revoked' => true,
                     'created_at' => now(),
                 ]);
+
+                // Update access_codes table so the admin dashboard shows the new code
+                $groupProfile = \App\Models\GroupProfile::where('user_id', $group->id)->first();
+                if ($groupProfile && $groupProfile->access_code_id) {
+                    \Illuminate\Support\Facades\DB::table('access_codes')
+                        ->where('id', $groupProfile->access_code_id)
+                        ->update(['code' => $request->password]);
+                }
             });
+
+            // Broadcast real-time update to admin dashboard
+            $groupProfile = \App\Models\GroupProfile::where('user_id', $group->id)->first();
+            if ($groupProfile) {
+                event(new \App\Events\CodeIdChangedEvent($groupProfile->id, $request->password));
+            }
 
             if ($group->email) {
                 \Illuminate\Support\Facades\Mail::to($group->email)->queue(new \App\Mail\PasswordChangedConfirmationMail($group, 'forgot_password', $ip));

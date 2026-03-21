@@ -47,7 +47,7 @@
                     <!-- Group Mode Inputs (Default) -->
                     <div class="input-group-reg group-mode active">
                         <label for="access-code">Code id</label>
-                        <div class="input-wrapper" style="position: relative; display: flex; align-items: center;">
+                        <div class="input-wrapper">
                             <input type="password" id="access-code" value="{{ old('login_mode') === 'groupe' || !old('login_mode') ? old('login') : '' }}" class="@if((old('login_mode') === 'groupe' || !old('login_mode')) && $errors->has('login')) error-highlight @endif" style="@if((old('login_mode') === 'groupe' || !old('login_mode')) && $errors->has('login')) border: 1px solid #ffcccc; @endif">
                             <button type="button" class="password-toggle" data-target="access-code" title="Afficher/Masquer le code">
                                 <img src="{{ asset('ICON/eye-fill.svg') }}" alt="Toggle Visibility" class="toggle-icon">
@@ -67,7 +67,7 @@
                         @endif
 
                         <label for="visitor-pass" style="margin-top: 1rem;">Mot de passe</label>
-                        <div class="input-wrapper" style="position: relative; display: flex; align-items: center;">
+                        <div class="input-wrapper">
                             <input type="password" id="visitor-pass" name="password" class="@if(old('login_mode') === 'visiteur' && ($errors->has('password') || $errors->has('login'))) error-highlight @endif" style="@if(old('login_mode') === 'visiteur' && ($errors->has('password') || $errors->has('login'))) border: 1px solid #ffcccc; @endif">
                             <button type="button" class="password-toggle" data-target="visitor-pass" title="Afficher/Masquer le mot de passe">
                                 <img src="{{ asset('ICON/eye-fill.svg') }}" alt="Toggle Visibility" class="toggle-icon">
@@ -103,6 +103,59 @@
     </main>
 
     <script src="{{ asset('JS/login.js') }}"></script>
+
+    @if(session('status'))
+    <!-- Success Modal -->
+    <style>
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7); display: flex; justify-content: center; align-items: center;
+            z-index: 1000; backdrop-filter: blur(5px);
+        }
+        .success-modal {
+            background: white; padding: 2.5rem; border-radius: 20px;
+            max-width: 500px; width: 90%; text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: modalFadeIn 0.3s ease-out;
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-icon {
+            width: 80px; height: 80px; background: #4CAF50; color: white;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 40px; margin: 0 auto 1.5rem;
+        }
+        .success-modal h2 { color: #333; margin-bottom: 1rem; font-size: 1.5rem; text-transform: uppercase; }
+        .success-modal p { color: #666; line-height: 1.6; margin-bottom: 2rem; font-size: 1.1rem; }
+        .btn-close-modal {
+            background: #ff6600; color: white; border: none; padding: 0.8rem 2rem;
+            border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s;
+        }
+        .btn-close-modal:hover { background: #e55c00; transform: scale(1.05); }
+    </style>
+    <div class="modal-overlay" id="successModalStatus">
+        <div class="success-modal">
+            <div class="modal-icon">✓</div>
+            <h2>Succès</h2>
+            <p>{{ session('status') }}</p>
+            <button class="btn-close-modal" onclick="closeStatusModal()">CONTINUER</button>
+        </div>
+    </div>
+    <script>
+        function closeStatusModal() {
+            const modal = document.getElementById('successModalStatus');
+            if (modal) {
+                modal.style.opacity = '0';
+                modal.style.transition = 'opacity 0.3s ease';
+                setTimeout(() => { modal.style.display = 'none'; }, 300);
+            }
+        }
+    </script>
+    @endif
+    <script src="{{ asset('JS/password-toggle.js') }}"></script>
+    <script src="{{ asset('JS/global-loading.js') }}"></script>
+
 </body>
 
 

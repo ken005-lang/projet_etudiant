@@ -88,10 +88,10 @@
 
                 <div class="table-actions-bar">
                     <div class="search-pill">
-                        <input type="text" placeholder="">
-                        <button class="btn-pill-small">Filtrer</button>
+                        <input type="text" placeholder="Rechercher un groupe..." id="groups-search-input">
+                        <button class="btn-pill-small" id="groups-filter-btn">Filtrer</button>
                     </div>
-                    <button class="btn-pill-small">Rafraîchir</button>
+                    <button class="btn-pill-small" id="groups-refresh-btn">Rafraîchir</button>
                 </div>
 
                 <div class="admin-table-wrapper">
@@ -115,7 +115,7 @@
                         </thead>
                         <tbody>
                             @forelse ($groupProfiles as $groupe)
-                            <tr>
+                            <tr data-group-id="{{ $groupe->id }}">
                                 <td>{{ $groupe->project_name }}</td>
                                 <td>{{ $groupe->accessCode ? $groupe->accessCode->code : 'N/A' }}</td>
                                 <td>{{ $groupe->leader_name }}</td>
@@ -176,8 +176,8 @@
                 <h1 class="pane-title">EVENEMENTS</h1>
 
                 <div class="add-event-box">
-                    <input type="text" placeholder="Nom de l'évènement et date" class="event-input"
-                        id="admin-event-input">
+                    <input type="text" placeholder="Nom de l'évènement" class="event-input" id="admin-event-name-input">
+                    <input type="text" placeholder="Date (ex: 27/03/2026)" class="event-input event-date-input" id="admin-event-date-input">
                     <button class="btn-pill-small" id="add-event-btn">Ajouter</button>
                 </div>
 
@@ -185,8 +185,9 @@
                     @forelse ($events as $event)
                     <div class="event-accordion-item" data-id="{{ $event->id }}">
                         <div class="event-header">
-                            <input type="text" value="{{ $event->title }}" class="event-title-edit">
+                            <input type="text" value="{{ $event->title }}" class="event-title-edit" readonly>
                             <div class="header-buttons">
+                                <button class="btn-pill-small white-btn rewrite-btn">Réécrire</button>
                                 <button class="btn-pill-small white-btn toggle-publish-btn">Valider</button>
                                 <img src="{{ asset('ICON/arrow-down_icon.svg') }}" alt="expand" class="expand-arrow">
                                 <img src="{{ asset('ICON/trash-fill.svg') }}" alt="delete" class="action-icon">
@@ -239,6 +240,7 @@
     </div>
 
     <script src="{{ asset('JS/admin.js') }}?v={{ time() }}"></script>
+    <script src="{{ asset('JS/global-loading.js') }}"></script>
 </body>
 
 </html>

@@ -57,15 +57,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     </thead>
                     <tbody>
                         <tr>
-                            <td><span class="badge-chef">CHEF</span> ${group.leader}</td>
-                            <td>${group.filiere || '-'}</td>
-                            <td>${group.niveau || '-'}</td>
+                            <td data-label="MEMBRE"><span class="badge-chef">CHEF</span> ${group.leader}</td>
+                            <td data-label="FILIERE">${group.filiere || '-'}</td>
+                            <td data-label="NIVEAU">${group.niveau || '-'}</td>
                         </tr>
                         ${group.members.map(m => `
                         <tr>
-                            <td><span class="badge-spacer"></span>${m.name}</td>
-                            <td>${m.sector || m.filiere || '-'}</td>
-                            <td>${m.level || m.niveau || '-'}</td>
+                            <td data-label="MEMBRE"><span class="badge-spacer"></span>${m.name}</td>
+                            <td data-label="FILIERE">${m.sector || m.filiere || '-'}</td>
+                            <td data-label="NIVEAU">${m.level || m.niveau || '-'}</td>
                         </tr>
                         `).join('')}
                     </tbody>
@@ -188,7 +188,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         <div class="${containerClass}">
                             <img src="${imgSrc}" alt="${group.name}" class="${imgClass}">
                         </div>
-                        <span class="project-group-name">${group.name}</span>
                     </div>
 
                     <div class="project-content-right">
@@ -282,11 +281,36 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function renderProjectsList(searchTerm = '') {
-        const lowerTerm = searchTerm.toLowerCase();
+        const lowerTerm = searchTerm.toLowerCase().trim();
         const filteredGroups = groupsData.filter(g => {
-            const matchName = g.name.toLowerCase().includes(lowerTerm);
-            const matchDomain = g.domains && g.domains.some(d => d.toLowerCase().includes(lowerTerm));
-            return matchName || matchDomain;
+            // Concatener toutes les informations utiles pour une recherche globale (Full-text search)
+            let searchableText = (g.name || '') + " " + 
+                                 (g.leader || '') + " " + 
+                                 (g.filiere || '') + " " + 
+                                 (g.niveau || '') + " " + 
+                                 (g.intro || '') + " " +
+                                 (g.email || '') + " " +
+                                 (g.whatsapp || '') + " ";
+            
+            if (g.domains && g.domains.length > 0) {
+                searchableText += g.domains.join(" ") + " ";
+            }
+            
+            if (g.members && g.members.length > 0) {
+                g.members.forEach(m => {
+                    searchableText += (m.name || '') + " " + 
+                                      (m.sector || m.filiere || '') + " " + 
+                                      (m.level || m.niveau || '') + " ";
+                });
+            }
+            
+            if (g.reports && g.reports.length > 0) {
+                g.reports.forEach(r => {
+                    searchableText += (r.file_name || '') + " ";
+                });
+            }
+            
+            return searchableText.toLowerCase().includes(lowerTerm);
         });
         renderList(projectsContainer, projectsEmptyState, filteredGroups);
     }
@@ -307,7 +331,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const navLinks = document.querySelectorAll('.visitor-nav-link');
     const tabContents = document.querySelectorAll('.tab-content');
     const bookmarkBtn = document.querySelector('.bookmark-btn');
-    const bookmarkIcon = document.querySelector('.bookmark-icon');
+    const bookmarkIcon = bookmarkBtn ? bookmarkBtn.querySelector('img') : null;
 
     navLinks.forEach(link => {
         link.addEventListener('click', function (e) {
@@ -323,10 +347,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     content.classList.add('active');
                 }
             });
-
             if (tabId !== 'favorites') {
-                bookmarkIcon.style.color = 'black';
-                bookmarkIcon.src = "/ICON/bookmark-simple-fill.svg"; // Reset visually
+                if (bookmarkIcon) {
+                    bookmarkIcon.src = "/ICON/bookmark-simple-fill.svg"; // Reset visually
+                    bookmarkIcon.style.filter = ''; // Reset CSS filter if any
+                }
             }
         });
     });
@@ -334,7 +359,11 @@ document.addEventListener('DOMContentLoaded', function () {
     if (bookmarkBtn) {
         bookmarkBtn.addEventListener('click', function () {
             navLinks.forEach(l => l.classList.remove('active'));
-            bookmarkIcon.style.color = 'var(--orange)';
+            if (bookmarkIcon) {
+                // Instead of color which doesn't work on img, use a CSS filter or just rely on active state if handled
+                // Or simply leave the icon as is, maybe change its source if needed.
+                bookmarkIcon.src = "/ICON/bookmark-simple-fill.svg"; 
+            }
 
             tabContents.forEach(content => {
                 content.classList.remove('active');
@@ -427,11 +456,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ---- NOTIFICATION LOGIC ----
     const eventsNotifDot = document.getElementById('events-notif-dot');
+    const userIdMeta = document.querySelector('meta[name="user-id"]');
+    const visitorUserId = userIdMeta ? userIdMeta.content : 'guest';
+    const lsKeyEvents = `ites_last_seen_event_id_${visitorUserId}`;
 
     function checkNewEvents() {
         if (!eventsNotifDot || eventsData.length === 0) return;
 
-        const lastSeenId = parseInt(localStorage.getItem('ites_last_seen_event_id') || '0');
+        const lastSeenId = parseInt(localStorage.getItem(lsKeyEvents) || '0');
         const maxEventId = Math.max(...eventsData.map(e => e.id));
 
         if (maxEventId > lastSeenId) {
@@ -446,7 +478,7 @@ document.addEventListener('DOMContentLoaded', function () {
         link.addEventListener('click', function () {
             if (this.getAttribute('data-tab') === 'events' && eventsData.length > 0) {
                 const maxEventId = Math.max(...eventsData.map(e => e.id));
-                localStorage.setItem('ites_last_seen_event_id', maxEventId.toString());
+                localStorage.setItem(lsKeyEvents, maxEventId.toString());
                 if (eventsNotifDot) eventsNotifDot.style.display = 'none';
             }
         });
@@ -777,26 +809,76 @@ document.addEventListener('DOMContentLoaded', function () {
                             if (data.action === 'updated') {
                                 const index = eventsData.findIndex(e => e.id === data.event.id);
                                 if (index !== -1) {
-                                    // L'événement existe déjà : mise à jour simple
                                     eventsData[index] = data.event;
+                                    // In-place DOM update (preserves expanded state)
+                                    const existingBand = eventsContainer.querySelector(`.event-band[data-id="${data.event.id}"]`);
+                                    if (existingBand) {
+                                        // Update title
+                                        const titleSpan = existingBand.querySelector('.event-band-header span');
+                                        if (titleSpan) titleSpan.textContent = data.event.title;
+                                        // Update description
+                                        const descDiv = existingBand.querySelector('.event-description');
+                                        if (descDiv && data.event.description) {
+                                            descDiv.innerHTML = data.event.description.replace(/\n/g, '<br>');
+                                        }
+                                        // Update image
+                                        const imgPlaceholder = existingBand.querySelector('.event-image-placeholder');
+                                        if (imgPlaceholder && data.event.image) {
+                                            const imgSrc = data.event.image.match(/^https?:\/\//i) ? data.event.image : '/' + data.event.image;
+                                            imgPlaceholder.innerHTML = `<img src="${imgSrc}" alt="Event Image" class="actual-image">`;
+                                        }
+                                        // Update video
+                                        const videoPlaceholder = existingBand.querySelector('.event-video-placeholder');
+                                        if (data.event.video) {
+                                            const videoSrc = data.event.video.match(/^https?:\/\//i) ? data.event.video : '/' + data.event.video;
+                                            const videoHTML = `
+                                                <div class="event-video-placeholder">
+                                                    <div class="custom-video-wrapper">
+                                                        <video id="video-event-${data.event.id}" src="${videoSrc}" preload="metadata" controls></video>
+                                                        <div class="video-overlay" onclick="document.getElementById('video-event-${data.event.id}').play(); document.getElementById('video-event-${data.event.id}').setAttribute('controls', 'controls'); this.style.display='none';">
+                                                            <div class="icon-container">
+                                                                <img src="/ICON/film-strip.svg" alt="Play Video" class="video-play-icon">
+                                                            </div>
+                                                            <span class="video-label">Voir la vidéo</span>
+                                                        </div>
+                                                    </div>
+                                                </div>`;
+                                            if (videoPlaceholder) {
+                                                videoPlaceholder.outerHTML = videoHTML;
+                                            } else {
+                                                const contentRight = existingBand.querySelector('.event-content-right');
+                                                if (contentRight) contentRight.insertAdjacentHTML('beforeend', videoHTML);
+                                            }
+                                        }
+                                        // Flash effect to notify visitor of the update
+                                        existingBand.style.transition = 'box-shadow 0.3s ease';
+                                        existingBand.style.boxShadow = '0 0 15px 3px rgba(255, 102, 0, 0.6)';
+                                        setTimeout(() => { existingBand.style.boxShadow = ''; }, 3000);
+                                    }
                                 } else {
-                                    // L'événement n'existe pas encore : première publication via "Valider"
+                                    // Event doesn't exist yet: first publication via "Valider"
                                     eventsData.unshift(data.event);
                                     const dot = document.getElementById('events-notif-dot');
                                     if (dot) dot.style.display = 'inline-block';
+                                    renderEventsList();
                                 }
                             } else if (data.action === 'created') {
-                                // Cas rarissime (garde pour compatibilité)
                                 eventsData.unshift(data.event);
                                 const dot = document.getElementById('events-notif-dot');
                                 if (dot) dot.style.display = 'inline-block';
+                                renderEventsList();
                             } else if (data.action === 'deleted') {
                                 eventsData = eventsData.filter(e => e.id !== data.event.id);
+                                const bandToRemove = eventsContainer.querySelector(`.event-band[data-id="${data.event.id}"]`);
+                                if (bandToRemove) {
+                                    bandToRemove.remove();
+                                }
+                                if (eventsData.length === 0) {
+                                    renderEventsList();
+                                }
                             }
 
-                            // Rafraîchir les listes
-                            console.log('[Echo] Mise à jour du rendu des événements (total: ' + eventsData.length + ')');
-                            renderEventsList();
+                            console.log('[Echo] Mise à jour in-place des événements (total: ' + eventsData.length + ')');
 
                             // Mettre à jour ou fermer la modale évènement si ouverte
                             const modal = document.getElementById('event-modal-fullscreen');
@@ -856,6 +938,25 @@ document.addEventListener('DOMContentLoaded', function () {
                     alert('Erreur réseau lors de la suppression.');
                 }
             }
+        });
+    }
+
+    // --- BOUTON RETOUR EN HAUT ---
+    const backToTopBtn = document.getElementById('back-to-top');
+    if (backToTopBtn) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 400) {
+                backToTopBtn.classList.add('visible');
+            } else {
+                backToTopBtn.classList.remove('visible');
+            }
+        });
+
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
         });
     }
 });

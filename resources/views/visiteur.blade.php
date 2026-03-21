@@ -160,6 +160,12 @@
             }).catch(() => {});
         }, 60000);
     </script>
+    <!-- Bouton Retour en haut -->
+    <button id="back-to-top" class="back-to-top" title="Retour en haut">
+        <img src="{{ asset('ICON/up-arrow_icon.svg') }}" alt="Top">
+    </button>
+
+    <script src="{{ asset('JS/global-loading.js') }}"></script>
 </body>
 
 </html>

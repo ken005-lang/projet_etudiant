@@ -107,23 +107,8 @@
         </div>
     </div>
 
+    <script src="{{ asset('JS/password-toggle.js') }}"></script>
     <script>
-        document.querySelectorAll('.password-toggle').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const targetId = this.getAttribute('data-target');
-                const input = document.getElementById(targetId);
-                const icon = this.querySelector('.toggle-icon');
-
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    icon.src = "{{ asset('ICON/eye-slash-fill.svg') }}";
-                } else {
-                    input.type = 'password';
-                    icon.src = "{{ asset('ICON/eye-fill.svg') }}";
-                }
-            });
-        });
-
         // Dynamic Password Policy Validation
         const passwordInput = document.getElementById('password');
         const reqLength = document.getElementById('req-length');
@@ -168,5 +153,6 @@
             }
         }
     </script>
+    <script src="{{ asset('JS/global-loading.js') }}"></script>
 </body>
 </html>
