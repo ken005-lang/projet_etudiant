@@ -150,22 +150,41 @@
     <script src="{{ asset('JS/visiteur.js') }}?v={{ time() }}"></script>
     <script>
         // Heartbeat : maintient la session active (ping toutes les 60s)
-        setInterval(() => {
+        const heartbeatInterval = setInterval(() => {
             fetch('/heartbeat', {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'Accept': 'application/json'
                 }
-            }).catch(() => {});
+            })
+            .then(response => {
+                // Si la requête revient avec un statut Non Autorisé (401) ou Expiré (419)
+                if (response.status === 401 || response.status === 419) {
+                    clearInterval(heartbeatInterval);
+                    document.getElementById('sessionExpiredModal').style.display = 'flex';
+                }
+            })
+            .catch(() => {});
         }, 60000);
     </script>
+    <!-- Modal Session Expirée -->
+    <div class="session-modal-overlay" id="sessionExpiredModal">
+        <div class="session-expired-modal">
+            <div class="modal-icon">⚠️</div>
+            <h2>Session Expirée</h2>
+            <p>Votre session a expiré pour des raisons de sécurité ou d'inactivité continue.</p>
+            <button class="btn-close-modal" onclick="window.location.href='/login'">SE RECONNECTER</button>
+        </div>
+    </div>
+
     <!-- Bouton Retour en haut -->
     <button id="back-to-top" class="back-to-top" title="Retour en haut">
         <img src="{{ asset('ICON/up-arrow_icon.svg') }}" alt="Top">
     </button>
 
     <script src="{{ asset('JS/global-loading.js') }}"></script>
+    <script src="{{ asset('JS/tab-session-manager.js') }}"></script>
 </body>
 
 </html>

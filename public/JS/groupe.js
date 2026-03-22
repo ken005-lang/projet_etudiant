@@ -62,14 +62,11 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 const newName = groupNameInput.value.trim();
                 if (newName) {
-                    const originalText = groupNameToggleBtn.textContent;
-                    groupNameToggleBtn.textContent = 'Chargement...';
-                    groupNameToggleBtn.disabled = true;
+                    if (window.setBtnLoading) window.setBtnLoading(groupNameToggleBtn, true); else groupNameToggleBtn.classList.add('loading-btn');
 
                     const res = await updateProfile({ project_name: newName });
                     
-                    groupNameToggleBtn.textContent = originalText;
-                    groupNameToggleBtn.disabled = false;
+                    if (window.setBtnLoading) window.setBtnLoading(groupNameToggleBtn, false); else groupNameToggleBtn.classList.remove('loading-btn');
 
                     if (res && res.success) {
                         groupNameValue.textContent = newName;
@@ -100,14 +97,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 introToggleBtn.textContent = 'Appliquer';
             } else {
                 const newText = introTextArea.value;
-                const originalText = introToggleBtn.textContent;
-                introToggleBtn.textContent = 'Chargement...';
-                introToggleBtn.disabled = true;
+                if (window.setBtnLoading) window.setBtnLoading(introToggleBtn, true); else introToggleBtn.classList.add('loading-btn');
 
                 const res = await updateProfile({ project_intro: newText });
 
-                introToggleBtn.textContent = originalText;
-                introToggleBtn.disabled = false;
+                if (window.setBtnLoading) window.setBtnLoading(introToggleBtn, false); else introToggleBtn.classList.remove('loading-btn');
 
                 if (res && res.success) {
                     const iconHtml = `<img src="/ICON/pen-nib.svg" alt="Edit" class="empty-intro-icon" style="width: 50px; height: 50px; opacity: 0.5;">`;
@@ -143,14 +137,11 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 const newLevel = projectLevelInput.value.trim();
                 if (newLevel) {
-                    const originalText = projectLevelToggleBtn.textContent;
-                    projectLevelToggleBtn.textContent = 'Chargement...';
-                    projectLevelToggleBtn.disabled = true;
+                    if (window.setBtnLoading) window.setBtnLoading(projectLevelToggleBtn, true); else projectLevelToggleBtn.classList.add('loading-btn');
 
                     const res = await updateProfile({ leader_level: newLevel });
 
-                    projectLevelToggleBtn.textContent = originalText;
-                    projectLevelToggleBtn.disabled = false;
+                    if (window.setBtnLoading) window.setBtnLoading(projectLevelToggleBtn, false); else projectLevelToggleBtn.classList.remove('loading-btn');
 
                     if (res && res.success) {
                         projectLevelValue.textContent = newLevel;
@@ -176,9 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const addDomain = async () => {
         const value = domainInput.value.trim();
         if (value) {
-            const originalText = addDomainBtn.textContent;
-            addDomainBtn.textContent = 'Chargement...';
-            addDomainBtn.disabled = true;
+            if (window.setBtnLoading) window.setBtnLoading(addDomainBtn, true); else addDomainBtn.classList.add('loading-btn');
 
             const li = document.createElement('li');
             li.innerHTML = `-${value} <img src="ICON/x-circle-fill.svg" class="remove-domain" alt="x">`;
@@ -186,8 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const res = await updateProfile({ project_domain: getDomainsString() });
 
-            addDomainBtn.textContent = originalText;
-            addDomainBtn.disabled = false;
+            if (window.setBtnLoading) window.setBtnLoading(addDomainBtn, false); else addDomainBtn.classList.remove('loading-btn');
 
             if (res && res.success) {
                 domainInput.value = '';
@@ -250,9 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (name && sector && level) {
                 try {
-                    const originalText = addMemberBtn.textContent;
-                    addMemberBtn.textContent = 'Chargement...';
-                    addMemberBtn.disabled = true;
+                    if (window.setBtnLoading) window.setBtnLoading(addMemberBtn, true); else addMemberBtn.classList.add('loading-btn');
 
                     const response = await fetch('/groupe/members', {
                         method: 'POST',
@@ -264,8 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                     const result = await response.json();
 
-                    addMemberBtn.textContent = originalText;
-                    addMemberBtn.disabled = false;
+                    if (window.setBtnLoading) window.setBtnLoading(addMemberBtn, false); else addMemberBtn.classList.remove('loading-btn');
 
                     if (result.success) {
                         const tr = document.createElement('tr');
@@ -299,6 +284,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function deleteMember(row, id) {
         if (!confirm('Voulez-vous vraiment supprimer ce membre ?')) return;
+        
+        const trashIcon = row.querySelector('.delete-member');
+        const spinner = document.createElement('div');
+        spinner.className = 'delete-spinner dark';
+        
+        if (trashIcon) {
+            trashIcon.style.display = 'none';
+            trashIcon.parentNode.insertBefore(spinner, trashIcon);
+        }
+
         try {
             const response = await fetch(`/groupe/members/${id}`, {
                 method: 'DELETE',
@@ -307,9 +302,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
             if (result.success) {
                 row.remove();
+            } else {
+                alert(result.error || 'Erreur lors de la suppression.');
+                spinner.remove();
+                if (trashIcon) trashIcon.style.display = 'inline-block';
             }
         } catch (error) {
             console.error('Member Delete error:', error);
+            alert('Erreur réseau.');
+            spinner.remove();
+            if (trashIcon) trashIcon.style.display = 'inline-block';
         }
     }
 
@@ -653,9 +655,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 else if (publishBtnHeader && publishBtnHeader.offsetParent !== null) activeBtn = publishBtnHeader;
                 
                 if (activeBtn) {
-                    originalBtnText = activeBtn.textContent;
-                    activeBtn.textContent = 'Chargement...';
-                    activeBtn.disabled = true;
+                    if (window.setBtnLoading) window.setBtnLoading(activeBtn, true); else activeBtn.classList.add('loading-btn');
                 }
 
                 // Prepare FormData for the actual API upload
@@ -741,8 +741,17 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add delete listener
         const deleteBtn = reportCard.querySelector('.report-delete-btn');
         deleteBtn.addEventListener('click', async (e) => {
-            e.stopPropagation(); // Évite le déclenchement éventuel d'autres clics
+            e.stopPropagation(); 
             if (!confirm('Voulez-vous vraiment supprimer ce rapport ? Cela libèrera également la mémoire.')) return;
+
+            const originalIcon = deleteBtn.querySelector('img');
+            const spinner = document.createElement('div');
+            spinner.className = 'delete-spinner dark';
+            
+            if (originalIcon) {
+                originalIcon.style.display = 'none';
+                deleteBtn.appendChild(spinner);
+            }
 
             try {
                 const response = await fetch(`/groupe/reports/${reportObj.id}`, {
@@ -756,10 +765,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateReportsVisibility();
                 } else {
                     alert('Erreur: ' + (result.error || 'Impossible de supprimer ce rapport'));
+                    spinner.remove();
+                    if (originalIcon) originalIcon.style.display = 'block';
                 }
             } catch (err) {
                 console.error('Erreur API Delete Report:', err);
                 alert('Erreur réseau lors de la suppression du rapport.');
+                spinner.remove();
+                if (originalIcon) originalIcon.style.display = 'block';
             }
         });
 
@@ -1237,3 +1250,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 });
+

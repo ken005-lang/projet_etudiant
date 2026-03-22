@@ -46,76 +46,64 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // === Access Code Logic ===
-    const codeInput = document.getElementById('code-input');
     const createCodeBtn = document.getElementById('create-code-btn');
     const codeList = document.getElementById('code-list');
 
-    if (createCodeBtn && codeInput && codeList) {
+    if (createCodeBtn && codeList) {
         createCodeBtn.addEventListener('click', async () => {
-            const codeValue = codeInput.value.trim();
-
-            if (codeValue === "") {
-                alert("Veuillez saisir un code id.");
-                return;
-            }
-
-            // Check for duplicates
-            const existingCodes = Array.from(codeList.querySelectorAll('.code-list-item'))
-                .map(item => item.textContent.trim());
-
-            if (existingCodes.includes(codeValue)) {
-                alert("Ce code existe déjà dans la liste.");
-                return;
-            }
-
-            const originalText = createCodeBtn.textContent;
-            createCodeBtn.textContent = 'Chargement...';
-            createCodeBtn.disabled = true;
+            const originalHTML = createCodeBtn.innerHTML;
+            if (window.setBtnLoading) window.setBtnLoading(createCodeBtn, true);
+            else createCodeBtn.classList.add('loading-btn');
 
             try {
-                // Send to backend
+                // Send to backend (no payload needed)
                 const response = await fetch('/admin/codes', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': getCsrfToken(),
-                        'Accept': 'application/json'
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': getCsrfToken()
                     },
-                    body: JSON.stringify({ code: codeValue })
+                    body: JSON.stringify({}) // Paramètres vides
                 });
 
-                createCodeBtn.textContent = originalText;
-                createCodeBtn.disabled = false;
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        // Create new row
+                        const newRow = document.createElement('div');
+                        newRow.className = 'code-item-row';
+                        newRow.setAttribute('data-id', data.code.id);
+                        
+                        // We use innerHTML for simplicity
+                        newRow.innerHTML = `
+                            <span class="code-list-item">${data.code.code}</span>
+                            <img src="/ICON/trash-fill.svg" alt="delete" class="delete-code-icon">
+                        `;
 
-                if (!response.ok) {
+                        // Add to list (at the top, under header)
+                        const header = codeList.querySelector('.code-list-header');
+                        if (header && header.nextSibling) {
+                            codeList.insertBefore(newRow, header.nextSibling);
+                        } else if (header) {
+                            codeList.appendChild(newRow);
+                        } else {
+                            codeList.appendChild(newRow);
+                        }
+                    } else {
+                        throw new Error(data.message || 'Error creating code.');
+                    }
+                } else {
                     const errorData = await response.json();
-                    alert("Erreur lors de la création : " + (errorData.message || "Une erreur est survenue."));
-                    return;
-                }
-
-                const data = await response.json();
-
-                if (data.success) {
-                    // Create new code row
-                    const newRow = document.createElement('div');
-                    newRow.className = 'code-item-row';
-                    newRow.setAttribute('data-id', data.code.id);
-                    newRow.innerHTML = `
-                        <span class="code-list-item">${data.code.code}</span>
-                        <img src="/ICON/trash-fill.svg" alt="delete" class="delete-code-icon">
-                    `;
-
-                    // Append to list
-                    codeList.appendChild(newRow);
-
-                    // Clear input
-                    codeInput.value = "";
+                    throw new Error(errorData.message || 'Server error.');
                 }
             } catch (error) {
-                createCodeBtn.textContent = originalText;
-                createCodeBtn.disabled = false;
                 console.error("Erreur serveur:", error);
-                alert("Erreur de connexion au serveur.");
+                alert("Erreur de connexion au serveur : " + error.message);
+            } finally {
+                if (window.setBtnLoading) window.setBtnLoading(createCodeBtn, false);
+                else createCodeBtn.classList.remove('loading-btn');
             }
         });
 
@@ -127,6 +115,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     const codeId = row.getAttribute('data-id');
 
                     if (codeId) {
+                        const originalIcon = e.target;
+                        const spinner = document.createElement('div');
+                        spinner.className = 'delete-spinner dark';
+                        
+                        // Remplacer l'icône par le spinner
+                        originalIcon.style.display = 'none';
+                        originalIcon.parentNode.insertBefore(spinner, originalIcon);
+
                         try {
                             const response = await fetch(`/admin/codes/${codeId}`, {
                                 method: 'DELETE',
@@ -137,14 +133,27 @@ document.addEventListener('DOMContentLoaded', () => {
                             });
 
                             if (!response.ok) {
-                                alert("Erreur lors de la suppression.");
-                                return;
+                                let errMsg = `Erreur lors de la suppression. Statut : ${response.status} ${response.statusText}`;
+                                try {
+                                    const errData = await response.json();
+                                    if (errData.message) errMsg += `\nDétail : ${errData.message}`;
+                                    if (errData.error) errMsg += `\nErreur : ${errData.error}`;
+                                    console.error("Full error data:", errData);
+                                } catch (e) {
+                                    console.error("Could not parse JSON error response.");
+                                }
+                                alert(errMsg);
+                            } else {
+                                row.remove();
                             }
-
-                            row.remove();
                         } catch (error) {
                             console.error("Erreur de suppression:", error);
                             alert("Erreur réseau lors de la suppression.");
+                        } finally {
+                            if (spinner.parentNode) {
+                                spinner.remove();
+                                originalIcon.style.display = 'inline-block';
+                            }
                         }
                     } else {
                         row.remove();
@@ -212,6 +221,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const groupId = e.target.getAttribute('data-id');
 
                 if (confirm("Voulez-vous vraiment supprimer ce groupe et libérer son code d'accès ?")) {
+                    const originalIcon = e.target;
+                    const spinner = document.createElement('div');
+                    spinner.className = 'delete-spinner dark';
+                    
+                    originalIcon.style.display = 'none';
+                    originalIcon.parentNode.insertBefore(spinner, originalIcon);
+
                     try {
                         const response = await fetch(`/admin/groups/${groupId}`, {
                             method: 'DELETE',
@@ -223,6 +239,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         if (!response.ok) {
                             alert("Erreur lors la suppression du groupe.");
+                            spinner.remove();
+                            originalIcon.style.display = 'inline-block';
                             return;
                         }
 
@@ -233,6 +251,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     } catch (error) {
                         console.error("Erreur de suppression:", error);
                         alert("Erreur réseau lors de la suppression.");
+                        spinner.remove();
+                        originalIcon.style.display = 'inline-block';
                     }
                 }
             }
@@ -250,6 +270,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const visitorId = e.target.getAttribute('data-id');
 
                 if (confirm("Voulez-vous vraiment supprimer ce visiteur ?")) {
+                    const originalIcon = e.target;
+                    const spinner = document.createElement('div');
+                    spinner.className = 'delete-spinner dark';
+                    
+                    originalIcon.style.display = 'none';
+                    originalIcon.parentNode.insertBefore(spinner, originalIcon);
+
                     try {
                         const response = await fetch(`/admin/visitors/${visitorId}`, {
                             method: 'DELETE',
@@ -261,6 +288,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         if (!response.ok) {
                             alert("Erreur lors de la suppression du visiteur.");
+                            spinner.remove();
+                            originalIcon.style.display = 'inline-block';
                             return;
                         }
 
@@ -271,6 +300,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     } catch (error) {
                         console.error("Erreur de suppression:", error);
                         alert("Erreur réseau lors de la suppression.");
+                        spinner.remove();
+                        originalIcon.style.display = 'inline-block';
                     }
                 }
             }
@@ -335,9 +366,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // Combine name and date with " | " separator
             const title = date ? `${name} | ${date}` : name;
 
-            const originalText = addEventBtn.textContent;
-            addEventBtn.textContent = 'Chargement...';
-            addEventBtn.disabled = true;
+            if (window.setBtnLoading) window.setBtnLoading(addEventBtn, true);
+            else addEventBtn.classList.add('loading-btn');
 
             try {
                 const response = await fetch('/admin/events', {
@@ -349,9 +379,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     },
                     body: JSON.stringify({ title: title })
                 });
-
-                addEventBtn.textContent = originalText;
-                addEventBtn.disabled = false;
 
                 if (!response.ok) {
                     if (response.status === 419) {
@@ -432,11 +459,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const trash = e.target.closest('.action-icon');
             const publishBtn = e.target.closest('.toggle-publish-btn');
             const item = e.target.closest('.event-accordion-item');
+            if (header && !trash && !publishBtn) {
+                item.classList.toggle('active');
+                return;
+            }
 
-            // 1. Delete Logic
             if (trash && item) {
                 if (confirm('Voulez-vous supprimer cet événement définitivement ?')) {
                     const eventId = item.getAttribute('data-id');
+                    
+                    const originalIcon = trash;
+                    const spinner = document.createElement('div');
+                    spinner.className = 'delete-spinner dark';
+                    
+                    originalIcon.style.display = 'none';
+                    originalIcon.parentNode.insertBefore(spinner, originalIcon);
+
                     try {
                         const response = await fetch(`/admin/events/${eventId}`, {
                             method: 'DELETE',
@@ -458,12 +496,15 @@ document.addEventListener('DOMContentLoaded', () => {
                                 if (errData.message) errMsg += " (" + errData.message + ")";
                             } catch (_) { }
                             alert(errMsg);
+                            spinner.remove();
+                            originalIcon.style.display = 'inline-block';
                         }
                     } catch (error) {
                         alert("Erreur réseau.");
+                        spinner.remove();
+                        originalIcon.style.display = 'inline-block';
                     }
                 }
-                return;
             }
 
             // 2. Réécrire button logic

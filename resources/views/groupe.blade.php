@@ -267,14 +267,22 @@
     <script src="{{ asset('JS/groupe.js') }}?v={{ time() }}"></script>
     <script>
         // Heartbeat : maintient la session active (ping toutes les 60s)
-        setInterval(() => {
+        const heartbeatInterval = setInterval(() => {
             fetch('/heartbeat', {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'Accept': 'application/json'
                 }
-            }).catch(() => {});
+            })
+            .then(response => {
+                // Si la session est expirée (401 / 419)
+                if (response.status === 401 || response.status === 419) {
+                    clearInterval(heartbeatInterval);
+                    document.getElementById('sessionExpiredModal').style.display = 'flex';
+                }
+            })
+            .catch(() => {});
         }, 60000);
 
         // ======= PROTECTION ANTI-RETOUR =======
@@ -314,7 +322,19 @@
                 }
             });
         })();
-    </script>
+    <!-- Modal Session Expirée -->
+    <div class="session-modal-overlay" id="sessionExpiredModal">
+        <div class="session-expired-modal">
+            <div class="modal-icon">⚠️</div>
+            <h2>Session Expirée</h2>
+            <p>Votre session a expiré pour des raisons de sécurité ou d'inactivité continue.</p>
+            <button class="btn-close-modal" onclick="window.location.href='/login'">SE RECONNECTER</button>
+        </div>
+    </div>
+
+    <script src="{{ asset('JS/groupe.js') }}"></script>
+    <script src="{{ asset('JS/global-loading.js') }}"></script>
+    <script src="{{ asset('JS/tab-session-manager.js') }}"></script>
 </body>
 
 </html>

@@ -19,7 +19,15 @@ return Application::configure(basePath: dirname(__DIR__))
             'visiteur' => \App\Http\Middleware\EnsureIsVisitor::class,
             'prevent-back' => \App\Http\Middleware\PreventBackHistory::class,
         ]);
+        
+        $middleware->web(append: [
+            \App\Http\Middleware\VerifyTabSession::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->render(function (\Illuminate\Session\TokenMismatchException $e, \Illuminate\Http\Request $request) {
+            return redirect()->route('login')->withErrors([
+                'login' => 'La page a expiré car vous êtes resté inactif trop longtemps. Veuillez réessayer.'
+            ]);
+        });
     })->create();

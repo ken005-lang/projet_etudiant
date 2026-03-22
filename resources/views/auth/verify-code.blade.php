@@ -185,5 +185,6 @@
             50% { opacity: 0.5; }
         }
     </style>
+    <script src="{{ asset('JS/global-loading.js') }}"></script>
 </body>
 </html>

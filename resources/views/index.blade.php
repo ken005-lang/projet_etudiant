@@ -142,10 +142,13 @@
         <span class="footer-title">EN SAVOIR PLUS SUR ITES</span>
       </div>
       <div class="footer-social">
-        <a href="#" aria-label="Site web"><img src="{{ asset('ICON/website.svg') }}" alt=""></a>
-        <a href="#" aria-label="Instagram"><img src="{{ asset('ICON/instagram.svg') }}" alt=""></a>
-        <a href="#" aria-label="Facebook"><img src="{{ asset('ICON/facebook.svg') }}" alt=""></a>
-        <a href="#" aria-label="TikTok"><img src="{{ asset('ICON/tiktok.svg') }}" alt=""></a>
+        <a href="https://campusites.net/index.php" aria-label="Site web" target="_blank"><img src="{{ asset('ICON/website.svg') }}" alt=""></a>
+        <a href="https://www.instagram.com/groupe_ites?igsh=MWwwa3Y1YXh1NnEzYg==" aria-label="Instagram" target="_blank"><img src="{{ asset('ICON/instagram.svg') }}" alt=""></a>
+        <a href="https://www.facebook.com/share/1NKePnnVAY/" aria-label="Facebook" target="_blank"><img src="{{ asset('ICON/facebook.svg') }}" alt=""></a>
+        <a href="https://www.tiktok.com/@itesdeuxplateaux?_r=1&_t=ZS-94t7r8fgs9E" aria-label="TikTok" target="_blank"><img src="{{ asset('ICON/tiktok.svg') }}" alt=""></a>
+      </div>
+      <div class="footer-copyright">
+        Copyright © Capé kenania 2026
       </div>
     </footer>
   </main>

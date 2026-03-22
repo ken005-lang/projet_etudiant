@@ -8,6 +8,7 @@ use App\Http\Controllers\VisitorController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\Auth\RecoveryController;
+use App\Http\Controllers\TabSessionController;
 
 // ---------------------------------------------------------
 // RECOVERY ROUTES (Secure)
@@ -102,6 +103,9 @@ Route::match(['get', 'post'], '/logout', [AuthController::class, 'logout'])->nam
 Route::post('/heartbeat', function () {
     return response()->json(['status' => 'ok']);
 })->middleware('auth')->name('heartbeat');
+
+// Beacon de fermeture d'onglet
+Route::post('/tab-closing', [TabSessionController::class, 'beacon'])->name('tab.closing');
 
 // ---------------------------------------------------------
 // PROTECTED ROUTES

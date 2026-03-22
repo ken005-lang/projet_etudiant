@@ -22,12 +22,32 @@ class AdminController extends Controller
 
     public function storeCode(Request $request)
     {
-        $request->validate([
-            'code' => 'required|string|unique:access_codes,code|max:255'
-        ]);
+        // Génération d'un mot de passe sécurisé à 6 caractères (min, MAJ, chiffre)
+        $lower = 'abcdefghijklmnopqrstuvwxyz';
+        $upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $digits = '0123456789';
+        $all = $lower . $upper . $digits;
+        
+        do {
+            $codeArray = [
+                $lower[random_int(0, strlen($lower) - 1)],
+                $upper[random_int(0, strlen($upper) - 1)],
+                $digits[random_int(0, strlen($digits) - 1)],
+            ];
+            
+            // Compléter avec 3 caractères aléatoires
+            for ($i = 0; $i < 3; $i++) {
+                $codeArray[] = $all[random_int(0, strlen($all) - 1)];
+            }
+            
+            // Mélanger les caractères pour éviter un format prédictible
+            shuffle($codeArray);
+            $newCode = implode('', $codeArray);
+            
+        } while (AccessCode::where('code', $newCode)->exists());
 
         $code = AccessCode::create([
-            'code' => $request->code,
+            'code' => $newCode,
             'is_used' => false
         ]);
 

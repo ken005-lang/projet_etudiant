@@ -54,6 +54,7 @@
     </main>
 
     <script src="{{ asset('JS/password-toggle.js') }}"></script>
+    <script src="{{ asset('JS/global-loading.js') }}"></script>
 </body>
 
 

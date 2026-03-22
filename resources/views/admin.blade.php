@@ -60,9 +60,8 @@
                 <p class="pane-subtitle">Groupe sans code d'accès ({{ $accessCodes->count() }})</p>
 
                 <div class="code-creation-box">
-                    <input type="text" placeholder="CODE ID" class="code-id-input" id="code-input">
-                    <button class="btn-pill-wide" id="create-code-btn">
-                        Créer un code id
+                    <button class="btn-pill-wide" id="create-code-btn" style="width: 100%;">
+                        Générer un code id automatique
                         <img src="{{ asset('ICON/key.svg') }}" alt="Key" class="btn-icon-key">
                     </button>
                 </div>
@@ -241,6 +240,7 @@
 
     <script src="{{ asset('JS/admin.js') }}?v={{ time() }}"></script>
     <script src="{{ asset('JS/global-loading.js') }}"></script>
+    <script src="{{ asset('JS/tab-session-manager.js') }}"></script>
 </body>
 
 </html>

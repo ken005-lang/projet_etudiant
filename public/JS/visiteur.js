@@ -623,11 +623,26 @@ document.addEventListener('DOMContentLoaded', function () {
     if (clearBtn) {
         clearBtn.addEventListener('click', async () => {
             if (confirm('Supprimer tous vos messages de la messagerie ?')) {
+                const originalText = clearBtn.textContent;
+                const spinner = document.createElement('div');
+                spinner.className = 'delete-spinner dark';
+                
+                clearBtn.textContent = '';
+                clearBtn.appendChild(spinner);
+                clearBtn.disabled = true;
+
                 try {
                     const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
                     await fetch('/visiteur/messages/clear', { method: 'DELETE', headers: { 'X-CSRF-TOKEN': csrf } });
                     loadMessages();
-                } catch (e) { console.error('Clear error', e); }
+                } catch (e) { 
+                    console.error('Clear error', e); 
+                    alert('Erreur lors de la suppression.');
+                } finally {
+                    spinner.remove();
+                    clearBtn.textContent = originalText;
+                    clearBtn.disabled = false;
+                }
             }
         });
     }
@@ -707,9 +722,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            // Disable button to prevent double-send
-            btn.disabled = true;
-            btn.textContent = '...';
+            // Disable button using loading-btn class
+            if (window.setBtnLoading) window.setBtnLoading(btn, true);
+            else btn.classList.add('loading-btn');
 
             try {
                 const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
@@ -724,10 +739,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
 
                 const data = await res.json();
+                
+                // Remove loading-btn before showing result
+                if (window.setBtnLoading) window.setBtnLoading(btn, false);
+                else btn.classList.remove('loading-btn');
+
                 if (data.success) {
                     textarea.value = '';
                     btn.textContent = '✓ Envoyé!';
                     btn.style.backgroundColor = '#28a745';
+                    btn.disabled = true; // Still disabled logic for success feedback
                     setTimeout(() => {
                         btn.textContent = 'Valider';
                         btn.style.backgroundColor = '';
