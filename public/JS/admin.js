@@ -335,6 +335,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (!response.ok) {
                     alert("Erreur lors de la mise à jour de l'événement.");
+                    if (buttonToReset) {
+                        buttonToReset.textContent = publish ? 'Valider' : 'Réécrire'; // Fallback to original text
+                    }
                 } else if (buttonToReset) {
                     buttonToReset.textContent = publish ? 'Publié' : 'Valider';
                     if (publish) {
@@ -350,6 +353,9 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error("Erreur de mise à jour:", error);
                 alert("Erreur réseau.");
+                if (buttonToReset) {
+                    buttonToReset.textContent = publish ? 'Valider' : 'Réécrire';
+                }
             }
         };
 
@@ -429,13 +435,15 @@ document.addEventListener('DOMContentLoaded', () => {
                                         <textarea class="event-desc-edit" placeholder="Description de l'évènement" maxlength="1000"></textarea>
                                         <span class="char-count">0/1000</span>
                                     </div>
-                                    <div class="media-upload-placeholder video-place">
-                                        <p>upload video</p>
-                                        <input type="file" accept="video/*" class="hidden-file-input video-input" style="display: none;">
-                                    </div>
-                                    <div class="event-media-progress" style="display: none; width: 100%; text-align: center; margin-top: 5px;">
-                                        <div style="width: 100%; background-color: #eee; border-radius: 5px; height: 5px; overflow: hidden;">
-                                            <div class="event-media-bar" style="width: 0%; height: 100%; background-color: var(--black); transition: width 0.2s;"></div>
+                                    <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                                        <div class="media-upload-placeholder video-place">
+                                            <p>upload video</p>
+                                            <input type="file" accept="video/*" class="hidden-file-input video-input" style="display: none;">
+                                        </div>
+                                        <div class="event-media-progress" style="display: none; width: 100%; text-align: center; margin-top: 5px;">
+                                            <div style="width: 100%; background-color: #eee; border-radius: 5px; height: 5px; overflow: hidden;">
+                                                <div class="event-media-bar" style="width: 0%; height: 100%; background-color: var(--black); transition: width 0.2s;"></div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -450,6 +458,9 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error("Erreur serveur:", error);
                 alert("Erreur de connexion au serveur.");
+            } finally {
+                if (window.setBtnLoading) window.setBtnLoading(addEventBtn, false);
+                else addEventBtn.classList.remove('loading-btn');
             }
         });
 
@@ -459,8 +470,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const trash = e.target.closest('.action-icon');
             const publishBtn = e.target.closest('.toggle-publish-btn');
             const item = e.target.closest('.event-accordion-item');
-            if (header && !trash && !publishBtn) {
-                item.classList.toggle('active');
+            
+            // Accordion toggle logic (Consolidated)
+            if (header && !trash && !publishBtn && !e.target.closest('.rewrite-btn') && e.target.tagName !== 'INPUT') {
+                const isExpanded = item.classList.contains('expanded');
+                item.classList.toggle('expanded');
+
+                const arrow = header.querySelector('.expand-arrow');
+                if (item.classList.contains('expanded')) {
+                    if (arrow) arrow.src = 'ICON/up-arrow_icon.svg';
+                } else {
+                    if (arrow) arrow.src = 'ICON/arrow-down_icon.svg';
+                }
                 return;
             }
 
@@ -569,22 +590,72 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // 4. Toggle Accordion Logic
-            if (header) {
-                if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') {
-                    return;
-                }
+            // --- Deletion of Media (Image/Video) ---
+            const deleteMediaBtn = e.target.closest('.delete-media-btn');
+            if (deleteMediaBtn && item) {
+                e.preventDefault();
+                e.stopPropagation();
 
-                const isExpanded = item.classList.contains('expanded');
-                item.classList.toggle('expanded');
+                if (!confirm("Voulez-vous vraiment supprimer ce média ?")) return;
 
-                const arrow = header.querySelector('.expand-arrow');
-                if (item.classList.contains('expanded')) {
-                    if (arrow) arrow.src = 'ICON/up-arrow_icon.svg';
-                } else {
-                    if (arrow) arrow.src = 'ICON/arrow-down_icon.svg';
+                const eventId = item.getAttribute('data-id');
+                const type = deleteMediaBtn.getAttribute('data-type');
+                const placeholder = deleteMediaBtn.closest('.media-upload-placeholder');
+
+                // Basic Loading feedback
+                const originalContent = deleteMediaBtn.innerHTML;
+                deleteMediaBtn.innerHTML = '<span class="delete-spinner" style="width:12px; height:12px; border-width:1px;"></span>';
+                deleteMediaBtn.disabled = true;
+
+                try {
+                    const response = await fetch(`/admin/events/${eventId}/media/${type}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': getCsrfToken(),
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success) {
+                            // Reset UI based on type
+                            if (type === 'image') {
+                                placeholder.style.backgroundImage = '';
+                                placeholder.style.border = '';
+                                placeholder.style.backgroundColor = '';
+                                if (!placeholder.querySelector('p')) {
+                                    const p = document.createElement('p');
+                                    p.textContent = 'upload image';
+                                    placeholder.prepend(p);
+                                }
+                                deleteMediaBtn.remove();
+                            } else {
+                                // reset video
+                                placeholder.innerHTML = '<p>upload video</p><input type="file" accept="video/*" class="hidden-file-input video-input" style="display: none;">';
+                                const nameDiv = item.querySelector('.video-name-display');
+                                if (nameDiv) nameDiv.remove();
+                            }
+                        } else {
+                            alert("Erreur lors de la suppression.");
+                            deleteMediaBtn.innerHTML = originalContent;
+                            deleteMediaBtn.disabled = false;
+                        }
+                    } else {
+                        alert("Erreur serveur.");
+                        deleteMediaBtn.innerHTML = originalContent;
+                        deleteMediaBtn.disabled = false;
+                    }
+                } catch (error) {
+                    console.error("Media deletion error:", error);
+                    alert("Erreur réseau.");
+                    deleteMediaBtn.innerHTML = originalContent;
+                    deleteMediaBtn.disabled = false;
                 }
+                return;
             }
+
+            // 4. Toggle Accordion Logic (Removed duplicate call as it's now handled in the header block above)
         });
 
         // 4. Character Count Logic
@@ -682,6 +753,17 @@ document.addEventListener('DOMContentLoaded', () => {
                                     placeholder.style.backgroundPosition = 'center';
                                     placeholder.style.border = '2px solid #fff';
                                     if (pTag) pTag.remove(); // Hide text when image is shown
+
+                                    // Add delete button
+                                    let delBtn = placeholder.querySelector('.delete-media-btn');
+                                    if (!delBtn) {
+                                        delBtn = document.createElement('button');
+                                        delBtn.className = 'delete-media-btn';
+                                        delBtn.setAttribute('data-type', 'image');
+                                        delBtn.title = 'Supprimer l\'image';
+                                        delBtn.innerHTML = '<img src="/ICON/trash-fill.svg" alt="Supprimer">';
+                                        placeholder.appendChild(delBtn);
+                                    }
                                 } else {
                                     if (pTag) {
                                         pTag.textContent = 'Vidéo sauvegardée';
@@ -690,6 +772,17 @@ document.addEventListener('DOMContentLoaded', () => {
                                         pTag.style.padding = '2px 10px';
                                         pTag.style.borderRadius = '10px';
                                         pTag.style.fontWeight = 'bold';
+                                    }
+
+                                    // Add delete button for video if not exists
+                                    let delBtn = placeholder.querySelector('.delete-media-btn');
+                                    if (!delBtn) {
+                                        delBtn = document.createElement('button');
+                                        delBtn.className = 'delete-media-btn';
+                                        delBtn.setAttribute('data-type', 'video');
+                                        delBtn.title = 'Supprimer la vidéo';
+                                        delBtn.innerHTML = '<img src="/ICON/trash-fill.svg" alt="Supprimer">';
+                                        placeholder.appendChild(delBtn);
                                     }
 
                                     // Update or create the target div for the video name

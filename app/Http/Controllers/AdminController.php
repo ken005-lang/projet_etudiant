@@ -173,6 +173,11 @@ class AdminController extends Controller
                 'image' => 'image|mimes:jpeg,png,jpg,gif,svg,webp|max:20480', // 20MB
             ]);
             
+            // Delete old image if exists
+            if ($event->image_path && \Illuminate\Support\Facades\File::exists(public_path($event->image_path))) {
+                \Illuminate\Support\Facades\File::delete(public_path($event->image_path));
+            }
+
             $file = $request->file('image');
             $fileName = time() . '_event_img_' . $file->getClientOriginalName();
             $file->move(public_path('IMG/events'), $fileName);
@@ -194,6 +199,11 @@ class AdminController extends Controller
                 'video' => 'mimetypes:video/mp4,video/avi,video/mpeg,video/quicktime,video/webm|max:512000', // 500MB
             ]);
 
+            // Delete old video if exists
+            if ($event->video_path && \Illuminate\Support\Facades\File::exists(public_path($event->video_path))) {
+                \Illuminate\Support\Facades\File::delete(public_path($event->video_path));
+            }
+
             $file = $request->file('video');
             $fileName = time() . '_event_vid_' . $file->getClientOriginalName();
             $file->move(public_path('VIDEO/events'), $fileName);
@@ -211,6 +221,41 @@ class AdminController extends Controller
         }
 
         return response()->json(['success' => false, 'message' => 'Aucun média valide fourni.'], 400);
+    }
+
+    public function destroyEventMedia(Request $request, $id, $type)
+    {
+        try {
+            $event = Event::findOrFail($id);
+            $updated = false;
+
+            if ($type === 'image' && $event->image_path) {
+                if (\Illuminate\Support\Facades\File::exists(public_path($event->image_path))) {
+                    \Illuminate\Support\Facades\File::delete(public_path($event->image_path));
+                }
+                $event->update(['image_path' => null]);
+                $updated = true;
+            } elseif ($type === 'video' && $event->video_path) {
+                if (\Illuminate\Support\Facades\File::exists(public_path($event->video_path))) {
+                    \Illuminate\Support\Facades\File::delete(public_path($event->video_path));
+                }
+                $event->update(['video_path' => null]);
+                $updated = true;
+            }
+
+            if ($updated && $event->is_published) {
+                try {
+                    broadcast(new \App\Events\NewEventPublishedEvent($event, 'updated'));
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('Broadcast failed on media deletion: ' . $e->getMessage());
+                }
+            }
+
+            return response()->json(['success' => $updated]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('destroyEventMedia error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
     }
 
     public function destroyEvent($id)

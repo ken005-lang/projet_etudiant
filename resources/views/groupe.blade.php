@@ -332,7 +332,6 @@
         </div>
     </div>
 
-    <script src="{{ asset('JS/groupe.js') }}"></script>
     <script src="{{ asset('JS/global-loading.js') }}"></script>
     <script src="{{ asset('JS/tab-session-manager.js') }}"></script>
 </body>

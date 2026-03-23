@@ -2827,6 +2827,8 @@ input::-ms-clear {
   justify-content: center;
   cursor: pointer;
   transition: background 0.2s;
+  position: relative;
+  overflow: hidden;
 }
 
 .media-upload-placeholder:hover {
@@ -4082,6 +4084,20 @@ input::-ms-clear {
   height: 22px;
 }
 
+.notif-dot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 9px;
+  height: 9px;
+  background: var(--orange);
+  border-radius: 50%;
+  display: none;
+  pointer-events: none;
+  z-index: 10;
+  box-shadow: 0 0 5px rgba(205, 79, 0, 0.5);
+}
+
 .group-events-notif,
 .group-bell-notif {
   position: absolute;
@@ -4337,6 +4353,44 @@ input::-ms-clear {
   cursor: pointer;
   padding: 0 10px;
   transition: transform 0.2s;
+}
+
+.delete-media-btn {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.delete-media-btn:hover {
+    background: #ff4d4d;
+    transform: scale(1.1);
+}
+
+.delete-media-btn img {
+    width: 16px;
+    height: 16px;
+}
+
+.delete-media-btn:hover img {
+    filter: brightness(0) invert(1);
+}
+
+/* Specific position for video delete button if needed */
+.video-place .delete-media-btn {
+    bottom: 10px;
+    right: 10px;
 }
 
 .visitor-theme .messages-close-btn {

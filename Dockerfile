@@ -56,17 +56,22 @@ RUN mkdir -p storage/framework/sessions storage/framework/views storage/framewor
 RUN touch database/database.sqlite
 RUN chown -R www-data:www-data storage bootstrap/cache database /var/log/supervisor
 
-# Copy configurations
+# Copy configurations and entrypoint
 COPY docker/nginx.conf /etc/nginx/http.d/default.conf
 COPY docker/supervisord.conf /etc/supervisord.conf
 COPY docker/php.ini /usr/local/etc/php/conf.d/app.ini
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 # Fix line endings for scripts/configs (common issue on Windows hosts)
 RUN apk add --no-cache dos2unix && \
-    dos2unix /etc/supervisord.conf /etc/nginx/http.d/default.conf
+    dos2unix /etc/supervisord.conf /etc/nginx/http.d/default.conf /usr/local/bin/entrypoint.sh && \
+    chmod +x /usr/local/bin/entrypoint.sh
 
 # Expose ports
 EXPOSE 80 8080
+
+# Set Entrypoint
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 # Start Supervisor
 CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisord.conf"]

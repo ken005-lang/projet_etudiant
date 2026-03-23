@@ -179,10 +179,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (res && res.success) {
                 domainInput.value = '';
-                li.querySelector('.remove-domain').addEventListener('click', async () => {
-                    li.remove();
-                    await updateProfile({ project_domain: getDomainsString() });
-                });
             } else {
                 li.remove();
             }
@@ -199,13 +195,78 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    document.querySelectorAll('.remove-domain').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            const li = e.target.parentElement;
-            li.remove();
-            await updateProfile({ project_domain: getDomainsString() });
+    // === Global Event Delegation for Delete/Remove Actions ===
+    const dashboardContainer = document.querySelector('.dashboard-container');
+    if (dashboardContainer) {
+        dashboardContainer.addEventListener('click', async (e) => {
+            // 1. Member Delete
+            const memberBtn = e.target.closest('.delete-member');
+            if (memberBtn) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                const row = memberBtn.closest('tr');
+                const id = row.getAttribute('data-id');
+                if (id) await deleteMember(row, id);
+                return;
+            }
+
+            // 2. Domain Remove
+            const domainBtn = e.target.closest('.remove-domain');
+            if (domainBtn) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                const li = domainBtn.parentElement;
+                li.remove();
+                await updateProfile({ project_domain: getDomainsString() });
+                return;
+            }
+
+            // 3. Report Delete
+            const reportBtn = e.target.closest('.report-delete-btn');
+            if (reportBtn) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                const reportCard = reportBtn.closest('.report-card');
+                const id = reportCard.getAttribute('data-id');
+                if (id) await deleteReport(reportCard, id);
+                return;
+            }
         });
-    });
+    }
+
+    async function deleteReport(card, id) {
+        if (!confirm('Voulez-vous vraiment supprimer ce rapport ? Cela libèrera également la mémoire.')) return;
+
+        const deleteBtn = card.querySelector('.report-delete-btn');
+        const originalIcon = deleteBtn.querySelector('img');
+        const spinner = document.createElement('div');
+        spinner.className = 'delete-spinner dark';
+        
+        if (originalIcon) {
+            originalIcon.style.display = 'none';
+            deleteBtn.appendChild(spinner);
+        }
+
+        try {
+            const response = await fetch(`/groupe/reports/${id}`, {
+                method: 'DELETE',
+                headers: { 'X-CSRF-TOKEN': csrfToken }
+            });
+            const result = await response.json();
+            if (result.success) {
+                card.remove();
+            } else {
+                alert(result.error || 'Erreur lors de la suppression.');
+                if (originalIcon) originalIcon.style.display = 'block';
+                spinner.remove();
+            }
+        } catch (error) {
+            console.error('Report Delete error:', error);
+            alert('Erreur réseau.');
+            if (originalIcon) originalIcon.style.display = 'block';
+            spinner.remove();
+        }
+    }
 
     // Member Management
     const membersBody = document.getElementById('membersBody');
@@ -270,11 +331,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         showAddMemberBtn.textContent = 'Ajouter un membre';
                         showAddMemberBtn.classList.remove('active');
 
-                        tr.querySelector('.delete-member').addEventListener('click', () => deleteMember(tr, result.member.id));
                     }
                 } catch (error) {
                     console.error('Member Add error:', error);
                     alert('Erreur lors de l\'ajout du membre.');
+                } finally {
+                    if (window.setBtnLoading) window.setBtnLoading(addMemberBtn, false); else addMemberBtn.classList.remove('loading-btn');
                 }
             } else {
                 alert('Veuillez remplir tous les champs du membre.');
@@ -315,13 +377,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    document.querySelectorAll('.delete-member').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const row = e.target.closest('tr');
-            const id = row.getAttribute('data-id');
-            if (id) deleteMember(row, id);
-        });
-    });
 
     // === Contact Tab Logic ===
     const submitContact = document.getElementById('submitContact');
@@ -684,14 +739,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 } catch (err) {
                     console.error('Erreur API Upload Report:', err);
                     alert('Erreur réseau lors de la publication des rapports.');
+                } finally {
+                    if (activeBtn) {
+                        if (window.setBtnLoading) window.setBtnLoading(activeBtn, false);
+                        else {
+                            activeBtn.textContent = originalBtnText;
+                            activeBtn.disabled = false;
+                        }
+                    }
+                    reportInput.value = ''; // Reset for same file selection
                 }
-
-                if (activeBtn) {
-                    activeBtn.textContent = originalBtnText;
-                    activeBtn.disabled = false;
-                }
-
-                reportInput.value = ''; // Reset for same file selection
             }
         });
     }
@@ -701,6 +758,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const reportCard = document.createElement('div');
         reportCard.className = 'report-card';
+        reportCard.setAttribute('data-id', reportObj.id);
 
         // Déterminer l'icône selon l'extension du fichier
         const ext = reportObj.file_name.split('.').pop().toLowerCase();
@@ -738,43 +796,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Ajout d'une propriété relative au parent pour que le bouton absolu se place bien
         reportCard.style.position = 'relative';
 
-        // Add delete listener
-        const deleteBtn = reportCard.querySelector('.report-delete-btn');
-        deleteBtn.addEventListener('click', async (e) => {
-            e.stopPropagation(); 
-            if (!confirm('Voulez-vous vraiment supprimer ce rapport ? Cela libèrera également la mémoire.')) return;
+        // Delegation handles deletion
 
-            const originalIcon = deleteBtn.querySelector('img');
-            const spinner = document.createElement('div');
-            spinner.className = 'delete-spinner dark';
-            
-            if (originalIcon) {
-                originalIcon.style.display = 'none';
-                deleteBtn.appendChild(spinner);
-            }
-
-            try {
-                const response = await fetch(`/groupe/reports/${reportObj.id}`, {
-                    method: 'DELETE',
-                    headers: { 'X-CSRF-TOKEN': csrfToken }
-                });
-                const result = await response.json();
-
-                if (result.success) {
-                    reportCard.remove();
-                    updateReportsVisibility();
-                } else {
-                    alert('Erreur: ' + (result.error || 'Impossible de supprimer ce rapport'));
-                    spinner.remove();
-                    if (originalIcon) originalIcon.style.display = 'block';
-                }
-            } catch (err) {
-                console.error('Erreur API Delete Report:', err);
-                alert('Erreur réseau lors de la suppression du rapport.');
-                spinner.remove();
-                if (originalIcon) originalIcon.style.display = 'block';
-            }
-        });
 
         reportsGrid.appendChild(reportCard);
     }
@@ -822,12 +845,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Build event band HTML (same logic as visiteur.js)
     function createGroupEventBandHTML(event) {
-        const inlineImageSvg = `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" class="placeholder-icon" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`;
-        const inlineVideoSvg = `<svg width="50" height="50" viewBox="0 0 24 24" fill="none" class="placeholder-icon" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>`;
-
-        const imageHtml = event.image
-            ? `<img src="${event.image}" alt="Event Image" class="actual-image">`
-            : inlineImageSvg;
+        let leftHtml = '';
+        if (event.image) {
+            leftHtml = `
+                <div class="event-content-left">
+                    <div class="event-image-placeholder">
+                        <img src="${event.image}" alt="Event Image" class="actual-image">
+                    </div>
+                </div>`;
+        }
 
         const videoHtml = event.video
             ? `<div class="event-video-placeholder">
@@ -848,9 +874,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <img src="/ICON/up-arrow_icon.svg" alt="Expand" class="chevron-icon">
                 </div>
                 <div class="event-band-content">
-                    <div class="event-content-left">
-                        <div class="event-image-placeholder">${imageHtml}</div>
-                    </div>
+                    ${leftHtml}
                     <div class="event-content-right">
                         <div class="event-description">${event.description.replace(/\n/g, '<br>')}</div>
                         ${videoHtml}
@@ -1172,10 +1196,22 @@ document.addEventListener('DOMContentLoaded', () => {
                                         if (descDiv && data.event.description) {
                                             descDiv.innerHTML = data.event.description.replace(/\n/g, '<br>');
                                         }
-                                        // Update image
-                                        const imgPlaceholder = existingBand.querySelector('.event-image-placeholder');
-                                        if (imgPlaceholder && data.event.image) {
-                                            imgPlaceholder.innerHTML = `<img src="${data.event.image}" alt="Event Image" class="actual-image">`;
+                                        let leftCol = existingBand.querySelector('.event-content-left');
+                                        if (data.event.image) {
+                                            const leftHTML = `
+                                                <div class="event-content-left">
+                                                    <div class="event-image-placeholder">
+                                                        <img src="${data.event.image}" alt="Event Image" class="actual-image">
+                                                    </div>
+                                                </div>`;
+                                            if (leftCol) {
+                                                leftCol.outerHTML = leftHTML;
+                                            } else {
+                                                const contentContainer = existingBand.querySelector('.event-band-content');
+                                                if (contentContainer) contentContainer.insertAdjacentHTML('afterbegin', leftHTML);
+                                            }
+                                        } else if (leftCol) {
+                                            leftCol.remove();
                                         }
                                         // Update video
                                         const videoPlaceholder = existingBand.querySelector('.event-video-placeholder');
@@ -1206,7 +1242,6 @@ document.addEventListener('DOMContentLoaded', () => {
                                     // First publication via "Valider"
                                     eventsData.unshift(data.event);
                                     if (eventsNotifDot) eventsNotifDot.style.display = 'block';
-                                    if (bellNotifDot) bellNotifDot.style.display = 'block';
                                     // If panel is open, re-render to show the new event
                                     if (eventsPanel && eventsPanel.style.display !== 'none') {
                                         renderGroupEventsList();
@@ -1215,7 +1250,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             } else if (data.action === 'created') {
                                 eventsData.unshift(data.event);
                                 if (eventsNotifDot) eventsNotifDot.style.display = 'block';
-                                if (bellNotifDot) bellNotifDot.style.display = 'block';
                                 if (eventsPanel && eventsPanel.style.display !== 'none') {
                                     renderGroupEventsList();
                                 }

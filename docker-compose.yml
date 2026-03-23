@@ -7,11 +7,16 @@ services:
     restart: unless-stopped
     ports:
       - "80:80"
+      - "443:443"
       - "8080:8080" # Reverb
     volumes:
       - .:/var/www/html
       - ./database:/var/www/html/database
       - ./storage:/var/www/html/storage
+      - ./docker/nginx/certs:/etc/nginx/certs:ro
+      - ./docker/nginx.conf:/etc/nginx/http.d/default.conf:ro
+      - vendor_cache:/var/www/html/vendor
+      - node_modules_cache:/var/www/html/node_modules
     environment:
       - APP_ENV=local
       - APP_DEBUG=true
@@ -23,3 +28,7 @@ services:
 networks:
   laravel:
     driver: bridge
+
+volumes:
+  vendor_cache:
+  node_modules_cache:

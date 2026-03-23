@@ -384,9 +384,16 @@ document.addEventListener('DOMContentLoaded', function () {
     const eventsEmptyState = document.getElementById('events-empty-state');
 
     function createEventBandHTML(event) {
-        let inlineImageSvg = `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" class="placeholder-icon" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`;
-        let inlineVideoSvg = `<svg width="50" height="50" viewBox="0 0 24 24" fill="none" class="placeholder-icon" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>`;
-        let imageHtml = event.image ? `<img src="${event.image.match(/^https?:\/\//i) ? event.image : '/' + event.image}" alt="Event Image" class="actual-image">` : inlineImageSvg;
+        let leftHtml = '';
+        if (event.image) {
+            const imgSrc = event.image.match(/^https?:\/\//i) ? event.image : '/' + event.image;
+            leftHtml = `
+                <div class="event-content-left">
+                    <div class="event-image-placeholder">
+                        <img src="${imgSrc}" alt="Event Image" class="actual-image">
+                    </div>
+                </div>`;
+        }
 
         let videoHtml = event.video ? `
             <div class="event-video-placeholder">
@@ -410,11 +417,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>
                 
                 <div class="event-band-content">
-                    <div class="event-content-left">
-                        <div class="event-image-placeholder">
-                            ${imageHtml}
-                        </div>
-                    </div>
+                    ${leftHtml}
 
                     <div class="event-content-right">
                         <div class="event-description">
@@ -740,10 +743,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const data = await res.json();
                 
-                // Remove loading-btn before showing result
-                if (window.setBtnLoading) window.setBtnLoading(btn, false);
-                else btn.classList.remove('loading-btn');
-
                 if (data.success) {
                     textarea.value = '';
                     btn.textContent = '✓ Envoyé!';
@@ -758,14 +757,18 @@ document.addEventListener('DOMContentLoaded', function () {
                     checkUnread();
                 } else {
                     alert('Erreur: ' + (data.message || 'Impossible d\'envoyer le message.'));
-                    btn.textContent = 'Valider';
-                    btn.disabled = false;
                 }
             } catch (err) {
                 console.error('Erreur réseau:', err);
                 alert('Problème réseau. Veuillez réessayer.');
-                btn.textContent = 'Valider';
-                btn.disabled = false;
+            } finally {
+                // Global reset for loading state
+                if (window.setBtnLoading) window.setBtnLoading(btn, false);
+                else {
+                    btn.classList.remove('loading-btn');
+                    if (btn.textContent === 'Chargement...') btn.textContent = 'Valider';
+                    btn.disabled = false;
+                }
             }
         }
     });
@@ -774,18 +777,17 @@ document.addEventListener('DOMContentLoaded', function () {
     checkUnread();
 
     // --- TEMPS REEL avec Laravel Echo ---
-    const visitorIdMeta = document.querySelector('meta[name="user-id"]');
-    const visitorId = visitorIdMeta ? parseInt(visitorIdMeta.content) : null;
+    const visitorIdValue = userIdMeta ? parseInt(userIdMeta.content) : null;
 
-    if (visitorId) {
+    if (visitorIdValue && !isNaN(visitorIdValue)) {
         // On attend que Echo soit disponible (peut prendre un instant après le chargement du module Vite)
         function initVisitorEcho(retries) {
             if (window.Echo) {
-                console.log('[Echo] Visiteur: connexion au canal visitor.messages.' + visitorId);
-                window.Echo.private(`visitor.messages.${visitorId}`)
+                console.log('[Echo] Visiteur: connexion au canal visitor.messages.' + visitorIdValue);
+                window.Echo.private(`visitor.messages.${visitorIdValue}`)
                     .listen('.reply.received', (data) => {
                         console.log('[Echo] Nouvelle réponse reçue en temps réel', data);
-                        if (notifDot) notifDot.style.display = 'block'; // Alerte instantanée visuelle
+                        if (notifDot) notifDot.style.display = 'block'; 
                         checkUnread();
                         if (document.getElementById('messages-overlay')?.classList.contains('open')) {
                             loadMessages();
@@ -795,28 +797,20 @@ document.addEventListener('DOMContentLoaded', function () {
                         console.error('[Echo] Erreur canal visiteur:', err);
                     });
 
-                // Écoute des mises à jour globales (Canal public)
                 console.log('[Echo] Visiteur: connexion au canal public.updates');
                 window.Echo.channel('public.updates')
                     .listen('.group.deleted', (data) => {
                         console.log('[Echo] Suppression de groupe reçue:', data);
                         if (data && data.groupId) {
-                            // Supprimer du tableau global
                             const index = window.serverGroupsData.findIndex(g => g.id === parseInt(data.groupId));
                             if (index !== -1) {
                                 window.serverGroupsData.splice(index, 1);
-                                console.log('[Echo] Groupe retiré de la mémoire locale.');
-
-                                // Rafraîchir la liste si l'onglet projet est actif
                                 if (document.getElementById('projects-section').classList.contains('active')) {
                                     renderProjectsList(document.getElementById('projectSearch')?.value || '');
                                 }
-
-                                // Fermer le panneau latéral s'il était ouvert pour ce groupe supprimé
                                 const panel = document.getElementById('project-side-panel');
                                 if (panel && panel.classList.contains('open')) {
                                     const submitBtn = document.getElementById('contact-quick-submit');
-                                    // S'assurer qu'on ferme bien le panneau du groupe supprimé
                                     if (submitBtn && parseInt(submitBtn.dataset.groupId) === parseInt(data.groupId)) {
                                         closeProjectPanel();
                                     }
@@ -831,24 +825,32 @@ document.addEventListener('DOMContentLoaded', function () {
                                 const index = eventsData.findIndex(e => e.id === data.event.id);
                                 if (index !== -1) {
                                     eventsData[index] = data.event;
-                                    // In-place DOM update (preserves expanded state)
                                     const existingBand = eventsContainer.querySelector(`.event-band[data-id="${data.event.id}"]`);
                                     if (existingBand) {
-                                        // Update title
                                         const titleSpan = existingBand.querySelector('.event-band-header span');
                                         if (titleSpan) titleSpan.textContent = data.event.title;
-                                        // Update description
                                         const descDiv = existingBand.querySelector('.event-description');
                                         if (descDiv && data.event.description) {
                                             descDiv.innerHTML = data.event.description.replace(/\n/g, '<br>');
                                         }
-                                        // Update image
-                                        const imgPlaceholder = existingBand.querySelector('.event-image-placeholder');
-                                        if (imgPlaceholder && data.event.image) {
+                                        let leftCol = existingBand.querySelector('.event-content-left');
+                                        if (data.event.image) {
                                             const imgSrc = data.event.image.match(/^https?:\/\//i) ? data.event.image : '/' + data.event.image;
-                                            imgPlaceholder.innerHTML = `<img src="${imgSrc}" alt="Event Image" class="actual-image">`;
+                                            const leftHTML = `
+                                                <div class="event-content-left">
+                                                    <div class="event-image-placeholder">
+                                                        <img src="${imgSrc}" alt="Event Image" class="actual-image">
+                                                    </div>
+                                                </div>`;
+                                            if (leftCol) {
+                                                leftCol.outerHTML = leftHTML;
+                                            } else {
+                                                const contentContainer = existingBand.querySelector('.event-band-content');
+                                                if (contentContainer) contentContainer.insertAdjacentHTML('afterbegin', leftHTML);
+                                            }
+                                        } else if (leftCol) {
+                                            leftCol.remove();
                                         }
-                                        // Update video
                                         const videoPlaceholder = existingBand.querySelector('.event-video-placeholder');
                                         if (data.event.video) {
                                             const videoSrc = data.event.video.match(/^https?:\/\//i) ? data.event.video : '/' + data.event.video;
@@ -871,13 +873,11 @@ document.addEventListener('DOMContentLoaded', function () {
                                                 if (contentRight) contentRight.insertAdjacentHTML('beforeend', videoHTML);
                                             }
                                         }
-                                        // Flash effect to notify visitor of the update
                                         existingBand.style.transition = 'box-shadow 0.3s ease';
                                         existingBand.style.boxShadow = '0 0 15px 3px rgba(255, 102, 0, 0.6)';
                                         setTimeout(() => { existingBand.style.boxShadow = ''; }, 3000);
                                     }
                                 } else {
-                                    // Event doesn't exist yet: first publication via "Valider"
                                     eventsData.unshift(data.event);
                                     const dot = document.getElementById('events-notif-dot');
                                     if (dot) dot.style.display = 'inline-block';
@@ -891,41 +891,19 @@ document.addEventListener('DOMContentLoaded', function () {
                             } else if (data.action === 'deleted') {
                                 eventsData = eventsData.filter(e => e.id !== data.event.id);
                                 const bandToRemove = eventsContainer.querySelector(`.event-band[data-id="${data.event.id}"]`);
-                                if (bandToRemove) {
-                                    bandToRemove.remove();
-                                }
-                                if (eventsData.length === 0) {
-                                    renderEventsList();
-                                }
-                            }
-
-                            console.log('[Echo] Mise à jour in-place des événements (total: ' + eventsData.length + ')');
-
-                            // Mettre à jour ou fermer la modale évènement si ouverte
-                            const modal = document.getElementById('event-modal-fullscreen');
-                            if (modal && modal.classList.contains('active')) {
-                                // Find event details in DOM (hacky, let's just close/reopen or close if deleted)
-                                if (data.action === 'deleted') {
-                                    closeEventModal();
-                                } else {
-                                    // It's harder to know WHICH event is open, so we just blindly update if the title matches or close
-                                    const modalTitle = document.getElementById('modal-event-title').textContent;
-                                    const oldEvent = eventsData.find(e => e.title === modalTitle || e.id === data.event.id);
-                                    if (oldEvent && oldEvent.id === data.event.id) {
-                                        openEventModalFullscreen(data.event);
-                                    }
-                                }
+                                if (bandToRemove) bandToRemove.remove();
+                                if (eventsData.length === 0) renderEventsList();
                             }
                         }
                     });
             } else if (retries > 0) {
                 setTimeout(() => initVisitorEcho(retries - 1), 200);
             } else {
-                console.warn('[Echo] Non disponible, fallback polling toutes les 10s');
+                console.warn('[Echo] Non disponible, fallback polling 10s');
                 setInterval(checkUnread, 10000);
             }
         }
-        initVisitorEcho(50); // Essaie pendant 10 secondes (50 x 200ms)
+        initVisitorEcho(50);
     } else {
         setInterval(checkUnread, 10000);
     }

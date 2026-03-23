@@ -199,6 +199,11 @@
                                         <p>upload image</p>
                                     @endif
                                     <input type="file" accept="image/*" class="hidden-file-input image-input" style="display: none;">
+                                    @if($event->image_path)
+                                        <button class="delete-media-btn" data-type="image" title="Supprimer l'image">
+                                            <img src="{{ asset('ICON/trash-fill.svg') }}" alt="Supprimer">
+                                        </button>
+                                    @endif
                                 </div>
                                 <div class="event-text-multimedia">
                                     <div class="textarea-container">
@@ -213,6 +218,11 @@
                                                 <p>upload video</p>
                                             @endif
                                             <input type="file" accept="video/*" class="hidden-file-input video-input" style="display: none;">
+                                            @if($event->video_path)
+                                                <button class="delete-media-btn" data-type="video" title="Supprimer la vidéo">
+                                                    <img src="{{ asset('ICON/trash-fill.svg') }}" alt="Supprimer">
+                                                </button>
+                                            @endif
                                         </div>
                                         @if($event->video_path)
                                             <div class="video-name-display" style="color: rgba(255,255,255,0.7); font-size: 0.8rem; margin-top: 8px; text-align: center; word-break: break-all;">

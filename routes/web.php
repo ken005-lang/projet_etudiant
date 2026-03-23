@@ -123,6 +123,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/events', [AdminController::class, 'storeEvent'])->name('events.store');
     Route::post('/events/{id}', [AdminController::class, 'updateEvent'])->name('events.update');
     Route::post('/events/{id}/media', [AdminController::class, 'uploadEventMedia'])->name('events.updateMedia');
+    Route::delete('/events/{id}/media/{type}', [AdminController::class, 'destroyEventMedia'])->name('events.destroyMedia');
     Route::delete('/events/{id}', [AdminController::class, 'destroyEvent'])->name('events.destroy');
 });
 
