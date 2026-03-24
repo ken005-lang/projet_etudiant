@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 introTextArea.focus();
                 introToggleBtn.textContent = 'Appliquer';
             } else {
-                const newText = introTextArea.value;
+                const newText = introTextArea.value.trim();
                 if (window.setBtnLoading) window.setBtnLoading(introToggleBtn, true); else introToggleBtn.classList.add('loading-btn');
 
                 const res = await updateProfile({ project_intro: newText });
@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (res && res.success) {
                     const iconHtml = `<img src="/ICON/pen-nib.svg" alt="Edit" class="empty-intro-icon" style="width: 50px; height: 50px; opacity: 0.5;">`;
-                    introTextDisplay.innerHTML = newText.trim() === '' ? iconHtml : newText;
+                    introTextDisplay.innerHTML = newText === '' ? iconHtml : newText;
                     introTextDisplay.style.display = 'block';
                     introTextArea.style.display = 'none';
                     introToggleBtn.textContent = 'Modifier';

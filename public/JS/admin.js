@@ -214,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (groupsTableBody) {
         groupsTableBody.addEventListener('click', async (e) => {
-            if (e.target.classList.contains('action-icon')) {
+            if (e.target.classList.contains('delete-group-btn')) {
                 const row = e.target.closest('tr');
                 if (!row) return;
 
@@ -421,7 +421,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <button class="btn-pill-small white-btn rewrite-btn">Réécrire</button>
                                 <button class="btn-pill-small white-btn toggle-publish-btn">Valider</button>
                                 <img src="ICON/arrow-down_icon.svg" alt="expand" class="expand-arrow">
-                                <img src="ICON/trash-fill.svg" alt="delete" class="action-icon">
+                                <img src="ICON/trash-fill.svg" alt="delete" class="action-icon delete-event-btn">
                             </div>
                         </div>
                         <div class="event-content">
@@ -467,7 +467,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- Delegation (Toggling, Deletion & Updates) ---
         eventsList.addEventListener('click', async (e) => {
             const header = e.target.closest('.event-header');
-            const trash = e.target.closest('.action-icon');
+            const trash = e.target.closest('.delete-event-btn');
             const publishBtn = e.target.closest('.toggle-publish-btn');
             const item = e.target.closest('.event-accordion-item');
             

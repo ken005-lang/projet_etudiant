@@ -99,10 +99,7 @@
                             </div>
                             <div>
                                 <label for="filiere">Filière</label>
-                                <select id="filiere" name="filiere" class="@error('filiere') error-highlight @enderror" style="@error('filiere') border: 1px solid #ffcccc; @enderror; width: 100%;">
-                                    <option value="" disabled {{ old('filiere') ? '' : 'selected' }}>Choisir une filière</option>
-                                    <option value="Informatique" {{ old('filiere') == 'Informatique' ? 'selected' : '' }}>Informatique</option>
-                                </select>
+                                <input type="text" id="filiere" name="filiere" placeholder="Ex: Informatique, Gestion..." value="{{ old('filiere') }}" class="@error('filiere') error-highlight @enderror" style="@error('filiere') border: 1px solid #ffcccc; @enderror; width: 100%;">
                                 @error('filiere')
                                     <div class="validation-error-message" style="color: #ffcccc; font-size: 0.85rem; margin-top: 0.25rem;">{{ $message }}</div>
                                 @enderror

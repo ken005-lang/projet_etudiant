@@ -7,7 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="user-id" content="{{ auth()->id() }}">
     <title>ITES - Espace Groupe</title>
-    <link rel="stylesheet" href="{{ asset('style.css') }}">
+    <link rel="stylesheet" href="{{ asset('style.css') }}?v={{ time() }}">
     <link rel="icon" type="image/png" href="{{ asset('IMG/LOGOITES.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -83,17 +83,11 @@
                 <section id="presentation-pane" class="tab-pane active">
                     <div class="pane-column">
                         <div class="intro-input-card">
-                            <div id="introTextDisplay" class="text-display" style="display: flex; align-items: flex-start; justify-content: center; min-height: 150px; text-align: center; width: 100%; flex: 1; padding-top: 1rem;">
-                                @if($group->project_intro)
-                                    {{ $group->project_intro }}
-                                @else
-                                    <img src="{{ asset('ICON/pen-nib.svg') }}" alt="Edit" class="empty-intro-icon" style="width: 50px; height: 50px; opacity: 0.5;">
-                                @endif
-                            </div>
+                            <div id="introTextDisplay" class="text-display">@if($group->project_intro){{ trim($group->project_intro) }}@else<img src="{{ asset('ICON/pen-nib.svg') }}" alt="Edit" class="empty-intro-icon" style="width: 50px; height: 50px; opacity: 0.5;">@endif</div>
                             <textarea id="introTextArea" style="display: none;" maxlength="1000"
                                 placeholder="Saisissez votre introduction..."></textarea>
                             <div class="intro-footer">
-                                <span class="word-limit">{{ $group->project_intro ? mb_strlen($group->project_intro) : 0 }}/1000</span>
+                                <span class="word-limit">{{ $group->project_intro ? mb_strlen(trim($group->project_intro)) : 0 }}/1000</span>
                                 <button class="btn-pill-action" id="introToggleBtn">Modifier</button>
                             </div>
                         </div>

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>ITES - Admin Dashboard</title>
-    <link rel="stylesheet" href="{{ asset('style.css') }}">
+    <link rel="stylesheet" href="{{ asset('style.css') }}?v={{ time() }}">
     <link rel="icon" type="image/png" href="{{ asset('IMG/LOGOITES.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -189,7 +189,7 @@
                                 <button class="btn-pill-small white-btn rewrite-btn">Réécrire</button>
                                 <button class="btn-pill-small white-btn toggle-publish-btn">Valider</button>
                                 <img src="{{ asset('ICON/arrow-down_icon.svg') }}" alt="expand" class="expand-arrow">
-                                <img src="{{ asset('ICON/trash-fill.svg') }}" alt="delete" class="action-icon">
+                                <img src="{{ asset('ICON/trash-fill.svg') }}" alt="delete" class="action-icon delete-event-btn">
                             </div>
                         </div>
                         <div class="event-content">
