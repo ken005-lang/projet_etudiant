@@ -86,6 +86,8 @@
                                 <label for="niveau">Niveau</label>
                                 <select id="niveau" name="niveau" class="@error('niveau') error-highlight @enderror" style="@error('niveau') border: 1px solid #ffcccc; @enderror; width: 100%;">
                                     <option value="" disabled {{ old('niveau') ? '' : 'selected' }}>Choisir un niveau</option>
+                                    <option value="BTS 1" {{ old('niveau') == 'BTS 1' ? 'selected' : '' }}>BTS 1</option>
+                                    <option value="BTS 2" {{ old('niveau') == 'BTS 2' ? 'selected' : '' }}>BTS 2</option>
                                     <option value="licence 1" {{ old('niveau') == 'licence 1' ? 'selected' : '' }}>licence 1</option>
                                     <option value="licence 2" {{ old('niveau') == 'licence 2' ? 'selected' : '' }}>licence 2</option>
                                     <option value="licence 3" {{ old('niveau') == 'licence 3' ? 'selected' : '' }}>licence 3</option>

@@ -1,6 +1,44 @@
 document.addEventListener('DOMContentLoaded', () => {
     const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
+    // Helper for Custom Confirmation Modal
+    function showConfirm(message, title = 'Confirmation') {
+        return new Promise((resolve) => {
+            const modal = document.getElementById('custom-confirm-modal');
+            const msgEl = document.getElementById('confirm-message');
+            const titleEl = document.getElementById('confirm-title');
+            const yesBtn = document.getElementById('confirm-yes');
+            const noBtn = document.getElementById('confirm-cancel');
+
+            if (!modal) {
+                // Fallback if modal not found
+                resolve(confirm(message));
+                return;
+            }
+
+            msgEl.textContent = message;
+            titleEl.textContent = title;
+            modal.style.display = 'flex';
+
+            const onYes = () => {
+                cleanup();
+                resolve(true);
+            };
+            const onNo = () => {
+                cleanup();
+                resolve(false);
+            };
+            const cleanup = () => {
+                modal.style.display = 'none';
+                yesBtn.removeEventListener('click', onYes);
+                noBtn.removeEventListener('click', onNo);
+            };
+
+            yesBtn.addEventListener('click', onYes);
+            noBtn.addEventListener('click', onNo);
+        });
+    }
+
     // Helper for profile updates
     async function updateProfile(data) {
         try {
@@ -225,10 +263,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const reportBtn = e.target.closest('.report-delete-btn');
             if (reportBtn) {
                 e.preventDefault();
-                e.stopImmediatePropagation();
+                e.stopPropagation();
                 const reportCard = reportBtn.closest('.report-card');
-                const id = reportCard.getAttribute('data-id');
-                if (id) await deleteReport(reportCard, id);
+                if (await showConfirm('Voulez-vous vraiment supprimer ce rapport ?')) {
+                    const id = reportCard ? reportCard.getAttribute('data-id') : null;
+                    if (id) await deleteReport(reportCard, id);
+                }
                 return;
             }
         });
@@ -544,7 +584,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (removeVideoBtn) {
         removeVideoBtn.addEventListener('click', async () => {
-            if (confirm('Voulez-vous vraiment retirer la présentation vidéo ?')) {
+            if (await showConfirm('Voulez-vous vraiment retirer la présentation vidéo ?')) {
                 const originalText = removeVideoBtn.textContent;
                 removeVideoBtn.textContent = 'Chargement...';
                 removeVideoBtn.disabled = true;
@@ -558,28 +598,27 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     });
 
-                    removeVideoBtn.textContent = originalText;
-                    removeVideoBtn.disabled = false;
-
                     if (response.ok) {
                         const data = await response.json();
                         if (data.success) {
                             videoContainer.style.display = 'none';
                             projectVideoPlayer.src = '';
-                            projectVideoPlayer.load(); // Reset player completely
+                            projectVideoPlayer.load();
                             videoEmptyState.style.display = 'flex';
                             alert('Vidéo retirée avec succès !');
                         } else {
                             alert(data.error || 'Erreur lors du retrait de la vidéo.');
                         }
                     } else {
-                        alert('Erreur réseau lors du retrait de la vidéo.');
+                        const errorData = await response.json().catch(() => ({}));
+                        alert(errorData.error || 'Erreur serveur lors du retrait de la vidéo (' + response.status + ')');
                     }
                 } catch (error) {
-                    removeVideoBtn.textContent = originalText;
-                    removeVideoBtn.disabled = false;
                     console.error('Erreur removeVideo:', error);
                     alert('Erreur réseau lors de la communication serveur.');
+                } finally {
+                    removeVideoBtn.textContent = originalText;
+                    removeVideoBtn.disabled = false;
                 }
             }
         });
@@ -710,7 +749,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 else if (publishBtnHeader && publishBtnHeader.offsetParent !== null) activeBtn = publishBtnHeader;
                 
                 if (activeBtn) {
-                    if (window.setBtnLoading) window.setBtnLoading(activeBtn, true); else activeBtn.classList.add('loading-btn');
+                    originalBtnText = activeBtn.textContent;
+                    activeBtn.disabled = true; // Force disable for ALL cases
+                    if (window.setBtnLoading) {
+                        window.setBtnLoading(activeBtn, true);
+                    } else {
+                        activeBtn.textContent = 'Chargement...';
+                        activeBtn.classList.add('loading-btn');
+                    }
                 }
 
                 // Prepare FormData for the actual API upload
@@ -740,13 +786,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error('Erreur API Upload Report:', err);
                     alert('Erreur réseau lors de la publication des rapports.');
                 } finally {
-                    if (activeBtn) {
-                        if (window.setBtnLoading) window.setBtnLoading(activeBtn, false);
-                        else {
-                            activeBtn.textContent = originalBtnText;
-                            activeBtn.disabled = false;
+                    // Reset ALL publish buttons using the correct classes
+                    document.querySelectorAll('.publish-btn-header, .publish-btn-empty, .report-publish-btn').forEach(btn => {
+                        btn.disabled = false;
+                        if (window.setBtnLoading) {
+                            window.setBtnLoading(btn, false);
+                        } else {
+                            btn.classList.remove('loading-btn');
+                            if (btn.textContent === 'Chargement...') {
+                                btn.textContent = 'Publier un rapport';
+                            }
                         }
-                    }
+                    });
+                    
                     reportInput.value = ''; // Reset for same file selection
                 }
             }

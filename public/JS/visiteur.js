@@ -57,13 +57,23 @@ document.addEventListener('DOMContentLoaded', function () {
                     </thead>
                     <tbody>
                         <tr>
-                            <td data-label="MEMBRE"><span class="badge-chef">CHEF</span> ${group.leader}</td>
+                            <td data-label="MEMBRE">
+                                <div class="member-name-wrapper">
+                                    <span class="badge-chef">CHEF</span>
+                                    <span class="member-name">${group.leader}</span>
+                                </div>
+                            </td>
                             <td data-label="FILIERE">${group.filiere || '-'}</td>
                             <td data-label="NIVEAU">${group.niveau || '-'}</td>
                         </tr>
                         ${group.members.map(m => `
                         <tr>
-                            <td data-label="MEMBRE"><span class="badge-spacer"></span>${m.name}</td>
+                            <td data-label="MEMBRE">
+                                <div class="member-name-wrapper">
+                                    <span class="badge-spacer"></span>
+                                    <span class="member-name">${m.name}</span>
+                                </div>
+                            </td>
                             <td data-label="FILIERE">${m.sector || m.filiere || '-'}</td>
                             <td data-label="NIVEAU">${m.level || m.niveau || '-'}</td>
                         </tr>

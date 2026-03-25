@@ -158,13 +158,13 @@
                 <!-- Section RAPPORTS -->
                 <section id="rapports-pane" class="tab-pane">
                     <div class="rapports-header" style="display: none;">
-                        <button class="btn-pill-main publish-btn-header">Publier un rapport</button>
+                        <button class="btn-pill-main publish-btn-header report-publish-btn">Publier un rapport</button>
                     </div>
 
                     <div class="empty-state-container">
                         <img src="{{ asset('ICON/cactus.svg') }}" alt="Cactus" class="empty-icon-lg">
                         <p class="empty-text">Aucun rapport ajouté.</p>
-                        <button class="btn-pill-main publish-btn-empty">Publier un rapport</button>
+                        <button class="btn-pill-main publish-btn-empty report-publish-btn">Publier un rapport</button>
                     </div>
 
                     <div class="reports-grid" id="reportsGrid">
@@ -316,6 +316,18 @@
                 }
             });
         })();
+    <!-- Custom Confirmation Modal -->
+    <div id="custom-confirm-modal" class="custom-modal-overlay" style="display: none;">
+        <div class="custom-modal-content">
+            <h3 id="confirm-title">Confirmation</h3>
+            <p id="confirm-message">Voulez-vous vraiment effectuer cette action ?</p>
+            <div class="custom-modal-actions">
+                <button id="confirm-cancel" class="btn-pill-small secondary">Annuler</button>
+                <button id="confirm-yes" class="btn-pill-small danger">Confirmer</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Session Expirée -->
     <div class="session-modal-overlay" id="sessionExpiredModal">
         <div class="session-expired-modal">

@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ITES - Projets Étudiants</title>
-  <link rel="stylesheet" href="{{ asset('style.css') }}">
+  <link rel="stylesheet" href="{{ asset('style.css') }}?v={{ time() }}">
   <link rel="icon" type="image/png" href="{{ asset('IMG/LOGOITES.png') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -116,28 +116,43 @@
           <p>APPRENEZ-EN PLUS EN REGARDANT CETTE VIDEO.</p>
           <a href="{{ url('/inscription') }}" class="btn">S'inscrire</a>
         </div>
-        <div class="presentation-video">
-          <video src="{{ asset('VIDEO/NARUTO.mp4') }}" controls class="video-presentation"></video>
+        <div class="presentation-video" id="videoWrapper">
+          <video id="presentationVideo" src="{{ asset('VIDEO/Video_Presentation.mp4') }}" controls class="video-presentation"></video>
+          <div class="video-overlay" id="videoOverlay">
+            <img src="{{ asset('ICON/film-strip.svg') }}" alt="Play" class="play-icon">
+          </div>
         </div>
       </div>
     </section>
 
     <section class="content-text">
-      <h2>XXXXXXXXX</h2>
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore
-        magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-        consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-        pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est
-        laborum.</p>
-      <br>
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-        magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-        consequat.</p>
+      <h2>Découvrez "ITES Projet Étudiant" : La vitrine de l'innovation de l'ITES Deux-Plateaux ! <br>
+
+L'Institut des Technologies et des Spécialités (ITES) est fier de présenter sa nouvelle plateforme officielle dédiée à l'hébergement et à la valorisation des projets de ses étudiants. </h2>
+      <p>🎯 Notre mission
+        <br>
+Trop de projets remarquables restent invisibles après les soutenances. Avec ITES Projet Étudiant, nous voulons donner une véritable visibilité professionnelle aux réalisations de nos talents, inspirer les nouvelles promotions et renforcer la réputation d'innovation de l'ITES en Côte d'Ivoire.
+        <br>
+        <br>
+💡 Quels types de projets y trouve-t-on ? <br>
+La plateforme regroupe les projets de fin d'études, académiques ou personnels développés par les étudiants. Vous y découvrirez des solutions innovantes dans de multiples domaines : <br> <br>
+*   Applications mobiles et web 📱 <br>
+*   Réseaux & Télécoms 📡 <br>
+*   Robotique 🤖 <br>
+*   E-santé et agriculture intelligente 🌱 <br> <br>
+Chaque fiche projet inclut des descriptions détaillées, les technologies utilisées, des démonstrations et les contacts de l'équipe. <br>
+        <br>
+🤝 Une plateforme pensée pour tous : <br> <br>
+*   🎓 Pour nos étudiants (du BTS au cycle Ingénieur) : C'est l'opportunité de mettre en valeur votre savoir-faire sur votre CV et LinkedIn pour vous démarquer sur le marché du travail. <br> *Note importante : les étudiants conservent l'entière propriété intellectuelle et exclusive de leurs projets !*. <br>
+*   🏢 Pour les entreprises et recruteurs : C'est un accès direct aux talents de demain. Venez découvrir leurs compétences et contactez facilement les porteurs de projets. <br>
+*   🌟 Pour les futurs étudiants : Venez voir concrètement ce que vous serez capables de réaliser en rejoignant l'ITES ! <br>
+        <br>
+Plongez au cœur de l'innovation étudiante et venez soutenir les créateurs de demain ! 🌐💻</p>
     </section>
 
     <footer class="footer" id="footer">
       <div class="footer-left">
-        <img src="{{ asset('IMG/ITESLOGO.svg') }}" alt="ITES" class="footer-logo">
+
         <a href="{{ url('/inscription') }}" class="btn btn-footer">S'inscrire</a>
         <span class="footer-title">EN SAVOIR PLUS SUR ITES</span>
       </div>
@@ -185,6 +200,40 @@
       }
   </script>
   @endif
+  <script>
+      // Video Overlay Player logic
+      document.addEventListener('DOMContentLoaded', function() {
+          const videoWrapper = document.getElementById('videoWrapper');
+          const video = document.getElementById('presentationVideo');
+          const overlay = document.getElementById('videoOverlay');
+
+          if (videoWrapper && video && overlay) {
+              const playVideo = () => {
+                  video.play();
+                  videoWrapper.classList.add('is-playing');
+              };
+
+              overlay.addEventListener('click', playVideo);
+              videoWrapper.addEventListener('click', function(e) {
+                  if (e.target !== video) {
+                      playVideo();
+                  }
+              });
+
+              // Also handle if user uses native controls
+              video.addEventListener('play', () => {
+                  videoWrapper.classList.add('is-playing');
+              });
+              
+              video.addEventListener('pause', () => {
+                  // Optional: show overlay again on pause? 
+                  // Usually better to leave it hidden if video is already visible
+                  // But if we want to show it again:
+                  // videoWrapper.classList.remove('is-playing');
+              });
+          }
+      });
+  </script>
 </body>
 
 </html>
