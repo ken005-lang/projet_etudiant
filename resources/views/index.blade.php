@@ -129,32 +129,52 @@
       <h2>Découvrez "ITES Projet Étudiant" : La vitrine de l'innovation de l'ITES Deux-Plateaux ! <br>
 
 L'Institut des Technologies et des Spécialités (ITES) est fier de présenter sa nouvelle plateforme officielle dédiée à l'hébergement et à la valorisation des projets de ses étudiants. </h2>
-      <p>🎯 Notre mission
+      <p>Notre mission
         <br>
 Trop de projets remarquables restent invisibles après les soutenances. Avec ITES Projet Étudiant, nous voulons donner une véritable visibilité professionnelle aux réalisations de nos talents, inspirer les nouvelles promotions et renforcer la réputation d'innovation de l'ITES en Côte d'Ivoire.
         <br>
         <br>
-💡 Quels types de projets y trouve-t-on ? <br>
+ Quels types de projets y trouve-t-on ? <br>
 La plateforme regroupe les projets de fin d'études, académiques ou personnels développés par les étudiants. Vous y découvrirez des solutions innovantes dans de multiples domaines : <br> <br>
-*   Applications mobiles et web 📱 <br>
-*   Réseaux & Télécoms 📡 <br>
-*   Robotique 🤖 <br>
-*   E-santé et agriculture intelligente 🌱 <br> <br>
+*   Applications mobiles et web  <br>
+*   Réseaux & Télécoms  <br>
+*   Robotique  <br>
+*   E-santé et agriculture intelligente  <br> <br>
 Chaque fiche projet inclut des descriptions détaillées, les technologies utilisées, des démonstrations et les contacts de l'équipe. <br>
         <br>
-🤝 Une plateforme pensée pour tous : <br> <br>
-*   🎓 Pour nos étudiants (du BTS au cycle Ingénieur) : C'est l'opportunité de mettre en valeur votre savoir-faire sur votre CV et LinkedIn pour vous démarquer sur le marché du travail. <br> *Note importante : les étudiants conservent l'entière propriété intellectuelle et exclusive de leurs projets !*. <br>
-*   🏢 Pour les entreprises et recruteurs : C'est un accès direct aux talents de demain. Venez découvrir leurs compétences et contactez facilement les porteurs de projets. <br>
-*   🌟 Pour les futurs étudiants : Venez voir concrètement ce que vous serez capables de réaliser en rejoignant l'ITES ! <br>
+ Une plateforme pensée pour tous : <br> <br>
+*   Pour nos étudiants (du BTS au cycle Ingénieur) : C'est l'opportunité de mettre en valeur votre savoir-faire sur votre CV et LinkedIn pour vous démarquer sur le marché du travail. <br>   _Note importante : les étudiants conservent l'entière propriété intellectuelle et exclusive de leurs projets !. <br>
+*   Pour les entreprises et recruteurs : C'est un accès direct aux talents de demain. Venez découvrir leurs compétences et contactez facilement les porteurs de projets. <br>
+*   Pour les futurs étudiants : Venez voir concrètement ce que vous serez capables de réaliser en rejoignant l'ITES ! <br>
         <br>
-Plongez au cœur de l'innovation étudiante et venez soutenir les créateurs de demain ! 🌐💻</p>
+Plongez au cœur de l'innovation étudiante et venez soutenir les créateurs de demain ! </p>
     </section>
 
     <footer class="footer" id="footer">
       <div class="footer-left">
-
         <a href="{{ url('/inscription?mode=visiteur') }}" class="btn btn-footer">S'inscrire</a>
         <span class="footer-title">EN SAVOIR PLUS SUR ITES</span>
+        <div class="footer-contacts">
+          <h5>Contacts</h5>
+
+          <div class="footer-contact-item">
+            <img
+              src="{{ asset('ICON/whatsapp-logo-fill.svg') }}"
+              alt="WhatsApp"
+              class="footer-contact-icon"
+            >
+            <span class="footer-contact-text">+ 225 07 08 28 51 61 / 01 42 79 31 99</span>
+          </div>
+
+          <div class="footer-contact-item">
+            <img
+              src="{{ asset('ICON/paperclip-fill.svg') }}"
+              alt="Email"
+              class="footer-contact-icon"
+            >
+            <span class="footer-contact-text">nissielcape@gmail.com</span>
+          </div>
+        </div>
       </div>
       <div class="footer-social">
         <a href="https://campusites.net/index.php" aria-label="Site web" target="_blank"><img src="{{ asset('ICON/website.svg') }}" alt=""></a>
