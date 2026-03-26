@@ -18,7 +18,7 @@
         <a href="{{ url('/') }}" class="logo-block">
             <img src="{{ asset('IMG/ITESLOGO.svg') }}" alt="ITES" class="logo-img" style="border-radius: 5px;">
         </a>
-        <a href="{{ url('/inscription') }}" class="top-nav-link">INSCRIPTION</a>
+        <a href="{{ url('/inscription?mode=visiteur') }}" class="top-nav-link">INSCRIPTION</a>
     </header>
 
     <main class="login-main">
@@ -39,7 +39,7 @@
                 <form method="POST" action="{{ route('auth.login.post') }}" class="login-form" id="loginForm">
                     @csrf
                     <!-- Hidden field to track active tab (must be inside form to submit) -->
-                    <input type="hidden" name="login_mode" id="formMode" value="{{ old('login_mode', 'groupe') }}">
+                    <input type="hidden" name="login_mode" id="formMode" value="{{ old('login_mode', request()->query('mode') === 'visiteur' ? 'visiteur' : 'groupe') }}">
                     
                     <!-- Common Hidden Fields for the actual submission -->
                     <input type="hidden" id="loginUsername" name="login" value="{{ old('login') }}">

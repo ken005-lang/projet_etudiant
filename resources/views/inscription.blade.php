@@ -17,7 +17,7 @@
         <a href="{{ url('/') }}" class="logo-block">
             <img src="{{ asset('IMG/ITESLOGO.svg') }}" alt="ITES" class="logo-img" style="border-radius: 5px;">
         </a>
-        <a href="{{ url('/login') }}" class="top-nav-link">connexion</a>
+        <a href="{{ url('/login?mode=visiteur') }}" class="top-nav-link">connexion</a>
     </header>
 
     <main class="login-main">
@@ -47,7 +47,7 @@
                     </div>
 
                     <!-- Hidden field to remember the active tab after validation failure -->
-                    <input type="hidden" name="registration_mode" id="formMode" value="{{ old('registration_mode', 'groupe') }}">
+                    <input type="hidden" name="registration_mode" id="formMode" value="{{ old('registration_mode', request()->query('mode') === 'visiteur' ? 'visiteur' : 'groupe') }}">
 
                     <!-- === GROUPE FIELDS === -->
                     <div id="group-fields" class="input-group-reg">

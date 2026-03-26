@@ -87,7 +87,7 @@
       <a href="#presentation">PRESENTATION</a>
       <a href="#footer">ITES ?</a>
       <span class="nav-sep"></span>
-      <a href="{{ url('/login') }}" class="nav-connexion">connexion</a>
+      <a href="{{ url('/login?mode=visiteur') }}" class="nav-connexion">connexion</a>
     </nav>
     <button class="menu-toggle" aria-label="Menu" type="button">
       <span></span>
@@ -101,7 +101,7 @@
       <div class="hero-orange">
         <div class="hero-content">
           <h1 id="hero-title">BIENVENUE SUR LE SITE DES PROJETS ETUDIANTS D'ITES.</h1>
-          <a href="{{ url('/inscription') }}" class="btn btn-hero">S'inscrire</a>
+          <a href="{{ url('/inscription?mode=visiteur') }}" class="btn btn-hero">S'inscrire</a>
         </div>
       </div>
       <div class="hero-video">
@@ -114,7 +114,7 @@
       <div class="presentation-grid">
         <div class="presentation-text">
           <p>APPRENEZ-EN PLUS EN REGARDANT CETTE VIDEO.</p>
-          <a href="{{ url('/inscription') }}" class="btn">S'inscrire</a>
+          <a href="{{ url('/inscription?mode=visiteur') }}" class="btn">S'inscrire</a>
         </div>
         <div class="presentation-video" id="videoWrapper">
           <video id="presentationVideo" src="{{ asset('VIDEO/Video_Presentation.mp4') }}" controls class="video-presentation"></video>
@@ -153,7 +153,7 @@ Plongez au cœur de l'innovation étudiante et venez soutenir les créateurs de 
     <footer class="footer" id="footer">
       <div class="footer-left">
 
-        <a href="{{ url('/inscription') }}" class="btn btn-footer">S'inscrire</a>
+        <a href="{{ url('/inscription?mode=visiteur') }}" class="btn btn-footer">S'inscrire</a>
         <span class="footer-title">EN SAVOIR PLUS SUR ITES</span>
       </div>
       <div class="footer-social">

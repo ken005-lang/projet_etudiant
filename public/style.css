@@ -1387,7 +1387,8 @@ input::-ms-clear {
   background: #F1F5F9;
   border: none;
   border-radius: 30px;
-  padding: 0.75rem 1.5rem;
+  /* Reserve de l'espace a droite pour que le placeholder ne chevauche jamais l'icone */
+  padding: 0.75rem 3rem 0.75rem 1.5rem;
   font-size: 1rem;
   outline: none;
 }
@@ -1398,6 +1399,8 @@ input::-ms-clear {
   top: 50%;
   transform: translateY(-50%);
   opacity: 0.5;
+  z-index: 2;
+  pointer-events: none;
 }
 
 .search-icon img {
@@ -1446,6 +1449,15 @@ input::-ms-clear {
 
   .user-name {
     display: none;
+  }
+
+  .search-bar input {
+    /* Smartphone: reduire un peu l'espace droite pour garder le champ compact */
+    padding: 0.75rem 2.75rem 0.75rem 1.25rem;
+  }
+
+  .search-icon {
+    right: 0.9rem;
   }
 }
 
@@ -1525,12 +1537,38 @@ input::-ms-clear {
 }
 
 @media (max-width: 480px) {
+  .dashboard-header {
+    /* Sur smartphone: empilement pour éviter les chevauchements */
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .group-dashboard-page .header-left {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    width: 100%;
+  }
+
+  .group-dashboard-page .group-info-display {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .group-dashboard-page .group-header-actions {
+    width: 100%;
+    justify-content: center;
+    margin-top: 0.25rem;
+  }
+
   .group-label {
     max-width: 80px;
   }
   
   .group-events-label {
-    display: none; /* Hide 'Evènements' text on very small screens, keep icon/dot */
+    display: inline; /* Affiche le libellé 'Evènements' même en petit écran */
+    font-size: 0.85rem; /* Légèrement plus petit pour éviter le chevauchement */
   }
 }
 
