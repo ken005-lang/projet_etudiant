@@ -1016,9 +1016,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch('/groupe/messages/unread');
             const data = await res.json();
             if (data.success && data.unread_count > 0) {
-                if (msgNotifDot) msgNotifDot.style.display = 'block';
+                if (msgNotifDot) {
+                    msgNotifDot.style.display = 'block';
+                    msgNotifDot.classList.add('pulse');
+                }
             } else {
-                if (msgNotifDot) msgNotifDot.style.display = 'none';
+                if (msgNotifDot) {
+                    msgNotifDot.style.display = 'none';
+                    msgNotifDot.classList.remove('pulse');
+                }
             }
         } catch (e) { console.error('Error checking unread', e); }
     }

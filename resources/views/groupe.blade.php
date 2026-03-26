@@ -127,16 +127,16 @@
                                 </thead>
                                 <tbody id="membersBody">
                                     <tr>
-                                        <td><span class="badge-chef">CHEF</span> {{ $group->leader_name }}</td>
-                                        <td>{{ $group->leader_sector }}</td>
-                                        <td>{{ $group->leader_level }}</td>
+                                        <td data-label="MEMBRE"><span class="badge-chef">CHEF</span> {{ $group->leader_name }}</td>
+                                        <td data-label="FILIERE">{{ $group->leader_sector }}</td>
+                                        <td data-label="NIVEAU">{{ $group->leader_level }}</td>
                                         <td></td>
                                     </tr>
                                     @foreach($group->members as $member)
                                     <tr data-id="{{ $member->id }}">
-                                        <td><span class="badge-spacer"></span>{{ $member->name }}</td>
-                                        <td>{{ $member->sector }}</td>
-                                        <td>{{ $member->level }}</td>
+                                        <td data-label="MEMBRE"><span class="badge-spacer"></span>{{ $member->name }}</td>
+                                        <td data-label="FILIERE">{{ $member->sector }}</td>
+                                        <td data-label="NIVEAU">{{ $member->level }}</td>
                                         <td><img src="{{ asset('ICON/trash-fill.svg') }}" class="delete-member" alt="delete"></td>
                                     </tr>
                                     @endforeach

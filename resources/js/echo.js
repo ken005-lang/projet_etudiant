@@ -16,6 +16,6 @@ window.Echo = new Echo({
     wsPort: isTLS ? 443 : 80,
     wssPort: 443,
     forceTLS: isTLS,
-    enabledTransports: isTLS ? ['wss'] : ['ws'],
+    enabledTransports: ['ws', 'wss'],
     authEndpoint: '/broadcasting/auth',
 });

@@ -520,8 +520,10 @@ document.addEventListener('DOMContentLoaded', function () {
             const data = await res.json();
             if (data.success && data.unread_count > 0) {
                 notifDot.style.display = 'block';
+                notifDot.classList.add('pulse');
             } else {
                 notifDot.style.display = 'none';
+                notifDot.classList.remove('pulse');
             }
         } catch (e) { console.error('Error checking unread', e); }
     }

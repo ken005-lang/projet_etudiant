@@ -38,6 +38,7 @@ class MessageController extends Controller
 
         // Diffuser l'événement en temps réel
         try {
+            \Illuminate\Support\Facades\Log::debug('Broadcasting MessageToGroupEvent: ' . $message->id);
             broadcast(new MessageToGroupEvent($message));
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::warning('Broadcast failed on message to group: ' . $e->getMessage());
@@ -71,6 +72,7 @@ class MessageController extends Controller
         
         // Diffuser l'événement en temps réel
         try {
+            \Illuminate\Support\Facades\Log::debug('Broadcasting MessageToVisitorEvent: ' . $message->id);
             broadcast(new MessageToVisitorEvent($message));
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::warning('Broadcast failed on message to visitor: ' . $e->getMessage());
