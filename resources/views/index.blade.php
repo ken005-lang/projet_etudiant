@@ -163,7 +163,7 @@ Plongez au cœur de l'innovation étudiante et venez soutenir les créateurs de 
               alt="WhatsApp"
               class="footer-contact-icon"
             >
-            <span class="footer-contact-text">+ 225 07 08 28 51 61 / 01 42 79 31 99</span>
+            <span class="footer-contact-text">+ 225 07 08 28 51 61 (Professeur) / 01 42 79 31 99 (Etudiant)</span>
           </div>
 
           <div class="footer-contact-item">
@@ -172,7 +172,7 @@ Plongez au cœur de l'innovation étudiante et venez soutenir les créateurs de 
               alt="Email"
               class="footer-contact-icon"
             >
-            <span class="footer-contact-text">nissielcape@gmail.com</span>
+            <span class="footer-contact-text">nissielcape@gmail.com (Etudiant)</span>
           </div>
         </div>
       </div>

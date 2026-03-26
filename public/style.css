@@ -380,9 +380,14 @@ main {
 /* Footer */
 .footer {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  /* Logo/Text - Button - Social */
-  /* Top, Right/Left, Bottom */
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    "btn"
+    "title"
+    "social"
+    "contacts"
+    "copyright";
+  gap: 1.5rem;
   padding: 4rem clamp(1rem, 5vw, 4rem) 2rem;
   background: var(--black);
   color: var(--white);
@@ -390,9 +395,7 @@ main {
 }
 
 .footer-left {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  display: contents;
 }
 
 /* Footer Contacts Styling */
@@ -403,6 +406,7 @@ main {
   flex-direction: column;
   align-items: center;
   gap: 0.6rem;
+  grid-area: contacts;
 }
 
 .footer-contacts h5 {
@@ -447,23 +451,25 @@ main {
   text-transform: uppercase;
   line-height: 1;
   max-width: 12ch;
+  grid-area: title;
 }
 
 .footer .btn {
+  grid-area: btn;
   align-self: center;
   justify-self: center;
   text-align: center;
-  margin-top: -100px;
-  margin-bottom: 50px;
+  margin-top: 0;
+  margin-bottom: 0;
   background: var(--orange);
-  /* Orange button in footer */
 }
 
 .footer-social {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: 1.5rem;
   align-items: center;
+  grid-area: social;
 }
 
 .footer-social a {
@@ -516,16 +522,6 @@ main {
     height: auto;
     margin-top: -80px;
     margin-left: -19%;
-  }
-
-  .footer .btn {
-    align-self: right;
-    justify-self: right;
-    text-align: right;
-    margin-top: -100px;
-    margin-bottom: 50px;
-    background: var(--orange);
-    /* Orange button in footer */
   }
 }
 
@@ -635,19 +631,18 @@ main {
   /* Footer Responsive */
   .footer {
     grid-template-columns: 1fr;
-    gap: 2rem;
+    grid-template-areas:
+      "btn"
+      "title"
+      "social"
+      "contacts"
+      "copyright";
     text-align: center;
     padding: 3rem clamp(1rem, 5vw, 2rem) 2rem;
   }
 
-  .footer-left {
-    align-items: center;
-    order: 2;
-  }
-
   .footer-social {
     justify-content: center;
-    order: 1;
     gap: 1rem;
   }
 
@@ -2499,6 +2494,7 @@ input::-ms-clear {
 }
 
 .footer-copyright {
+  grid-area: copyright;
   grid-column: 1 / -1;
   width: 100%;
   text-align: center;
