@@ -25,25 +25,27 @@ RUN npm run build
 # ════════════════════════════════════════════════════════════════════
 # STAGE 2 — Application PHP 8.4 + Nginx + Supervisor
 # ════════════════════════════════════════════════════════════════════
-FROM php:8.4-fpm-alpine
+FROM php:8.4-fpm-bookworm
 
 # ── Installation des dépendances système ──────────────────────────
-RUN apk add --no-cache \
-    nginx \
-    supervisor \
-    bash \
-    curl \
-    git \
-    unzip \
-    libzip-dev \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
-    icu-dev \
-    oniguruma-dev \
-    postgresql-dev \
-    mysql-dev \
-    linux-headers
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        curl \
+        git \
+        unzip \
+        nginx \
+        supervisor \
+        libzip-dev \
+        libpng-dev \
+        libjpeg62-turbo-dev \
+        libfreetype6-dev \
+        libicu-dev \
+        libonig-dev \
+        libpq-dev \
+        default-libmysqlclient-dev \
+        $PHPIZE_DEPS \
+    && rm -rf /var/lib/apt/lists/*
 
 # ── Configuration et installation des extensions PHP ───────────────
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
@@ -79,7 +81,7 @@ RUN composer dump-autoload --optimize --no-dev
 COPY --from=assets /app/public/build ./public/build
 
 # ── Configuration Nginx ───────────────────────────────────────────
-COPY conf/nginx/nginx-site.conf /etc/nginx/http.d/default.conf
+COPY conf/nginx/nginx-site.conf /etc/nginx/sites-available/default
 
 # ── Configuration Supervisor ──────────────────────────────────────
 COPY conf/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
