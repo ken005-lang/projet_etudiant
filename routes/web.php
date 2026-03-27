@@ -62,6 +62,34 @@ Route::middleware('guest')->group(function () {
 // PUBLIC ROUTES
 // ---------------------------------------------------------
 
+// Diagnostic Render: bypass web middleware (sessions/cookies/csrf) to debug 500s.
+Route::get('/render-diagnose', function () {
+    return response()->json([
+        'app_env' => config('app.env'),
+        'app_debug' => (bool) config('app.debug'),
+        'app_url' => config('app.url'),
+        'app_key_present' => (bool) config('app.key'),
+        'app_key_prefix' => is_string(config('app.key')) ? str_starts_with(config('app.key'), 'base64:') : null,
+        'cipher' => config('app.cipher'),
+        'php_version' => PHP_VERSION,
+        'view_compiled' => config('view.compiled'),
+        'storage_writable' => is_writable(storage_path()),
+        'bootstrap_cache_writable' => is_writable(base_path('bootstrap/cache')),
+        'session_driver' => config('session.driver'),
+        'cache_store' => config('cache.default'),
+        'db_connection' => config('database.default'),
+        'db_host' => config('database.connections.pgsql.host'),
+        'db_database' => config('database.connections.pgsql.database'),
+    ]);
+})->withoutMiddleware([
+    \Illuminate\Cookie\Middleware\EncryptCookies::class,
+    \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+    \Illuminate\Session\Middleware\StartSession::class,
+    \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+    \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+    \Illuminate\Routing\Middleware\SubstituteBindings::class,
+]);
+
 Route::get('/', function () {
     return view('index');
 })->name('home');
