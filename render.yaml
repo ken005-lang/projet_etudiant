@@ -1,17 +1,11 @@
 # render.yaml - Blueprint Infrastructure-as-Code pour Render
 # 
 # ⚠️  IMPORTANT :
-# - Workers et Cron Jobs doivent être créés MANUELLEMENT via le Dashboard Render
-# - Le Blueprint Blueprint ne supporte pas les workers/cron avec Docker runtime
-# - Cf. https://render.com/docs/background-workers
-
-databases:
-  - name: mon-app-db
-    databaseName: laravel
-    user: laravel
-    plan: starter-plus
-    region: frankfurt
-    ipAllowList: []
+# - PostgreSQL Database doit être créée MANUELLEMENT via Dashboard Render
+# - Render a changé ses plans PostgreSQL et le Blueprint les supporte mal
+# - Redis et Web Service sont créés automatiquement par ce Blueprint
+# - Après "Apply", créez la PostgreSQL DB manuellement :
+#   Dashboard → New → PostgreSQL → Frankfurt region → Gratuit ou payant
 
 services:
   # ────────────────────────────────────────────────────────────
@@ -55,29 +49,19 @@ services:
         value: pgsql
 
       - key: DB_HOST
-        fromDatabase:
-          name: mon-app-db
-          property: host
+        value: ""  # À remplir après création manuelle de la DB
 
       - key: DB_PORT
-        fromDatabase:
-          name: mon-app-db
-          property: port
+        value: "5432"
 
       - key: DB_DATABASE
-        fromDatabase:
-          name: mon-app-db
-          property: database
+        value: laravel
 
       - key: DB_USERNAME
-        fromDatabase:
-          name: mon-app-db
-          property: user
+        value: laravel
 
       - key: DB_PASSWORD
-        fromDatabase:
-          name: mon-app-db
-          property: password
+        value: ""  # À remplir après création manuelle de la DB
 
       - key: REDIS_HOST
         fromService:
