@@ -9,7 +9,7 @@ databases:
   - name: mon-app-db
     databaseName: laravel
     user: laravel
-    plan: standard
+    plan: starter-plus
     region: frankfurt
     ipAllowList: []
 
