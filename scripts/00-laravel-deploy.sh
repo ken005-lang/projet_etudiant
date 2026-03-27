@@ -29,6 +29,9 @@ fi
 # ── 3. Optimisation Laravel ───────────────────────────────────────
 echo "⚡ Optimisation de la configuration..."
 
+# Temporairement forcer debug pour voir le vrai 500
+export APP_DEBUG=true
+
 # Force session/cache en database si le dashboard Render a un mauvais override
 # La table 'sessions' existe grâce à la migration create_sessions_table
 if [ -z "$SESSION_DRIVER" ] || [ "$SESSION_DRIVER" = "file" ]; then
