@@ -9,6 +9,9 @@ databases:
     ipAllowList: []
 
 services:
+  # ────────────────────────────────────────────────────────────
+  # REDIS KEY VALUE
+  # ────────────────────────────────────────────────────────────
   - type: keyvalue
     name: mon-app-redis
     plan: starter
@@ -16,12 +19,16 @@ services:
     maxmemoryPolicy: allkeys-lru
     ipAllowList: []
 
+  # ────────────────────────────────────────────────────────────
+  # WEB SERVICE - Application Laravel
+  # ────────────────────────────────────────────────────────────
   - type: web
     name: mon-app
     runtime: docker
     region: frankfurt
     plan: starter
     branch: main
+    buildCommand: npm install && npm run build && composer install --no-dev --optimize-autoloader
     healthCheckPath: /up
 
     envVars:
@@ -98,13 +105,15 @@ services:
       - key: MAIL_PASSWORD
         sync: false
 
+  # ────────────────────────────────────────────────────────────
+  # QUEUE WORKER - Traitement en arrière-plan
+  # ────────────────────────────────────────────────────────────
   - type: worker
     name: mon-app-worker
     runtime: docker
     region: frankfurt
     plan: starter
-    branch: main
-    dockerCommand: php artisan queue:work redis --sleep=3 --tries=3 --timeout=90 --queue=default,broadcasting,notifications,mail
+    startCommand: php artisan queue:work redis --sleep=3 --tries=3 --timeout=90 --queue=default,broadcasting,notifications,mail
 
     envVars:
       - key: APP_ENV
@@ -162,14 +171,16 @@ services:
       - key: APP_KEY
         sync: false
 
+  # ────────────────────────────────────────────────────────────
+  # CRON JOB - Laravel Scheduler
+  # ────────────────────────────────────────────────────────────
   - type: cron
     name: mon-app-scheduler
     runtime: docker
     region: frankfurt
     plan: starter
-    branch: main
     schedule: "* * * * *"
-    dockerCommand: php artisan schedule:run --no-interaction
+    startCommand: php artisan schedule:run --no-interaction
 
     envVars:
       - key: APP_ENV
