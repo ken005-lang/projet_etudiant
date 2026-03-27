@@ -4,7 +4,64 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ITES - Projets Étudiants</title>
+
+  <!-- SEO Primaire -->
+  <title>ITES Projets Étudiants - Vitrine de l'Innovation Technologique en Côte d'Ivoire</title>
+  <meta name="description" content="Découvrez les projets innovants des étudiants de l'ITES Deux-Plateaux : applications web, mobile, IA, robotique, réseaux et télécoms. Plateforme officielle de valorisation des talents étudiants.">
+  <meta name="keywords" content="ITES, projets étudiants, innovation, Côte d'Ivoire, BTS, informatique, application web, mobile, IA, robotique, télécoms, Deux-Plateaux, stage, recrutement">
+  <meta name="author" content="ITES Deux-Plateaux">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="language" content="fr">
+  <meta name="revisit-after" content="7 days">
+  <meta name="geo.region" content="CI">
+  <meta name="geo.country" content="Côte d'Ivoire">
+
+  <!-- Canonical -->
+  <link rel="canonical" href="https://projet-etudiant-1.onrender.com/">
+
+  <!-- Open Graph (Facebook, WhatsApp, LinkedIn) -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://projet-etudiant-1.onrender.com/">
+  <meta property="og:title" content="ITES Projets Étudiants - Vitrine de l'Innovation Technologique">
+  <meta property="og:description" content="Découvrez les projets innovants des étudiants de l'ITES Deux-Plateaux : applications web, mobile, IA, robotique, réseaux et télécoms.">
+  <meta property="og:image" content="https://projet-etudiant-1.onrender.com/IMG/LOGOITES.png">
+  <meta property="og:image:alt" content="Logo ITES Projets Étudiants">
+  <meta property="og:site_name" content="ITES Projets Étudiants">
+  <meta property="og:locale" content="fr_FR">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ITES Projets Étudiants - Vitrine de l'Innovation">
+  <meta name="twitter:description" content="Découvrez les projets innovants des étudiants de l'ITES Deux-Plateaux en Côte d'Ivoire.">
+  <meta name="twitter:image" content="https://projet-etudiant-1.onrender.com/IMG/LOGOITES.png">
+
+  <!-- Structured Data JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "ITES Projets Étudiants",
+    "url": "https://projet-etudiant-1.onrender.com/",
+    "description": "Plateforme officielle de valorisation des projets étudiants de l'Institut des Technologies et des Spécialités (ITES) Deux-Plateaux en Côte d'Ivoire.",
+    "inLanguage": "fr",
+    "publisher": {
+      "@type": "EducationalOrganization",
+      "name": "ITES Deux-Plateaux",
+      "url": "https://campusites.net/index.php",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "CI",
+        "addressLocality": "Abidjan"
+      }
+    },
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://projet-etudiant-1.onrender.com/?s={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+
   <link rel="stylesheet" href="{{ asset('style.css') }}?v={{ time() }}">
   <link rel="icon" type="image/png" href="{{ asset('IMG/LOGOITES.png') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">

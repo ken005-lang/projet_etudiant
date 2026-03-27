@@ -4,7 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITES - Inscription</title>
+
+    <!-- SEO Primaire -->
+    <title>ITES - Inscription Projet Étudiant</title>
+    <meta name="description" content="Inscrivez-vous sur la plateforme ITES Projets Étudiants. Rejoignez la communauté en tant que visiteur ou enregistrez votre projet étudiant.">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://projet-etudiant-1.onrender.com/inscription">
+    <meta property="og:title" content="ITES - Inscription">
+    <meta property="og:description" content="Inscrivez-vous sur la plateforme ITES Projets Étudiants.">
+    <meta property="og:image" content="https://projet-etudiant-1.onrender.com/IMG/LOGOITES.png">
+
     <link rel="stylesheet" href="{{ asset('style.css') }}">
     <link rel="icon" type="image/png" href="{{ asset('IMG/LOGOITES.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
