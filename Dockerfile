@@ -15,7 +15,7 @@ COPY package*.json ./
 RUN npm ci --frozen-lockfile
 
 COPY resources/ ./resources/
-COPY vite.config.js ./
+COPY vite.config.js postcss.config.js ./
 COPY .env.example .env
 
 RUN npm run build
