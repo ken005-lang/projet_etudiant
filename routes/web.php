@@ -105,6 +105,14 @@ Route::get('/php-debug', function () {
     ]);
 });
 
+Route::get('/render-logs', function() {
+    $logPath = storage_path('logs/laravel.log');
+    if (file_exists($logPath)) {
+        return response('<pre>' . htmlspecialchars(file_get_contents($logPath)) . '</pre>');
+    }
+    return 'Aucun log trouvé.';
+});
+
 // Authentication Views
 Route::get('/login', function () {
     return view('login');
