@@ -9,7 +9,7 @@ databases:
   - name: mon-app-db
     databaseName: laravel
     user: laravel
-    plan: starter
+    plan: standard
     region: frankfurt
     ipAllowList: []
 
@@ -32,7 +32,7 @@ services:
     runtime: docker
     region: frankfurt
     plan: starter
-    branch: main
+    branch: master
     healthCheckPath: /up
 
     envVars:
