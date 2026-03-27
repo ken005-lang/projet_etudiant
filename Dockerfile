@@ -102,7 +102,7 @@ ENV APP_DEBUG=false
 ENV LOG_CHANNEL=stderr
 ENV PHP_ERRORS_STDERR=1
 
-EXPOSE 80
+EXPOSE 10000
 
 # ── Point d'entrée ────────────────────────────────────────────────
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
