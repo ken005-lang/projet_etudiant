@@ -1,16 +1,66 @@
-.git
-.agent
-.claude
-.gemini
-node_modules
-vendor
-storage/*.key
+# .dockerignore — Fichiers exclus du build Docker pour Render
+
+# Développement
+node_modules/
+.git/
+.github/
+.idea/
+.vscode/
+*.log
+
+# Environnement local
 .env
-Dockerfile
-docker-compose.yml
-# docker/ <--- Removing this as we need its content for the build
-npm-debug.log
-yarn-debug.log
-yarn-error.log
-.phpunit.result.cache
+.env.local
+.env.*.local
+.env.testing
+
+# Tests
 tests/
+phpunit.xml
+phpunit.xml.dist
+pest.xml
+
+# Documentation
+README.md
+CHANGELOG.md
+*.md
+
+# Docker local (non nécessaire sur Render)
+docker-compose*.yml
+docker/
+Dockerfile.dev
+
+# Dépendances (réinstallées dans le container)
+vendor/
+
+# Assets sources (déjà buildés dans le Dockerfile)
+resources/js/
+resources/css/
+
+# Stockage local
+storage/app/
+storage/logs/
+storage/framework/cache/
+storage/framework/sessions/
+storage/framework/views/
+
+# Bootstrap cache (regénéré au démarrage)
+bootstrap/cache/*.php
+!bootstrap/cache/.gitignore
+
+# Fichiers temporaires
+tmp_*
+test_*.php
+tmpclaude-*
+*.txt
+cookie*
+
+# Fly.io (non utilisé sur Render)
+fly.toml
+fly/
+.fly/
+
+# Dossiers de build/cache
+node_modules/
+build/
+dist/

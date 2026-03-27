@@ -1,77 +1,104 @@
-# Build Stage: Compile Assets
-FROM node:20-alpine AS build-assets
+# Dockerfile — Optimisé pour Render.com avec PHP 8.4
+# syntax = docker/dockerfile:experimental
+
+# ── Build Arguments ────────────────────────────────────────────────
+ARG NODE_VERSION=22
+
+# ════════════════════════════════════════════════════════════════════
+# STAGE 1 — Build des assets JS/CSS avec Node.js
+# ════════════════════════════════════════════════════════════════════
+FROM node:${NODE_VERSION}-alpine AS assets
+
 WORKDIR /app
+
 COPY package*.json ./
-RUN npm install
-COPY . .
+RUN npm ci --frozen-lockfile
+
+COPY resources/ ./resources/
+COPY vite.config.js postcss.config.js tailwind.config.js* ./
+COPY .env.example .env
+
 RUN npm run build
 
-# Production Stage: PHP & Nginx
+# ════════════════════════════════════════════════════════════════════
+# STAGE 2 — Application PHP 8.4 + Nginx + Supervisor
+# ════════════════════════════════════════════════════════════════════
 FROM php:8.4-fpm-alpine
 
-# Set working directory
-WORKDIR /var/www/html
-
-# Install system dependencies
-RUN apk update && apk add --no-cache \
+# ── Installation des dépendances système ──────────────────────────
+RUN apk add --no-cache \
     nginx \
     supervisor \
+    bash \
+    curl \
+    git \
+    unzip \
+    libzip-dev \
     libpng-dev \
     libjpeg-turbo-dev \
     freetype-dev \
-    libxml2-dev \
-    zip \
-    unzip \
-    git \
-    sqlite-dev \
     icu-dev \
     oniguruma-dev \
-    libzip-dev \
+    postgresql-dev \
+    mysql-dev \
     linux-headers
 
-# Install PHP extensions
-RUN docker-php-ext-install \
-    bcmath \
-    gd \
-    intl \
-    opcache \
-    pcntl \
-    posix \
-    pdo_sqlite \
-    sockets \
-    mbstring \
-    exif \
-    zip
+# ── Configuration et installation des extensions PHP ───────────────
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) \
+        pdo_pgsql \
+        pdo_mysql \
+        mbstring \
+        bcmath \
+        gd \
+        zip \
+        intl \
+        opcache \
+        sockets \
+        pcntl
 
-# Copy project files
-COPY --chown=www-data:www-data . .
-COPY --from=build-assets /app/public/build ./public/build
+# ── Extension Redis ───────────────────────────────────────────────
+RUN pecl install redis && docker-php-ext-enable redis
 
-# Install Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-RUN composer install --no-dev --optimize-autoloader
+# ── Composer ──────────────────────────────────────────────────────
+COPY --from=composer:2.8 /usr/bin/composer /usr/bin/composer
+ENV COMPOSER_ALLOW_SUPERUSER=1
 
-# Setup storage & database
-RUN mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache database /var/log/supervisor
-RUN touch database/database.sqlite
-RUN chown -R www-data:www-data storage bootstrap/cache database /var/log/supervisor
+# ── Copy du projet ────────────────────────────────────────────────
+WORKDIR /var/www/html
 
-# Copy configurations and entrypoint
-COPY docker/nginx.conf /etc/nginx/http.d/default.conf
-COPY docker/supervisord.conf /etc/supervisord.conf
-COPY docker/php.ini /usr/local/etc/php/conf.d/app.ini
-COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-interaction --no-autoloader --prefer-dist
 
-# Fix line endings for scripts/configs (common issue on Windows hosts)
-RUN apk add --no-cache dos2unix && \
-    dos2unix /etc/supervisord.conf /etc/nginx/http.d/default.conf /usr/local/bin/entrypoint.sh && \
-    chmod +x /usr/local/bin/entrypoint.sh
+COPY . .
+RUN composer dump-autoload --optimize --no-dev
 
-# Expose ports
-EXPOSE 80 8080
+# ── Copy des assets buildés depuis le stage Node ──────────────────
+COPY --from=assets /app/public/build ./public/build
 
-# Set Entrypoint
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+# ── Configuration Nginx ───────────────────────────────────────────
+COPY conf/nginx/nginx-site.conf /etc/nginx/http.d/default.conf
 
-# Start Supervisor
-CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisord.conf"]
+# ── Configuration Supervisor ──────────────────────────────────────
+COPY conf/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# ── Script de démarrage ───────────────────────────────────────────
+COPY scripts/00-laravel-deploy.sh /var/www/html/scripts/00-laravel-deploy.sh
+RUN chmod +x /var/www/html/scripts/00-laravel-deploy.sh
+
+# ── Permissions ───────────────────────────────────────────────────
+RUN chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache \
+    && mkdir -p /var/log/supervisor \
+    && chown -R www-data:www-data /var/log/supervisor
+
+# ── Variables d'environnement Laravel ─────────────────────────────
+ENV APP_ENV=production
+ENV APP_DEBUG=false
+ENV LOG_CHANNEL=stderr
+ENV PHP_ERRORS_STDERR=1
+
+EXPOSE 80
+
+# ── Point d'entrée ────────────────────────────────────────────────
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
