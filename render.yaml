@@ -1,4 +1,9 @@
 # render.yaml - Blueprint Infrastructure-as-Code pour Render
+# 
+# ⚠️  IMPORTANT :
+# - Workers et Cron Jobs doivent être créés MANUELLEMENT via le Dashboard Render
+# - Le Blueprint Blueprint ne supporte pas les workers/cron avec Docker runtime
+# - Cf. https://render.com/docs/background-workers
 
 databases:
   - name: mon-app-db
@@ -28,7 +33,6 @@ services:
     region: frankfurt
     plan: starter
     branch: main
-    buildCommand: npm install && npm run build && composer install --no-dev --optimize-autoloader
     healthCheckPath: /up
 
     envVars:
@@ -103,122 +107,4 @@ services:
         sync: false
 
       - key: MAIL_PASSWORD
-        sync: false
-
-  # ────────────────────────────────────────────────────────────
-  # QUEUE WORKER - Traitement en arrière-plan
-  # ────────────────────────────────────────────────────────────
-  - type: worker
-    name: mon-app-worker
-    runtime: docker
-    region: frankfurt
-    plan: starter
-    startCommand: php artisan queue:work redis --sleep=3 --tries=3 --timeout=90 --queue=default,broadcasting,notifications,mail
-
-    envVars:
-      - key: APP_ENV
-        value: production
-
-      - key: APP_DEBUG
-        value: false
-
-      - key: LOG_CHANNEL
-        value: stderr
-
-      - key: DB_CONNECTION
-        value: pgsql
-
-      - key: DB_HOST
-        fromDatabase:
-          name: mon-app-db
-          property: host
-
-      - key: DB_PORT
-        fromDatabase:
-          name: mon-app-db
-          property: port
-
-      - key: DB_DATABASE
-        fromDatabase:
-          name: mon-app-db
-          property: database
-
-      - key: DB_USERNAME
-        fromDatabase:
-          name: mon-app-db
-          property: user
-
-      - key: DB_PASSWORD
-        fromDatabase:
-          name: mon-app-db
-          property: password
-
-      - key: REDIS_HOST
-        fromService:
-          name: mon-app-redis
-          type: keyvalue
-          property: host
-
-      - key: REDIS_PORT
-        fromService:
-          name: mon-app-redis
-          type: keyvalue
-          property: port
-
-      - key: QUEUE_CONNECTION
-        value: redis
-
-      - key: APP_KEY
-        sync: false
-
-  # ────────────────────────────────────────────────────────────
-  # CRON JOB - Laravel Scheduler
-  # ────────────────────────────────────────────────────────────
-  - type: cron
-    name: mon-app-scheduler
-    runtime: docker
-    region: frankfurt
-    plan: starter
-    schedule: "* * * * *"
-    startCommand: php artisan schedule:run --no-interaction
-
-    envVars:
-      - key: APP_ENV
-        value: production
-
-      - key: APP_DEBUG
-        value: false
-
-      - key: LOG_CHANNEL
-        value: stderr
-
-      - key: DB_CONNECTION
-        value: pgsql
-
-      - key: DB_HOST
-        fromDatabase:
-          name: mon-app-db
-          property: host
-
-      - key: DB_PORT
-        fromDatabase:
-          name: mon-app-db
-          property: port
-
-      - key: DB_DATABASE
-        fromDatabase:
-          name: mon-app-db
-          property: database
-
-      - key: DB_USERNAME
-        fromDatabase:
-          name: mon-app-db
-          property: user
-
-      - key: DB_PASSWORD
-        fromDatabase:
-          name: mon-app-db
-          property: password
-
-      - key: APP_KEY
         sync: false
