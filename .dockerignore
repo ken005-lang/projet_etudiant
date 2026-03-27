@@ -33,9 +33,8 @@ Dockerfile.dev
 # Dépendances (réinstallées dans le container)
 vendor/
 
-# Assets sources (déjà buildés dans le Dockerfile)
-resources/js/
-resources/css/
+# Assets sources (nécessaires au build Vite dans le Dockerfile)
+# NE PAS ignorer resources/js et resources/css
 
 # Stockage local
 storage/app/
