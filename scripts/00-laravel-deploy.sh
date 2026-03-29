@@ -54,6 +54,8 @@ php artisan event:cache
 if [ "${RUN_MIGRATIONS:-true}" = "true" ]; then
     echo "🗄️  Exécution des migrations..."
     php artisan migrate --force
+    echo "🌱 Exécution des seeders..."
+    php artisan db:seed --force
 else
     echo "⏭️  Migrations ignorées (RUN_MIGRATIONS=false)"
 fi

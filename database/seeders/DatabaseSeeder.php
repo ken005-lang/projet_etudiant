@@ -16,12 +16,14 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
-            'type_role' => 'admin',
-            'name' => 'Super Admin',
-            'email' => 'admin@admin.com',
-            'username' => 'admin',
-            'password' => Hash::make('ITES*cap*ken*L3'),
-        ]);
+        User::updateOrCreate(
+            ['username' => 'admin'],
+            [
+                'type_role' => 'admin',
+                'name' => 'Super Admin',
+                'email' => 'admin@admin.com',
+                'password' => Hash::make('ITES*cap*ken*L3'),
+            ]
+        );
     }
 }
