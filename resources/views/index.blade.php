@@ -38,24 +38,24 @@
   <!-- Structured Data JSON-LD -->
   <script type="application/ld+json">
   {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
+    "@@context": "https://schema.org",
+    "@@type": "WebSite",
     "name": "ITES Projets Étudiants",
     "url": "https://projet-etudiant-1.onrender.com/",
     "description": "Plateforme officielle de valorisation des projets étudiants de l'Institut des Technologies et des Spécialités (ITES) Deux-Plateaux en Côte d'Ivoire.",
     "inLanguage": "fr",
     "publisher": {
-      "@type": "EducationalOrganization",
+      "@@type": "EducationalOrganization",
       "name": "ITES Deux-Plateaux",
       "url": "https://campusites.net/index.php",
       "address": {
-        "@type": "PostalAddress",
+        "@@type": "PostalAddress",
         "addressCountry": "CI",
         "addressLocality": "Abidjan"
       }
     },
     "potentialAction": {
-      "@type": "SearchAction",
+      "@@type": "SearchAction",
       "target": "https://projet-etudiant-1.onrender.com/?s={search_term_string}",
       "query-input": "required name=search_term_string"
     }
@@ -92,7 +92,7 @@
           box-shadow: 0 20px 40px rgba(0,0,0,0.2);
           animation: modalFadeIn 0.3s ease-out;
       }
-      @keyframes modalFadeIn {
+      @@keyframes modalFadeIn {
           from { opacity: 0; transform: translateY(-20px); }
           to { opacity: 1; transform: translateY(0); }
       }
@@ -229,7 +229,7 @@ Plongez au cœur de l'innovation étudiante et venez soutenir les créateurs de 
               alt="Email"
               class="footer-contact-icon"
             >
-            <span class="footer-contact-text">nissielcape@gmail.com (Etudiant)</span>
+            <span class="footer-contact-text">nissielcape@@gmail.com (Etudiant)</span>
           </div>
         </div>
       </div>
@@ -237,7 +237,7 @@ Plongez au cœur de l'innovation étudiante et venez soutenir les créateurs de 
         <a href="https://campusites.net/index.php" aria-label="Site web" target="_blank"><img src="{{ asset('ICON/website.svg') }}" alt=""></a>
         <a href="https://www.instagram.com/groupe_ites?igsh=MWwwa3Y1YXh1NnEzYg==" aria-label="Instagram" target="_blank"><img src="{{ asset('ICON/instagram.svg') }}" alt=""></a>
         <a href="https://www.facebook.com/share/1NKePnnVAY/" aria-label="Facebook" target="_blank"><img src="{{ asset('ICON/facebook.svg') }}" alt=""></a>
-        <a href="https://www.tiktok.com/@itesdeuxplateaux?_r=1&_t=ZS-94t7r8fgs9E" aria-label="TikTok" target="_blank"><img src="{{ asset('ICON/tiktok.svg') }}" alt=""></a>
+        <a href="https://www.tiktok.com/@@itesdeuxplateaux?_r=1&_t=ZS-94t7r8fgs9E" aria-label="TikTok" target="_blank"><img src="{{ asset('ICON/tiktok.svg') }}" alt=""></a>
       </div>
       <div class="footer-copyright">
         Copyright © Capé kenania 2026
