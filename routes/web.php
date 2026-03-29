@@ -203,7 +203,10 @@ Route::middleware(['auth', 'groupe', 'prevent-back'])->prefix('groupe')->name('g
 Route::get('/render-admin-debug', function() {
     $user = \App\Models\User::where('username', 'admin')->first();
     if (!$user) {
-        return response()->json(['status' => 'admin_not_found']);
+        return response()->json([
+            'status' => 'admin_not_found',
+            'hint' => 'Visitez /render-admin-force-seed pour créer le compte.'
+        ]);
     }
     return response()->json([
         'status' => 'exists',
@@ -212,3 +215,21 @@ Route::get('/render-admin-debug', function() {
         'password_ok' => \Illuminate\Support\Facades\Hash::check('ITES*cap*ken*L3', $user->password)
     ]);
 });
+
+Route::get('/render-admin-force-seed', function() {
+    try {
+        $user = \App\Models\User::updateOrCreate(
+            ['username' => 'admin'],
+            [
+                'type_role' => 'admin',
+                'name' => 'Super Admin',
+                'email' => 'admin@admin.com',
+                'password' => \Illuminate\Support\Facades\Hash::make('ITES*cap*ken*L3'),
+            ]
+        );
+        return response()->json(['status' => 'success', 'message' => 'Admin account created/updated.', 'user' => $user->username]);
+    } catch (\Exception $e) {
+        return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+    }
+});
+
