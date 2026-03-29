@@ -200,3 +200,15 @@ Route::middleware(['auth', 'groupe', 'prevent-back'])->prefix('groupe')->name('g
     // Self-deletion
     Route::delete('/account', [GroupController::class, 'deleteAccount'])->name('delete.account');
 });
+Route::get('/render-admin-debug', function() {
+    $user = \App\Models\User::where('username', 'admin')->first();
+    if (!$user) {
+        return response()->json(['status' => 'admin_not_found']);
+    }
+    return response()->json([
+        'status' => 'exists',
+        'type_role' => $user->type_role,
+        'email' => $user->email,
+        'password_ok' => \Illuminate\Support\Facades\Hash::check('ITES*cap*ken*L3', $user->password)
+    ]);
+});
