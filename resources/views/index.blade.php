@@ -229,7 +229,7 @@ Plongez au cœur de l'innovation étudiante et venez soutenir les créateurs de 
               alt="Email"
               class="footer-contact-icon"
             >
-            <span class="footer-contact-text">nissielcape@@gmail.com (Etudiant)</span>
+            <span class="footer-contact-text">nissielcape@gmail.com (Etudiant)</span>
           </div>
         </div>
       </div>
