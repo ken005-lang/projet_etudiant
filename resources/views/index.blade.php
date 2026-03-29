@@ -247,7 +247,7 @@ Plongez au cœur de l'innovation étudiante et venez soutenir les créateurs de 
 
   <script src="{{ asset('JS/index.js') }}"></script>
   
-  @if(session('identity_recovery_success'))
+  <?php if(session('identity_recovery_success')): ?>
   <!-- Success Modal -->
   <div class="modal-overlay" id="successModal">
       <div class="success-modal">
@@ -276,7 +276,7 @@ Plongez au cœur de l'innovation étudiante et venez soutenir les créateurs de 
           }
       }
   </script>
-  @endif
+  <?php endif; ?>
   <script>
       // Video Overlay Player logic
       document.addEventListener('DOMContentLoaded', function() {
