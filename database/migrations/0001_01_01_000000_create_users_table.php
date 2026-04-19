@@ -12,12 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->enum('type_role', ['admin', 'groupe', 'visiteur'])->default('visiteur');
+            $table->uuid('id')->primary();
             $table->string('name');
-            $table->string('email')->nullable()->unique();
-            $table->string('username')->nullable()->unique(); // For group access code
-            $table->string('password')->nullable();
+            $table->string('email')->unique();
+            $table->string('password');
+            $table->enum('plan', ['free', 'pro'])->default('free');
+            $table->timestamp('plan_expires')->nullable();
+            $table->string('fcm_token')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
             $table->timestamps();

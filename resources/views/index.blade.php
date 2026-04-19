@@ -209,27 +209,28 @@ Plongez au cœur de l'innovation étudiante et venez soutenir les créateurs de 
 
     <footer class="footer" id="footer">
       <div class="footer-left">
+
         <a href="{{ url('/inscription?mode=visiteur') }}" class="btn btn-footer">S'inscrire</a>
         <span class="footer-title">EN SAVOIR PLUS SUR ITES</span>
-        <div class="footer-contacts">
-          <h5>Contacts</h5>
+        <div class="footer-contacts" style="color: var(--orange-light); margin-top: 1rem; display:flex; flex-direction:column; align-items:center; gap: 0.6rem;">
+          <h5 style="margin: 0; font-size: 1.1rem; font-weight: 800; letter-spacing: 0.2px; color: var(--orange-light);">Contacts</h5>
 
-          <div class="footer-contact-item">
+          <div style="display:flex; align-items:center; gap: 0.65rem;">
             <img
               src="{{ asset('ICON/whatsapp-logo-fill.svg') }}"
               alt="WhatsApp"
-              class="footer-contact-icon"
+              style="width: 18px; height: 18px; filter: invert(26%) sepia(98%) saturate(3475%) hue-rotate(15deg) brightness(95%) contrast(108%);"
             >
-            <span class="footer-contact-text">+ 225 07 08 28 51 61 (Professeur) / 01 42 79 31 99 (Etudiant)</span>
+            <span style="font-weight: 700; color: var(--orange-light); font-size: 1rem;">+ 225 07 08 28 51 61 / 01 42 79 31 99</span>
           </div>
 
-          <div class="footer-contact-item">
+          <div style="display:flex; align-items:center; gap: 0.65rem;">
             <img
               src="{{ asset('ICON/paperclip-fill.svg') }}"
               alt="Email"
-              class="footer-contact-icon"
+              style="width: 18px; height: 18px; filter: invert(26%) sepia(98%) saturate(3475%) hue-rotate(15deg) brightness(95%) contrast(108%);"
             >
-            <span class="footer-contact-text">nissielcape@gmail.com (Etudiant)</span>
+            <span style="font-weight: 700; color: var(--orange-light); font-size: 1rem;">nissielcape@gmail.com</span>
           </div>
         </div>
       </div>

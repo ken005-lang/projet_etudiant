@@ -380,14 +380,9 @@ main {
 /* Footer */
 .footer {
   display: grid;
-  grid-template-columns: 1fr;
-  grid-template-areas:
-    "btn"
-    "title"
-    "social"
-    "contacts"
-    "copyright";
-  gap: 1.5rem;
+  grid-template-columns: 1fr auto 1fr;
+  /* Logo/Text - Button - Social */
+  /* Top, Right/Left, Bottom */
   padding: 4rem clamp(1rem, 5vw, 4rem) 2rem;
   background: var(--black);
   color: var(--white);
@@ -395,44 +390,9 @@ main {
 }
 
 .footer-left {
-  display: contents;
-}
-
-/* Footer Contacts Styling */
-.footer-contacts {
-  color: var(--orange-light);
-  margin-top: 1rem;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0.6rem;
-  grid-area: contacts;
-}
-
-.footer-contacts h5 {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 800;
-  letter-spacing: 0.2px;
-  color: var(--orange-light);
-}
-
-.footer-contact-item {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-}
-
-.footer-contact-icon {
-  width: 18px;
-  height: 18px;
-  filter: invert(26%) sepia(98%) saturate(3475%) hue-rotate(15deg) brightness(95%) contrast(108%);
-}
-
-.footer-contact-text {
-  font-weight: 700;
-  color: var(--orange-light);
-  font-size: 1rem;
+  gap: 1rem;
 }
 
 /* Actually image shows small logo left bottom? No, image: "ITES" logo bottom left corner. */
@@ -451,25 +411,23 @@ main {
   text-transform: uppercase;
   line-height: 1;
   max-width: 12ch;
-  grid-area: title;
 }
 
 .footer .btn {
-  grid-area: btn;
   align-self: center;
   justify-self: center;
   text-align: center;
-  margin-top: 0;
-  margin-bottom: 0;
+  margin-top: -100px;
+  margin-bottom: 50px;
   background: var(--orange);
+  /* Orange button in footer */
 }
 
 .footer-social {
   display: flex;
-  justify-content: flex-start;
+  justify-content: flex-end;
   gap: 1.5rem;
   align-items: center;
-  grid-area: social;
 }
 
 .footer-social a {
@@ -523,6 +481,16 @@ main {
     margin-top: -80px;
     margin-left: -19%;
   }
+
+  .footer .btn {
+    align-self: right;
+    justify-self: right;
+    text-align: right;
+    margin-top: -100px;
+    margin-bottom: 50px;
+    background: var(--orange);
+    /* Orange button in footer */
+  }
 }
 
 /* Mobile */
@@ -569,13 +537,12 @@ main {
   .hero {
     flex-direction: column;
     min-height: auto;
-    height: auto;
   }
 
   .hero-orange {
     width: 100%;
     clip-path: none;
-    padding: 3rem 1.5rem;
+    padding: 4rem 2rem;
     border-radius: 0 0 50px 50px;
     /* Curve at bottom for mobile stack */
   }
@@ -586,107 +553,29 @@ main {
   }
 
   .hero-video {
-    min-height: 280px;
-  }
-
-  .hero-orange h1 {
-    font-size: 1.5rem;
-    height: auto;
-    margin-bottom: 2rem;
-  }
-
-  .hero-content .btn-hero {
-    position: static;
-    margin-top: 1rem;
-  }
-
-  /* Presentation Responsive */
-  .presentation {
-    padding: 2rem 1rem;
-  }
-
-  .presentation-grid {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
-
-  .presentation-text p {
-    font-size: 1.3rem;
-  }
-
-  /* Content Text Responsive */
-  .content-text {
-    padding: 2rem 1rem;
-    margin: 0 auto 2rem auto;
-  }
-
-  .content-text h2 {
-    font-size: 1.1rem;
-  }
-
-  .content-text p {
-    font-size: 0.9rem;
+    min-height: 300px;
   }
 
   /* Footer Responsive */
   .footer {
     grid-template-columns: 1fr;
-    grid-template-areas:
-      "btn"
-      "title"
-      "social"
-      "contacts"
-      "copyright";
+    gap: 3rem;
     text-align: center;
-    padding: 3rem clamp(1rem, 5vw, 2rem) 2rem;
+  }
+
+  .footer-left {
+    align-items: center;
   }
 
   .footer-social {
     justify-content: center;
-    gap: 1rem;
-  }
-
-  .footer-social a {
-    width: 40px;
-    height: 40px;
-  }
-
-  .footer-contacts {
-    align-items: center;
-  }
-
-  .footer-contact-item {
-    flex-direction: row;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .footer-contact-text {
-    font-size: 0.85rem;
-    text-align: left;
-  }
-
-  .footer-title {
-    font-size: 1.3rem;
-    margin: 1rem 0;
-    max-width: 100%;
-  }
-
-  .footer .btn {
-    margin: 0;
-    width: 100%;
-    max-width: 250px;
   }
 
   .footer-logo {
-    width: 45px;
+    width: 50px;
     height: auto;
-    margin-top: 0;
-    margin-left: 0;
-  }
-
-  main {
-    margin-top: 70px;
+    margin-top: -80px;
+    margin-left: -100%;
   }
 }
 
@@ -2494,7 +2383,6 @@ input::-ms-clear {
 }
 
 .footer-copyright {
-  grid-area: copyright;
   grid-column: 1 / -1;
   width: 100%;
   text-align: center;
